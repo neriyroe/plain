@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     10/05/2013,
- * Revision 11/09/2013,
+ * Revision 11/11/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -13,15 +13,18 @@
 extern "C" {
 #endif
 
-/* Mocosel Application Programming Interface. */
 #include "Mocosel.h"
-
-/* Framework. */
 #include "Framework/Host/Manifest.h"
-#include "Framework/Host/Version.h"
 #include "Framework/Object.h"
-#include "Framework/Run.h"
-#include "Framework/Finalize.h"
+
+/* Frees all memory occupied by <object>. */
+void MOCOSEL_FINALIZE(struct MOCOSEL_OBJECT* object);
+
+/* Compiles and evaluates <segment>. Notice: <object> will be modified, <segment> will be copied. */ 
+MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(struct MOCOSEL_MANIFEST* __restrict manifest, struct MOCOSEL_OBJECT* __restrict object, struct MOCOSEL_SEGMENT* __restrict segment);
+
+/* Returns Mocosel version. Other version-specific information will be stored in <manifest> if given. */
+MOCOSEL_WORD_DOUBLE MOCOSEL_VERSION(struct MOCOSEL_MANIFEST* manifest);
 
 /* C++. */
 #ifdef __cplusplus
