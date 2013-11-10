@@ -1,0 +1,30 @@
+TOPIC
+    List.
+
+TYPE
+    <Value>.
+
+CATEGORY
+    <Language>.
+
+DEPENDENCIES
+    <Statement>.
+
+USAGE
+    {<Statement>[; <Statement>]*}.
+
+REMARKS
+    <Statement> as defined in ./Statement.
+
+    Statements shall be separated (linked) by semicolons. Lists shall be passed
+    by arguments and unlike nodes, lists shall not be dereferenced. Thus, list
+    shall be handled directly by that statement which the list is passed to. 
+
+AUTHOR
+    Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
+
+DATE
+    03/11/2013.
+
+REVISION
+    05/11/2013.

@@ -1,0 +1,27 @@
+TOPIC
+    Map.
+
+TYPE
+    <Node>.
+
+CATEGORY
+    <Language>.
+
+DEPENDENCIES
+    <Function>,
+    <Array>.
+
+USAGE
+    map <Function> to <Array>.
+
+REMARKS
+    New <Array> of transformed elements shall be returned.
+
+AUTHOR
+    Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
+
+DATE
+    04/21/2013.
+
+REVISION
+    05/11/2013.

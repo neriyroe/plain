@@ -1,0 +1,27 @@
+TOPIC
+    Keyword.
+
+TYPE
+    None.
+
+CATEGORY
+    <Language>.
+
+DEPENDENCIES
+    None.
+
+USAGE
+    TBD.
+
+REMARKS
+    Keyword shall be any combination of printable ASCII characters that do not
+    serve any special purpose.
+
+AUTHOR
+    Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
+
+DATE
+    03/11/2013.
+
+REVISION
+    05/11/2013.

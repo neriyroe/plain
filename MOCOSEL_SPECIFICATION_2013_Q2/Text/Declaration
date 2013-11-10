@@ -1,0 +1,27 @@
+TOPIC
+    Declaration.
+
+TYPE
+    <Statement>.
+
+CATEGORY
+    <Language>.
+
+DEPENDENCIES
+    <String>,
+    <Value>.
+
+USAGE
+    let <String> <- <Value>.
+
+REMARKS
+    <String> must not be declared or defined in current scope.
+
+AUTHOR
+    Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
+
+DATE
+    03/11/2013.
+
+REVISION
+    05/11/2013.

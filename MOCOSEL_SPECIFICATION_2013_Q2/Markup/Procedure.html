@@ -1,0 +1,41 @@
+<html><head><title>Procedure</title></head><body><pre><b>TOPIC</b>
+    Procedure.
+
+<b>TYPE</b>
+    <a href="Node.html">&lt;Node&gt;</a>.
+
+<b>CATEGORY</b>
+    <a href="Language.html">&lt;Language&gt;</a>.
+
+<b>DEPENDENCIES</b>
+    <a href="List.html">&lt;List&gt;</a>,
+    <a href="Value.html">&lt;Value&gt;</a>,
+    <a href="String.html">&lt;String&gt;</a>,
+    <a href="Keyword.html">&lt;Keyword&gt;</a>,
+    <a href="Array.html">&lt;Array&gt;</a>.
+
+<b>USAGE</b>
+    procedure [with <a href="Value.html">&lt;Value&gt;</a>*]: <a href="List.html">&lt;List&gt;</a>.
+
+<b>REMARKS</b>
+    <a href="List.html">&lt;List&gt;</a> as defined in <a href="List.html">./List</a>.
+
+    Procedure shall only return <a href="List.html">&lt;List&gt;</a> without making any modifications to it.
+    Unlike functions, procedures shall not return any values or make any use of
+    argument declarations. Procedures shall be allowed to make modifications to
+    definitions in any scope.
+
+    <a href="Value.html">&lt;Value&gt;</a> shall be <a href="String.html">&lt;String&gt;</a> or <a href="Keyword.html">&lt;Keyword&gt;</a>. Procedure shall not be limited to
+    any number of argument declarations. Arguments shall be immutable, declared
+    in procedure scope. `...` shall be reserved and defined as ordered <a href="Array.html">&lt;Array&gt;</a>
+    of unnamed (indexed) arguments.
+
+<b>AUTHOR</b>
+    Nerijus Ramanauskas &lt;nerijus.ramanauskas@mocosel.org&gt;.
+
+<b>DATE</b>
+    03/11/2013.
+
+<b>REVISION</b>
+    05/11/2013.
+</pre></body></html>

@@ -1,0 +1,28 @@
+TOPIC
+    Zip.
+
+TYPE
+    <Node>.
+
+CATEGORY
+    <Language>.
+
+DEPENDENCIES
+    <Function>,
+    <Array>.
+
+USAGE
+    zip <Array>, <Array>[, <Array>]*.
+
+REMARKS
+    Zip shall merge together the values of the <Array>s with the values at the
+    corresponding position.
+
+AUTHOR
+    Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
+
+DATE
+    04/21/2013.
+
+REVISION
+    05/11/2013.

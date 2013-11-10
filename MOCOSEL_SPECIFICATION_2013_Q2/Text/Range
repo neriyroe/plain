@@ -1,0 +1,29 @@
+TOPIC
+    Range.
+
+TYPE
+    <Node>.
+
+CATEGORY
+    <Language>.
+
+DEPENDENCIES
+    <Node>,
+    <Array>,
+    <Value>.
+
+USAGE
+    from <Value> to <Value> [by <Value>].
+
+REMARKS
+    <Array> of numbers shall be returned. Step (defined by `by`) shall default
+    to 1.
+
+AUTHOR
+    Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
+
+DATE
+    04/21/2013.
+
+REVISION
+    05/11/2013.

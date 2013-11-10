@@ -1,0 +1,50 @@
+TOPIC
+    Language.
+
+TYPE
+    None.
+
+CATEGORY
+    <Index>.
+
+DEPENDENCIES
+    <Apply>,
+    <Array>,
+    <Boolean>,
+    <Comment>,
+    <Declaration>,
+    <Definition>,
+    <Do>,
+    <Filter>,
+    <Fold>,
+    <Function>,
+    <If>,
+    <Integer>,
+    <Keyword>,
+    <List>,
+    <Map>,
+    <Nil>,
+    <Node>,
+    <Procedure>,
+    <Range>,
+    <Real>,
+    <Return>,
+    <Statement>,
+    <String>,
+    <Target>,
+    <Value>,
+    <Zip>.
+
+USAGE
+
+REMARKS
+    Mocosel Programming Language Core Specification 2013 Q2, as of 2013 April 21.
+
+AUTHOR
+    Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
+
+DATE
+    03/12/2013.
+
+REVISION
+    05/11/2013.

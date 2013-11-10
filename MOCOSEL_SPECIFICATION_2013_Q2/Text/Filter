@@ -1,0 +1,28 @@
+TOPIC
+    Filter.
+
+TYPE
+    <Node>.
+
+CATEGORY
+    <Language>.
+
+DEPENDENCIES
+    <Function>,
+    <Array>.
+
+USAGE
+    filter <Array> using <Function>.
+
+REMARKS
+    Filter shall return a new <Array> of elements for which the predicate given
+    by <Function> returns a positive <Boolean> value.
+
+AUTHOR
+    Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
+
+DATE
+    04/21/2013.
+
+REVISION
+    05/11/2013.

@@ -1,0 +1,30 @@
+TOPIC
+    Apply.
+
+TYPE
+    <Node>.
+
+CATEGORY
+    <Language>.
+
+DEPENDENCIES
+    <Value>,
+    <Array>,
+    <Function>,
+    <Procedure>.
+
+USAGE
+    apply <Function> to <Value>.
+
+REMARKS
+    The statement apply shall invoke <Procedure> or <Function> given by <Value>
+    with arguments given by <Array>.
+
+AUTHOR
+    Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
+
+DATE
+    04/07/2013.
+
+REVISION
+    05/11/2013.

@@ -1,0 +1,27 @@
+TOPIC
+    Definition.
+
+TYPE
+    <Statement>.
+
+CATEGORY
+    <Language>.
+
+DEPENDENCIES
+    <Keyword>,
+    <Value>.
+
+USAGE
+    <Keyword> <- <Value>.
+
+REMARKS
+    <Keyword> must not be declared in current scope.
+
+AUTHOR
+    Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
+
+DATE
+    03/11/2013.
+
+REVISION
+    05/11/2013.

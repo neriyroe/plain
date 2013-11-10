@@ -1,0 +1,27 @@
+TOPIC
+    Target.
+
+TYPE
+    <List>.
+
+CATEGORY
+    <Language>.
+
+DEPENDENCIES
+    <Statement>.
+
+USAGE
+    <Statement> -> <Statement>.
+
+REMARKS
+    Target is a list passed to <Function> or <Procedure>. By default, all
+    statements are passed to <Do>.
+
+AUTHOR
+    Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
+
+DATE
+    04/14/2013.
+
+REVISION
+    05/11/2013.

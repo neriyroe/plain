@@ -1,0 +1,33 @@
+TOPIC
+    Node.
+
+TYPE
+    <Value>.
+
+CATEGORY
+    <Language>.
+
+DEPENDENCIES
+    <Statement>,
+    <Keyword>,
+    <Value>.
+
+USAGE
+    1) [[<Statement>]],
+    2) <Keyword>.
+
+REMARKS
+    <Statement> as defined in ./Statement. Nodes shall be passed by arguments.
+
+    1) <Statement> must be defined as <Function> that returns <Value>.
+    2) <Keyword> shall be defined as <Value>. <Keyword> shall not be
+    dereferenced.
+
+AUTHOR
+    Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
+
+DATE
+    03/11/2013.
+
+REVISION
+    05/11/2013.

@@ -1,0 +1,30 @@
+TOPIC
+    If.
+
+TYPE
+    <Node>.
+
+CATEGORY
+    <Language>.
+
+DEPENDENCIES
+    <Value>.
+
+USAGE
+    if <Value> then <Value> else <Value>.
+
+REMARKS
+    The keywords then and else shall not be omitted.
+
+    The conditional statement if shall succeed or fail. In case of failure,
+    <Value> on the right side of the statement shall be returned, <Value> on
+    the left otherwise.
+
+AUTHOR
+    Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
+
+DATE
+    03/23/2013.
+
+REVISION
+    05/11/2013.

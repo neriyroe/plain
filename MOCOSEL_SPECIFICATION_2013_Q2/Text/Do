@@ -1,0 +1,30 @@
+TOPIC
+    Do.
+
+TYPE
+    <Statement>.
+
+CATEGORY
+    <Language>.
+
+DEPENDENCIES
+    <String>,
+    <List>.
+
+USAGE
+    1) do <String>[, <String>[, ...]],
+    2) do <List>[, <List>[, ...]].
+
+REMARKS
+    The statement do shall
+        1) concatenate, interpret and evaluate,
+        2) evaluate each <List>.
+
+AUTHOR
+    Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
+
+DATE
+    03/24/2013.
+
+REVISION
+    05/11/2013.

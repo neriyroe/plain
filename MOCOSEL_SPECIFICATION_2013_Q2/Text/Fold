@@ -1,0 +1,28 @@
+TOPIC
+    Fold.
+
+TYPE
+    <Node>.
+
+CATEGORY
+    <Language>.
+
+DEPENDENCIES
+    <Function>,
+    <Array>.
+
+USAGE
+    fold <Array> using <Function>.
+
+REMARKS
+    Fold shall accumulate elements of <Array> using predicate given by
+    <Function>, building up a return value.
+
+AUTHOR
+    Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
+
+DATE
+    04/21/2013.
+
+REVISION
+    05/11/2013.
