@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 10/16/2013,
+ * Revision 11/11/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -21,8 +21,10 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST    * __restrict    node
     MOCOSEL_ASSERT(segment->from != NULL);
     MOCOSEL_ASSERT(segment->to != segment->from);
     MOCOSEL_ASSERT(segment->to != NULL);
+    if(node != NULL) {
+        memset(node, 0, sizeof(struct MOCOSEL_LIST));
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */
-    if(node == NULL || pattern == NULL || segment == NULL) {
+    } else if(pattern == NULL || segment == NULL) {
         return MOCOSEL_ERROR_SYSTEM_WRONG_DATA;
     }
     /* Range. */
