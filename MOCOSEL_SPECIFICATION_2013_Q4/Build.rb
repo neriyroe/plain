@@ -2,7 +2,7 @@
 #
 # Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
 # Date     03/16/2013,
-# Revision 10/19/2013,
+# Revision 11/10/2013,
 #
 # Copyright 2013 Mocosel.org.
 #
@@ -13,7 +13,7 @@ require 'cgi'
 if ARGV.length < 2 or ARGV[0].empty? or ARGV[1].empty? or ARGV[0] == ARGV[1] then
     puts "Usage: ./Build.rb <Source> <Destination>."
 elsif not File.exists?(ARGV[0]) or not File.exists?(ARGV[1])
-    puts "Error: <Source> or <Destination> are not accessible."
+    puts "Error: <Source> or <Destination> is not accessible."
 else
     Dir.entries(ARGV[0]).each do |entry|
         if entry != '.' and entry != '..'
