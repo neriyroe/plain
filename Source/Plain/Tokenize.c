@@ -21,10 +21,8 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST    * __restrict    node
     MOCOSEL_ASSERT(segment->from != NULL);
     MOCOSEL_ASSERT(segment->to != segment->from);
     MOCOSEL_ASSERT(segment->to != NULL);
-    if(node != NULL) {
-        memset(node, 0, sizeof(struct MOCOSEL_LIST));
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */
-    } else if(pattern == NULL || segment == NULL) {
+    if(node == NULL || pattern == NULL || segment == NULL) {
         return MOCOSEL_ERROR_SYSTEM_WRONG_DATA;
     }
     /* Range. */

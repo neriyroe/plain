@@ -12,9 +12,7 @@
 void PLAIN_FETCH(const char* __restrict identifier, struct MOCOSEL_SEGMENT* __restrict segment) {
     MOCOSEL_ASSERT(identifier != NULL);
     MOCOSEL_ASSERT(segment != NULL);
-    if(segment != NULL) {
-        memset(segment, 0, sizeof(struct MOCOSEL_SEGMENT));
-    } else if(identifier == NULL) {
+    if(identifier == NULL || segment == NULL) {
         return;
     }
     FILE* file = fopen(identifier, "rb");
@@ -27,14 +25,12 @@ void PLAIN_FETCH(const char* __restrict identifier, struct MOCOSEL_SEGMENT* __re
     long int length = ftell(file);
     if(length > 0) {
         segment->from = (MOCOSEL_BYTE*)MOCOSEL_RESIZE(NULL, (MOCOSEL_WORD_DOUBLE)length, 0);
-        segment->to = segment->from + length + 1;
+        segment->to = segment->from + length;
         if(segment->from == NULL) {
-            printf("System error: cannot allocate %ld bytes of memory.\n", length + 1);
+            printf("System error: cannot allocate %ld bytes of memory.\n", length);
         } else {
             fseek(file, 0, SEEK_SET);
-            if(fread(segment->from, (size_t)length, 1, file) == length) {
-                segment->from[length] = 0;
-            } else {
+            if(fread(segment->from, length, 1, file) != 1) {
                 printf("System error: failed reading file %s.\n", identifier);
             }
         }

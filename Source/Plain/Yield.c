@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/11/2013,
- * Revision 10/16/2013,
+ * Revision 11/12/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -18,7 +18,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_YIELD(struct MOCOSEL_LIST* __restrict node, struct M
     }
     MOCOSEL_BYTE* from = node->layout.from;
     MOCOSEL_BYTE* to = node->layout.to;
-    while(from != to) {
+    for(; from != to; from += sizeof(struct MOCOSEL_VALUE)) {
         struct MOCOSEL_VALUE* source = (struct MOCOSEL_VALUE*)from;
         if(source->type == MOCOSEL_TYPE_LIST) {
             struct MOCOSEL_LIST* list = (struct MOCOSEL_LIST*)source->data;
@@ -38,7 +38,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_YIELD(struct MOCOSEL_LIST* __restrict node, struct M
                 /* Primitive. */
                 } else {
                     MOCOSEL_WORD_DOUBLE distance = set->to - set->from;
-                    MOCOSEL_WORD_DOUBLE number = distance + value.stride + sizeof(struct MOCOSEL_VALUE);
+                    MOCOSEL_WORD_DOUBLE number = distance + value.length + sizeof(struct MOCOSEL_VALUE);
                     set->from = (MOCOSEL_BYTE*)MOCOSEL_RESIZE(set->from, number, distance);
                     set->to = set->from + number;
                     /* MOCOSEL_ERROR_SYSTEM. */
@@ -46,14 +46,13 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_YIELD(struct MOCOSEL_LIST* __restrict node, struct M
                         return MOCOSEL_ERROR_SYSTEM;
                     }
                     struct MOCOSEL_VALUE* destination = (struct MOCOSEL_VALUE*)memcpy(set->from + distance, &value, sizeof(struct MOCOSEL_VALUE));
-                    if(value.stride > 0) {
-                        destination->data = (MOCOSEL_BYTE*)memcpy(set->from + distance + sizeof(struct MOCOSEL_VALUE), value.data, value.stride);
+                    /* Contiguous. */
+                    if(value.length > 0) {
+                        destination->data = (MOCOSEL_BYTE*)memcpy(set->from + distance + sizeof(struct MOCOSEL_VALUE), value.data, value.length);
                     }
                 }
             }
         }
-        from += source->stride;
-        from += sizeof(struct MOCOSEL_VALUE);
     }
     return 0;
 }

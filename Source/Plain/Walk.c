@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/09/2013,
- * Revision 10/16/2013,
+ * Revision 11/12/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -14,6 +14,9 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(struct MOCOSEL_LIST* __restrict node, struct MO
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */
     if(node == NULL || registry == NULL) {
         return MOCOSEL_ERROR_SYSTEM_WRONG_DATA;
+    }
+    if(node->keyword.from == NULL) {
+        return;
     }
     struct MOCOSEL_STATEMENT* statement = MOCOSEL_LOOKUP(&node->keyword, registry);
     /* MOCOSEL_ERROR_RUNTIME_UNDEFINED_STATEMENT. */
