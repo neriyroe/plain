@@ -1,3 +1,11 @@
+#
+# Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
+# Date     11/13/2013,
+# Revision 11/13/2013,
+#
+# Copyright 2013 Nerijus Ramanauskas.
+#
+
 INCLUDE	=	Include
 SOURCE	=	Source/Plain/Shared/Algorithm/Hash.c \
 			Source/Plain/Shared/Concat.c \
