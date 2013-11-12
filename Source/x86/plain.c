@@ -15,22 +15,23 @@ MOCOSEL_WORD_DOUBLE PLAIN_TYPE(struct MOCOSEL_LIST* __restrict node, struct MOCO
     for(; index < number; index++) {
         struct MOCOSEL_VALUE* value = MOCOSEL_ARGUMENT(node, index);
         if(value->type == MOCOSEL_TYPE_STRING || value->type == MOCOSEL_TYPE_KEYWORD) {
-            printf("PLAIN_TYPE MOCOSEL_STRING: %s\n", (char*)value->data);
+            printf("PLAIN_TYPE MOCOSEL_TYPE_STRING: %s\n", (char*)value->data);
         } else if(value->type == MOCOSEL_TYPE_INTEGER) {
-            printf("PLAIN_TYPE MOCOSEL_INTEGER: %d\n", *(int*)value->data);
+            printf("PLAIN_TYPE MOCOSEL_TYPE_INTEGER: %d\n", *(int*)value->data);
         } else if(value->type == MOCOSEL_TYPE_REAL) {
-            printf("PLAIN_TYPE MOCOSEL_REAL: %f\n", *(float*)value->data);
+            printf("PLAIN_TYPE MOCOSEL_TYPE_REAL: %f\n", *(float*)value->data);
         } else if(value->type == MOCOSEL_TYPE_BOOLEAN) {
-            printf("PLAIN_TYPE MOCOSEL_BOOLEAN: %d.\n", (int)value->data);
+            printf("PLAIN_TYPE MOCOSEL_TYPE_BOOLEAN: %d.\n", (int)value->data);
         } else if(value->type == MOCOSEL_TYPE_LIST) {
+            continue;
             struct MOCOSEL_LIST* node = (struct MOCOSEL_LIST*)value->data;
             struct MOCOSEL_VALUE value;
             MOCOSEL_WALK(node, registry, &value);
             if(node->keyword.from) {
-                printf("PLAIN_TYPE MOCOSEL_LIST: %.*s, value = %s\n", node->keyword.to - node->keyword.from, (char*)node->keyword.from, (const char*)value.data);
+                printf("PLAIN_TYPE MOCOSEL_TYPE_LIST: %.*s, value = %s\n", node->keyword.to - node->keyword.from, (char*)node->keyword.from, (const char*)value.data);
             }
         } else if(value->type == MOCOSEL_TYPE_NIL) {
-            printf("PLAIN_TYPE MOCOSEL_NIL.\n");
+            printf("PLAIN_TYPE MOCOSEL_TYPE_NIL.\n");
         }
     }
     return 0;
@@ -64,8 +65,8 @@ int main(int count, const char* layout[]) {
         if(error != 0) {
             printf("Failed compiling %s: code %d.\n", layout[1], error);
         }
-        MOCOSEL_SYNTHESIZE("type", &object.registry.data, PLAIN_TYPE);
-        MOCOSEL_SYNTHESIZE("trying-a-node", &object.registry.data, PLAIN_TRYING_A_NODE);
+        MOCOSEL_EXPORT("type", &object.registry.data, PLAIN_TYPE);
+        MOCOSEL_EXPORT("trying-a-node", &object.registry.data, PLAIN_TRYING_A_NODE);
         MOCOSEL_FREE(segment.from);
         if(error == 0) {
             error = MOCOSEL_RUN(MOCOSEL_EXECUTE, &manifest, &object, NULL);
