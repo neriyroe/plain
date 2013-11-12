@@ -10,10 +10,10 @@
 
 int main(int count, const char* layout[]) {
     struct MOCOSEL_MANIFEST manifest;
-    struct PLAIN_UNIT unit;
     if(MOCOSEL_VERSION(&manifest) == 0) {
         printf("Warning: Plain might not function properly on this platform or operating system.\n");
     }
+    struct PLAIN_UNIT unit;
     memset(&unit, 0, sizeof(struct PLAIN_UNIT));
     if(count > 1) {
         PLAIN_SYNTHESIZE(layout[1], &unit);
