@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/11/2013,
- * Revision 11/11/2013,
+ * Revision 11/12/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -10,15 +10,10 @@
 #include "plain.h"
 
 MOCOSEL_WORD_DOUBLE PLAIN_TYPE(struct MOCOSEL_LIST* __restrict node, struct MOCOSEL_SEGMENT* __restrict registry, struct MOCOSEL_VALUE* __restrict value) {
-    MOCOSEL_ASSERT(node != NULL);
-    MOCOSEL_ASSERT(registry != NULL);
-    if(node == NULL || registry == NULL) {
-        return MOCOSEL_ERROR_SYSTEM_WRONG_DATA;
-    }
-    MOCOSEL_BYTE* from = node->layout.from;
-    MOCOSEL_BYTE* to = node->layout.to;
-    for(; from != to; from += sizeof(struct MOCOSEL_VALUE)) {
-        struct MOCOSEL_VALUE* value = (struct MOCOSEL_VALUE*)from;
+    MOCOSEL_WORD_DOUBLE index = 0;
+    MOCOSEL_WORD_DOUBLE number = MOCOSEL_MEASURE(node);
+    for(; index < number; index++) {
+        struct MOCOSEL_VALUE* value = MOCOSEL_ARGUMENT(node, index);
         if(value->type == MOCOSEL_TYPE_STRING || value->type == MOCOSEL_TYPE_KEYWORD) {
             printf("PLAIN_TYPE MOCOSEL_STRING: %s\n", (char*)value->data);
         } else if(value->type == MOCOSEL_TYPE_INTEGER) {
@@ -29,8 +24,10 @@ MOCOSEL_WORD_DOUBLE PLAIN_TYPE(struct MOCOSEL_LIST* __restrict node, struct MOCO
             printf("PLAIN_TYPE MOCOSEL_BOOLEAN: %d.\n", (int)value->data);
         } else if(value->type == MOCOSEL_TYPE_LIST) {
             struct MOCOSEL_LIST* node = (struct MOCOSEL_LIST*)value->data;
+            struct MOCOSEL_VALUE value;
+            MOCOSEL_WALK(node, registry, &value);
             if(node->keyword.from) {
-                printf("PLAIN_TYPE MOCOSEL_LIST: %.*s\n", node->keyword.to - node->keyword.from, (char*)node->keyword.from);
+                printf("PLAIN_TYPE MOCOSEL_LIST: %.*s, value = %s\n", node->keyword.to - node->keyword.from, (char*)node->keyword.from, (const char*)value.data);
             }
         } else if(value->type == MOCOSEL_TYPE_NIL) {
             printf("PLAIN_TYPE MOCOSEL_NIL.\n");
@@ -39,11 +36,16 @@ MOCOSEL_WORD_DOUBLE PLAIN_TYPE(struct MOCOSEL_LIST* __restrict node, struct MOCO
     return 0;
 }
 
-#define PLAIN_SUBROUTINE_TYPE 0x00
-
-static const char* PLAIN_SUBROUTINE_TABLE[] = {
-    "type"
-};
+MOCOSEL_WORD_DOUBLE PLAIN_TRYING_A_NODE(struct MOCOSEL_LIST* __restrict node, struct MOCOSEL_SEGMENT* __restrict registry, struct MOCOSEL_VALUE* __restrict value) {
+    if(node == NULL || registry == NULL || value == NULL) {
+        return MOCOSEL_ERROR_SYSTEM_WRONG_DATA;
+    }
+    static const char str[] = "Hello World!";
+    value->data = (MOCOSEL_BYTE*)str;
+    value->length = strlen(str) + 1;
+    value->type = MOCOSEL_TYPE_STRING;
+    return 0;
+}
 
 int main(int count, const char* layout[]) {
     struct MOCOSEL_MANIFEST manifest;
@@ -62,13 +64,8 @@ int main(int count, const char* layout[]) {
         if(error != 0) {
             printf("Failed compiling %s: code %d.\n", layout[1], error);
         }
-        /* Testing. */
-        struct MOCOSEL_STATEMENT PLAIN_STATEMENT_TYPE;
-        PLAIN_STATEMENT_TYPE.first.from = (MOCOSEL_BYTE*)PLAIN_SUBROUTINE_TABLE[PLAIN_SUBROUTINE_TYPE];
-        PLAIN_STATEMENT_TYPE.first.to = PLAIN_STATEMENT_TYPE.first.from + strlen(PLAIN_SUBROUTINE_TABLE[PLAIN_SUBROUTINE_TYPE]);
-        PLAIN_STATEMENT_TYPE.second = &PLAIN_TYPE;
-        MOCOSEL_REGISTER(&object.registry.data, &PLAIN_STATEMENT_TYPE);
-        /* Testing. */
+        MOCOSEL_SYNTHESIZE("type", &object.registry.data, PLAIN_TYPE);
+        MOCOSEL_SYNTHESIZE("trying-a-node", &object.registry.data, PLAIN_TRYING_A_NODE);
         MOCOSEL_FREE(segment.from);
         if(error == 0) {
             error = MOCOSEL_RUN(MOCOSEL_EXECUTE, &manifest, &object, NULL);

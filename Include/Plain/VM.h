@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     10/05/2013,
- * Revision 11/11/2013,
+ * Revision 11/12/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -13,12 +13,14 @@
 extern "C" {
 #endif
 
-#define MOCOSEL_COMPILE 0x01
-#define MOCOSEL_EXECUTE 0x02
-
 #include "Mocosel.h"
 #include "Framework/Host/Manifest.h"
 #include "Framework/Object.h"
+
+enum {
+    MOCOSEL_COMPILE = 0x01,
+    MOCOSEL_EXECUTE = 0x02
+};
 
 /* Frees all memory occupied by <object>. */
 void MOCOSEL_FINALIZE(struct MOCOSEL_OBJECT* object);

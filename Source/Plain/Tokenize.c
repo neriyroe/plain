@@ -1,17 +1,14 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 11/11/2013,
+ * Revision 11/12/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
 
 #include <Plain/Mocosel.h>
 
-MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST    * __restrict    node,
-                                     struct MOCOSEL_LIST    * __restrict    parent,
-                                     struct MOCOSEL_SEGMENT * __restrict    pattern,
-                                     struct MOCOSEL_SEGMENT * __restrict    segment) {
+MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* __restrict node, struct MOCOSEL_LIST* __restrict parent, struct MOCOSEL_SEGMENT* __restrict pattern, struct MOCOSEL_SEGMENT* __restrict segment) {
     MOCOSEL_ASSERT(node != NULL);
     MOCOSEL_ASSERT(pattern != NULL);
     MOCOSEL_ASSERT(pattern->from != NULL);
@@ -196,7 +193,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST    * __restrict    node
             }
             /* Dummy. */
             if(child->keyword.from == child->keyword.to || error != 0) {
-                free(child);
+                MOCOSEL_FREE(child);
                 if(error != 0) {
                     return error;
                 }
@@ -318,7 +315,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST    * __restrict    node
             MOCOSEL_WORD_DOUBLE error = MOCOSEL_TOKENIZE(next, NULL, pattern, &fragment);
             /* Dummy. */
             if(next->keyword.from == next->keyword.to || error != 0) {
-                free(next);
+                MOCOSEL_FREE(next);
                 if(error != 0) {
                     return error;
                 }
@@ -352,13 +349,13 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST    * __restrict    node
                 }
             /* Boolean. */
             } else if(0 == strncmp((const char*)&segment->from[k], "yes", MOCOSEL_MAXIMUM(i - k + 1, 3))) {
-                MOCOSEL_WORD_DOUBLE error  = MOCOSEL_JOIN((MOCOSEL_BYTE*)0xFF, 0, node, MOCOSEL_TYPE_BOOLEAN);
+                MOCOSEL_WORD_DOUBLE error = MOCOSEL_JOIN((MOCOSEL_BYTE*)0xFF, 0, node, MOCOSEL_TYPE_BOOLEAN);
                 if(error != 0) {
                     return error;
                 }
             /* Keyword. */
             } else {
-                MOCOSEL_WORD_DOUBLE error  = MOCOSEL_JOIN(&segment->from[k], i - k + 2, node, MOCOSEL_TYPE_KEYWORD);
+                MOCOSEL_WORD_DOUBLE error = MOCOSEL_JOIN(&segment->from[k], i - k + 2, node, MOCOSEL_TYPE_KEYWORD);
                 if(error != 0) {
                     return error;
                 }

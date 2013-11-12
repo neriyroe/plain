@@ -17,13 +17,11 @@ struct MOCOSEL_STATEMENT* MOCOSEL_LOOKUP(struct MOCOSEL_SEGMENT* __restrict keyw
     }
     MOCOSEL_BYTE* from = registry->from;
     MOCOSEL_BYTE* to = registry->to;
-    while(from != to) {
+    for(; from != to; from += sizeof(struct MOCOSEL_STATEMENT)) {
         struct MOCOSEL_STATEMENT* statement = (struct MOCOSEL_STATEMENT*)from;
         if(0 == strncmp((const char*)keyword->from, (const char*)statement->first.from, MOCOSEL_MAXIMUM(keyword->to - keyword->from, statement->first.to - statement->first.from))) {
             return statement;
         }
-        from += statement->first.to - statement->first.from;
-        from += sizeof(struct MOCOSEL_STATEMENT);
     }
     return NULL;
 }
