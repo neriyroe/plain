@@ -38,10 +38,19 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_UNREGISTER(struct MOCOSEL_SEGMENT* __restrict keywor
         if(from == to) {
             return MOCOSEL_ERROR_RUNTIME_WRONG_DATA;
         }
-        MOCOSEL_WORD_DOUBLE distance = to - from;
-        MOCOSEL_WORD_DOUBLE length = sizeof(struct MOCOSEL_STATEMENT) * distance;
-        MOCOSEL_WORD_DOUBLE number = length - sizeof(struct MOCOSEL_STATEMENT);
-        memmove(from, from + sizeof(struct MOCOSEL_STATEMENT), number);
+        MOCOSEL_WORD_DOUBLE number = registry->to - registry->from - sizeof(struct MOCOSEL_STATEMENT);
+        MOCOSEL_WORD_DOUBLE remainder = to - from - sizeof(struct MOCOSEL_STATEMENT);
+        if(remainder > 0) {
+            memmove(from, from + sizeof(struct MOCOSEL_STATEMENT), remainder);
+        }
+        registry->from = (MOCOSEL_BYTE*)MOCOSEL_RESIZE(registry->from, number, number);
+        registry->to = registry->from + number;
+        if(number > 0) {
+            /* MOCOSEL_ERROR_SYSTEM. */
+            if(registry->from == NULL) {
+                return MOCOSEL_ERROR_SYSTEM;
+            }
+        }
     }
     return 0;
 }

@@ -14,11 +14,11 @@ SOURCE	=	Source/Plain/Shared/Algorithm/Hash.c \
 	        Source/Plain/Framework/Finalize.c \
 	        Source/Plain/Auxiliary.c \
 
-X86	    =	Source/x86/system/fetch.c \
-			Source/x86/plain.c \
+SANDBOX  =	Source/Sandbox/x86/System/Synthesize.c \
+			Source/Sandbox/x86/Sandbox.c \
 
 clean:
 	rm -rf Binary/x86/* Binary/x86/*.*
 
 x86:
-	gcc -I $(INCLUDE) -o Binary/x86/plain -O3 $(SOURCE) $(X86) -D MOCOSEL_DEBUGGING
+	gcc -I $(INCLUDE) -o Binary/x86/Plain -O3 $(SOURCE) $(SANDBOX) -D MOCOSEL_DEBUGGING
