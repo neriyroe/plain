@@ -8,10 +8,10 @@
 
 #include "../Sandbox.h"
 
-void PLAIN_LOAD(const char* __restrict identifier, struct PLAIN_UNIT* __restrict unit) {
+void PLAIN_LOAD(const char* __restrict identifier, struct MOCOSEL_OBJECT* __restrict object) {
     MOCOSEL_ASSERT(identifier != NULL);
-    MOCOSEL_ASSERT(unit != NULL);
-    if(identifier == NULL || unit == NULL) {
+    MOCOSEL_ASSERT(object != NULL);
+    if(identifier == NULL || object == NULL) {
         return;
     }
     FILE* file = fopen(identifier, "rb");
@@ -23,13 +23,13 @@ void PLAIN_LOAD(const char* __restrict identifier, struct PLAIN_UNIT* __restrict
     }
     long int length = ftell(file);
     if(length > 0) {
-        unit->segment.from = (MOCOSEL_BYTE*)MOCOSEL_RESIZE(NULL, (MOCOSEL_WORD_DOUBLE)length, 0);
-        unit->segment.to = unit->segment.from + length;
-        if(unit->segment.from == NULL) {
+        object->segment.data.from = (MOCOSEL_BYTE*)MOCOSEL_RESIZE(NULL, (MOCOSEL_WORD_DOUBLE)length, 0);
+        object->segment.data.to = object->segment.data.from + length;
+        if(object->segment.data.from == NULL) {
             printf("System error: cannot allocate %ld bytes of memory.\n", length);
         } else {
             fseek(file, 0, SEEK_SET);
-            if(fread(unit->segment.from, length, 1, file) != 1) {
+            if(fread(object->segment.data.from, length, 1, file) != 1) {
                 printf("System error: failed reading file %s.\n", identifier);
             }
         }

@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/09/2013,
- * Revision 11/12/2013,
+ * Revision 11/13/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -16,22 +16,27 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(MOCOSEL_WORD_DOUBLE flag, struct MOCOSEL_MANIFES
         return MOCOSEL_ERROR_SYSTEM_WRONG_DATA;
     }
     /* MOCOSEL_COMPILE. */
-    if(flag & MOCOSEL_COMPILE) {
+    if(flag & MOCOSEL_SEGMENT_COMPILE) {
         memset(object, 0, sizeof(struct MOCOSEL_OBJECT));
         if(segment == NULL) {
             return;
         }
-        MOCOSEL_WORD_DOUBLE error = MOCOSEL_CONCAT(&object->segment.data, segment);
-        if(error != 0) {
-            return error;
+        if(flag & MOCOSEL_SEGMENT_RETAIN) {
+            object->segment.data.from = segment->from;
+            object->segment.data.to = segment->to;
+        } else {
+            MOCOSEL_WORD_DOUBLE error = MOCOSEL_CONCAT(&object->segment.data, segment);
+            if(error != 0) {
+                return error;
+            }
         }
-        error = MOCOSEL_TOKENIZE(&object->segment.structure, NULL, &manifest->pattern, segment);
+        MOCOSEL_WORD_DOUBLE error = MOCOSEL_TOKENIZE(&object->segment.structure, NULL, &manifest->pattern, segment);
         if(error != 0) {
             return error;
         }
     }
     /* MOCOSEL_EXECUTE. */
-    if(flag & MOCOSEL_EXECUTE) {
+    if(flag & MOCOSEL_SEGMENT_EXECUTE) {
         MOCOSEL_WORD_DOUBLE error = MOCOSEL_WALK(&object->segment.structure, &object->registry.data, NULL);
         if(error != 0) {
             return error;

@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     10/05/2013,
- * Revision 11/12/2013,
+ * Revision 11/13/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -18,8 +18,9 @@ extern "C" {
 #include "Framework/Object.h"
 
 enum {
-    MOCOSEL_COMPILE = 0x01,
-    MOCOSEL_EXECUTE = 0x02
+    MOCOSEL_SEGMENT_COMPILE = 0x01,
+    MOCOSEL_SEGMENT_EXECUTE = 0x02,
+    MOCOSEL_SEGMENT_RETAIN  = 0x04 /* Does not copy <segment>, acquires instead. */
 };
 
 /* Frees all memory occupied by <object>. */

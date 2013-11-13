@@ -8,31 +8,25 @@
 
 #include "Sandbox.h"
 
-static struct MOCOSEL_MANIFEST manifest;
-static struct PLAIN_UNIT program;
-
 int main(int count, const char* layout[]) {
-    if(MOCOSEL_VERSION(&manifest) == 0) {
-        printf("Warning: Plain might not function properly on this platform or operating system.\n");
-    }
-    memset(&program, 0, sizeof(struct PLAIN_UNIT));
+    struct PLAIN_SESSION session;
     if(count > 1) {
-        PLAIN_LOAD(layout[1], &program);
-        if(program.segment.from == NULL) {
+        PLAIN_START(&session);
+        PLAIN_LOAD(layout[1], &session.program);
+        if(session.program.segment.data.from == NULL) {
             return 0;
         }
-        MOCOSEL_WORD_DOUBLE error = MOCOSEL_RUN(MOCOSEL_COMPILE, &manifest, &program.object, &program.segment);
+        MOCOSEL_WORD_DOUBLE error = MOCOSEL_RUN(MOCOSEL_SEGMENT_COMPILE | MOCOSEL_SEGMENT_RETAIN, &session.manifest, &session.program, &session.program.segment.data);
         if(error != 0) {
             printf("Failed compiling %s: code %d.\n", layout[1], error);
         }
-        MOCOSEL_FREE(program.segment.from);
         if(error == 0) {
-            error = MOCOSEL_RUN(MOCOSEL_EXECUTE, &manifest, &program.object, NULL);
+            error = MOCOSEL_RUN(MOCOSEL_SEGMENT_EXECUTE, &session.manifest, &session.program, NULL);
             if(error != 0) {
                 printf("Failed executing %s: code %d.\n", layout[1], error);
             }
         }
-        MOCOSEL_FINALIZE(&program.object);
+        PLAIN_STOP(&session);
     } else {
         printf("Usage: plain <source>.\n");
     }
