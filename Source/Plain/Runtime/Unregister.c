@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/09/2013,
- * Revision 11/12/2013,
+ * Revision 11/13/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -43,14 +43,15 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_UNREGISTER(struct MOCOSEL_SEGMENT* __restrict keywor
         if(remainder > 0) {
             memmove(from, from + sizeof(struct MOCOSEL_STATEMENT), remainder);
         }
-        registry->from = (MOCOSEL_BYTE*)MOCOSEL_RESIZE(registry->from, number, number);
-        registry->to = registry->from + number;
+        MOCOSEL_BYTE* buffer = (MOCOSEL_BYTE*)MOCOSEL_RESIZE(registry->from, number, number);
         if(number > 0) {
             /* MOCOSEL_ERROR_SYSTEM. */
             if(registry->from == NULL) {
                 return MOCOSEL_ERROR_SYSTEM;
             }
         }
+        registry->from = buffer;
+        registry->to = buffer + number;
     }
     return 0;
 }

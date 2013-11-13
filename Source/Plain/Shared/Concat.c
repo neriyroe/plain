@@ -1,7 +1,7 @@
  /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/14/2013,
- * Revision 10/16/2013,
+ * Revision 11/13/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -21,12 +21,15 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_CONCAT(struct MOCOSEL_SEGMENT* __restrict destinatio
     if(length < 1) {
         return 0;
     }
-    destination->from = (MOCOSEL_BYTE*)MOCOSEL_RESIZE(destination->from, number, distance);
-    destination->to = destination->from + number;
+    MOCOSEL_BYTE* buffer = (MOCOSEL_BYTE*)MOCOSEL_RESIZE(destination->from, number, distance);
     /* MOCOSEL_ERROR_SYSTEM. */
-    if(destination->from == NULL) {
+    if(buffer == NULL) {
         return MOCOSEL_ERROR_SYSTEM;
     }
-    memcpy(destination->from + distance, source->from, length);
+    destination->from = buffer;
+    destination->to = buffer + number;
+    if(length > 0) {
+        memcpy(destination->from + distance, source->from, length);
+    }
     return 0;
 }
