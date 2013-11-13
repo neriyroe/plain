@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/12/2013,
- * Revision 11/12/2013,
+ * Revision 11/13/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -44,5 +44,9 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_EXPORT(MOCOSEL_BYTE* __restrict name, struct MOCOSEL
 }
 
 MOCOSEL_WORD_DOUBLE MOCOSEL_MEASURE(struct MOCOSEL_LIST* node) {
+    MOCOSEL_ASSERT(node != NULL);
+    if(node == NULL) {
+        return 0;
+    }
     return (node->layout.to - node->layout.from) / sizeof(struct MOCOSEL_VALUE);
 }
