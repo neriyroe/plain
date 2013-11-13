@@ -20,6 +20,6 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_VERSION(struct MOCOSEL_MANIFEST* manifest) {
     #if MOCOSEL_TARGET == MOCOSEL_TARGET_UNKNOWN
     return 0;
     #else
-    return 1U;
+    return 1;
     #endif
 }
