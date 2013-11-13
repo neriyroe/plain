@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 10/16/2013,
+ * Revision 11/13/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -62,7 +62,7 @@
 
 /* MOCOSEL_INLINE. */
 #if MOCOSEL_TARGET & MOCOSEL_TARGET_POSIX
-    #define MOCOSEL_INLINE __attribute__((always_inline))
+    #define MOCOSEL_INLINE static __attribute__((always_inline))
 #elif MOCOSEL_TARGET & MOCOSEL_TARGET_WINDOWS
     #define MOCOSEL_INLINE __forceinline
 #elif defined(__cplusplus) || (__STDC_VERSION__ >= 199901L)
