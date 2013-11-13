@@ -22,9 +22,9 @@ SOURCE	=	Source/Plain/Shared/Algorithm/Hash.c \
  			Source/Plain/Framework/Finalize.c \
  			Source/Plain/Auxiliary.c \
 
-SANDBOX  =	Source/Sandbox/x86/System/Load.c \
- 			Source/Sandbox/x86/Session.c \
-			Source/Sandbox/x86/Sandbox.c \
+SANDBOX  =	Source/Sandbox/x86/Session.c \
+ 			Source/Sandbox/x86/System/Load.c \
+ 			Source/Sandbox/x86/Sandbox.c \
 
 clean:
 	rm -rf Binary/x86/* Binary/x86/*.*

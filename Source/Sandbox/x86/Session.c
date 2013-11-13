@@ -8,14 +8,15 @@
 
 #include "Sandbox.h"
 
-void PLAIN_START(struct PLAIN_SESSION* session) {
+MOCOSEL_WORD_DOUBLE PLAIN_START(struct PLAIN_SESSION* session) {
     if(session == NULL) {
-        return;
+        return MOCOSEL_ERROR_SYSTEM;
     }
+    memset(session, 0, sizeof(struct PLAIN_SESSION));
     if(MOCOSEL_VERSION(&session->manifest) == 0) {
-        printf("Warning: Plain might not function properly on this platform or operating system.\n");
+        PLAIN_TYPE("%s\n", session, "Warning: Plain might not function properly on this platform or operating system.");
     }
-    memset(&session->program, 0, sizeof(struct MOCOSEL_OBJECT));
+    return 0;
 }
 
 void PLAIN_STOP(struct PLAIN_SESSION* session) {
@@ -23,4 +24,16 @@ void PLAIN_STOP(struct PLAIN_SESSION* session) {
         return;
     }
     MOCOSEL_FINALIZE(&session->program);
+}
+
+void PLAIN_TYPE(const char* __restrict format, struct PLAIN_SESSION* __restrict session, ...) {
+    MOCOSEL_ASSERT(format != NULL);
+    MOCOSEL_ASSERT(session != NULL);
+    if(format == NULL || session == NULL) {
+        return;
+    }
+    va_list layout;
+    va_start(layout, session);
+    vprintf(format, layout);
+    va_end(layout);
 }
