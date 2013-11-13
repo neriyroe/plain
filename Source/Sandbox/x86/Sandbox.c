@@ -17,7 +17,7 @@ int main(int count, const char* layout[]) {
     }
     memset(&program, 0, sizeof(struct PLAIN_UNIT));
     if(count > 1) {
-        PLAIN_SYNTHESIZE(layout[1], &program);
+        PLAIN_LOAD(layout[1], &program);
         if(program.segment.from == NULL) {
             return 0;
         }

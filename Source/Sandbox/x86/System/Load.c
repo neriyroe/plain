@@ -1,14 +1,14 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/11/2013,
- * Revision 11/12/2013,
+ * Revision 11/13/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
 
 #include "../Sandbox.h"
 
-void PLAIN_SYNTHESIZE(const char* __restrict identifier, struct PLAIN_UNIT* __restrict unit) {
+void PLAIN_LOAD(const char* __restrict identifier, struct PLAIN_UNIT* __restrict unit) {
     MOCOSEL_ASSERT(identifier != NULL);
     MOCOSEL_ASSERT(unit != NULL);
     if(identifier == NULL || unit == NULL) {

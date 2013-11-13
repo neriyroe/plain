@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/12/2013,
- * Revision 11/12/2013,
+ * Revision 11/13/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -14,6 +14,9 @@ extern "C" {
 #endif
 
 #include "Mocosel.h"
+
+/* Generates a prototype of an arbitrary subroutine. */
+#define MOCOSEL_PROTOTYPE(NAME) MOCOSEL_WORD_DOUBLE NAME(struct MOCOSEL_LIST* __restrict NODE, struct MOCOSEL_SEGMENT* __restrict REGISTRY, struct MOCOSEL_VALUE* VALUE)
 
 /* Returns argument of <node> at <position>. */
 struct MOCOSEL_VALUE* MOCOSEL_ARGUMENT(struct MOCOSEL_LIST* node, MOCOSEL_WORD_DOUBLE position);

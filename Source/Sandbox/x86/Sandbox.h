@@ -16,4 +16,4 @@ struct PLAIN_UNIT {
 };
 
 /* Reads all data from an external resource to <segment>. */
-void PLAIN_SYNTHESIZE(const char* __restrict identifier, struct PLAIN_UNIT* __restrict unit);
+void PLAIN_LOAD(const char* __restrict identifier, struct PLAIN_UNIT* __restrict unit);

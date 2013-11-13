@@ -22,7 +22,7 @@ SOURCE	=	Source/Plain/Shared/Algorithm/Hash.c \
 	        Source/Plain/Framework/Finalize.c \
 	        Source/Plain/Auxiliary.c \
 
-SANDBOX  =	Source/Sandbox/x86/System/Synthesize.c \
+SANDBOX  =	Source/Sandbox/x86/System/Load.c \
 			Source/Sandbox/x86/Sandbox.c \
 
 clean:
