@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/07/2013,
- * Revision 11/12/2013,
+ * Revision 11/13/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -18,6 +18,7 @@ void* MOCOSEL_RESIZE(void* data, MOCOSEL_WORD_DOUBLE destination, MOCOSEL_WORD_D
         }
         return NULL;
     }
+    #if 0
     void* buffer = malloc(destination);
     if(buffer == NULL) {
         return data;
@@ -32,4 +33,7 @@ void* MOCOSEL_RESIZE(void* data, MOCOSEL_WORD_DOUBLE destination, MOCOSEL_WORD_D
         free(data);
     }
     return buffer;
+    #else
+    return realloc(data, destination);
+    #endif
 }
