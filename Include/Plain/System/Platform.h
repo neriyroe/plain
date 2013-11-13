@@ -62,11 +62,11 @@
 
 /* MOCOSEL_INLINE. */
 #if MOCOSEL_TARGET & MOCOSEL_TARGET_POSIX
-    #define MOCOSEL_INLINE static __attribute__((always_inline))
+    #define MOCOSEL_INLINE static inline __attribute__((always_inline))
 #elif MOCOSEL_TARGET & MOCOSEL_TARGET_WINDOWS
-    #define MOCOSEL_INLINE __forceinline
+    #define MOCOSEL_INLINE static __forceinline
 #elif defined(__cplusplus) || (__STDC_VERSION__ >= 199901L)
-    #define MOCOSEL_INLINE inline
+    #define MOCOSEL_INLINE static inline
 #else
     #define MOCOSEL_INLINE static
 #endif

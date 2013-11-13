@@ -19,7 +19,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(MOCOSEL_WORD_DOUBLE flag, struct MOCOSEL_MANIFES
     if(flag & MOCOSEL_SEGMENT_COMPILE) {
         memset(object, 0, sizeof(struct MOCOSEL_OBJECT));
         if(segment == NULL) {
-            return;
+            return 0;
         }
         if(flag & MOCOSEL_SEGMENT_RETAIN) {
             object->segment.data.from = segment->from;

@@ -30,4 +30,4 @@ clean:
 	rm -rf Binary/x86/* Binary/x86/*.*
 
 x86:
-	gcc -I $(INCLUDE) -o Binary/x86/Plain -O3 $(SOURCE) $(SANDBOX) -D MOCOSEL_DEBUGGING
+	gcc -I $(INCLUDE) -o Binary/x86/Plain -O3 $(SOURCE) $(SANDBOX) -D MOCOSEL_DEBUGGING -Wall
