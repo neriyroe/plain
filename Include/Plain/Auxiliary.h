@@ -16,7 +16,7 @@ extern "C" {
 #include "Mocosel.h"
 
 /* Generates a prototype of an arbitrary subroutine. */
-#define MOCOSEL_PROTOTYPE(NAME) MOCOSEL_WORD_DOUBLE NAME(struct MOCOSEL_LIST* __restrict NODE, struct MOCOSEL_SEGMENT* __restrict REGISTRY, struct MOCOSEL_VALUE* VALUE)
+#define MOCOSEL_PROTOTYPE(NAME) MOCOSEL_WORD_DOUBLE NAME(void* __restrict CONTEXT, struct MOCOSEL_LIST* __restrict NODE, struct MOCOSEL_SEGMENT* __restrict REGISTRY, struct MOCOSEL_VALUE* VALUE)
 
 /* Returns argument of <node> at <position>. */
 MOCOSEL_INLINE struct MOCOSEL_VALUE* MOCOSEL_ARGUMENT(struct MOCOSEL_LIST* node, MOCOSEL_WORD_DOUBLE position) {

@@ -1,14 +1,14 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/09/2013,
- * Revision 11/13/2013,
+ * Revision 11/15/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
 
 #include <Plain/Mocosel.h>
 
-MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(struct MOCOSEL_LIST* __restrict node, struct MOCOSEL_SEGMENT* __restrict registry, struct MOCOSEL_VALUE* __restrict value) {
+MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(void* __restrict context, struct MOCOSEL_LIST* __restrict node, struct MOCOSEL_SEGMENT* __restrict registry, struct MOCOSEL_VALUE* __restrict value) {
     MOCOSEL_ASSERT(node != NULL);
     MOCOSEL_ASSERT(registry != NULL);
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */
@@ -23,12 +23,12 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(struct MOCOSEL_LIST* __restrict node, struct MO
     if(statement == NULL) {
         return MOCOSEL_ERROR_RUNTIME_UNDEFINED_STATEMENT;
     }
-    MOCOSEL_WORD_DOUBLE error = statement->second(node, registry, value);
+    MOCOSEL_WORD_DOUBLE error = statement->second(context, node, registry, value);
     if (error != 0) {
         return error;
     }
     if(node->node) {
-        error = MOCOSEL_WALK(node->node, registry, NULL);
+        error = MOCOSEL_WALK(context, node->node, registry, NULL);
         if(error != 0) {
             return error;
         }

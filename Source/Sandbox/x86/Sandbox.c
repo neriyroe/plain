@@ -18,12 +18,12 @@ int main(int count, const char* layout[]) {
         if(session.program.segment.data.from == NULL) {
             return 0;
         }
-        MOCOSEL_WORD_DOUBLE error = MOCOSEL_RUN(MOCOSEL_SEGMENT_COMPILE | MOCOSEL_SEGMENT_RETAIN, &session.manifest, &session.program, &session.program.segment.data);
+        MOCOSEL_WORD_DOUBLE error = MOCOSEL_RUN(&session, MOCOSEL_SEGMENT_COMPILE | MOCOSEL_SEGMENT_RETAIN, &session.manifest, &session.program, &session.program.segment.data);
         if(error != 0) {
             PLAIN_TYPE("Failed compiling %s: code %d.\n", &session, layout[1], error);
         }
         if(error == 0) {
-            error = MOCOSEL_RUN(MOCOSEL_SEGMENT_EXECUTE, &session.manifest, &session.program, NULL);
+            error = MOCOSEL_RUN(&session, MOCOSEL_SEGMENT_EXECUTE, &session.manifest, &session.program, &session.program.segment.data);
             if(error != 0) {
                 PLAIN_TYPE("Failed executing %s: code %d.\n", &session, layout[1], error);
             }
