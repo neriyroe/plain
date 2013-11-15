@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/13/2013,
- * Revision 11/13/2013,
+ * Revision 11/15/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -9,6 +9,7 @@
 #include "Sandbox.h"
 
 MOCOSEL_WORD_DOUBLE PLAIN_START(struct PLAIN_SESSION* session) {
+    /* MOCOSEL_ERROR_SYSTEM. */
     if(session == NULL) {
         return MOCOSEL_ERROR_SYSTEM;
     }

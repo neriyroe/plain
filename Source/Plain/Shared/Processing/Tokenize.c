@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 11/12/2013,
+ * Revision 11/15/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -15,9 +15,6 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* __restrict node, struc
     MOCOSEL_ASSERT(pattern->from != pattern->to);
     MOCOSEL_ASSERT(pattern->to != NULL);
     MOCOSEL_ASSERT(segment != NULL);
-    MOCOSEL_ASSERT(segment->from != NULL);
-    MOCOSEL_ASSERT(segment->to != segment->from);
-    MOCOSEL_ASSERT(segment->to != NULL);
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */
     if(node == NULL || pattern == NULL || segment == NULL) {
         return MOCOSEL_ERROR_SYSTEM_WRONG_DATA;
@@ -66,12 +63,14 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* __restrict node, struc
     node->layout.to = NULL;
     node->node = NULL;
     node->parent = parent;
-    node->segment.from = &segment->from[i];
-    node->segment.to = &segment->from[j];
+    node->segment.from = NULL;
+    node->segment.to = NULL;
     /* Dummy. */
     if(i == j) {
         return 0;
     }
+    node->segment.from = &segment->from[i];
+    node->segment.to = &segment->from[j];
     for(; i < j; i++) {
         if(strchr((const char*)pattern->from, (char)segment->from[i]) == NULL) {
             break;

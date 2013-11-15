@@ -15,7 +15,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_RESERVE(MOCOSEL_WORD_DOUBLE number, struct MOCOSEL_S
         return MOCOSEL_ERROR_SYSTEM_WRONG_DATA;
     }
     MOCOSEL_WORD_DOUBLE length = segment->to - segment->from + number;
-    MOCOSEL_BYTE* pointer = (MOCOSEL_BYTE*)MOCOSEL_RESIZE(segment, length, length - number);
+    MOCOSEL_BYTE* pointer = (MOCOSEL_BYTE*)MOCOSEL_RESIZE(segment->from, length, length - number);
     /* MOCOSEL_ERROR_SYSTEM. */
     if(pointer == NULL) {
         return MOCOSEL_ERROR_SYSTEM;
