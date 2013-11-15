@@ -8,7 +8,7 @@
 
 #include <Plain/Mocosel.h>
 
-MOCOSEL_WORD_DOUBLE MOCOSEL_CONCAT(struct MOCOSEL_SEGMENT* __restrict destination, struct MOCOSEL_SEGMENT* __restrict source) {
+MOCOSEL_WORD_DOUBLE MOCOSEL_CONCAT(struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT destination, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT source) {
     MOCOSEL_ASSERT(destination != NULL);
     MOCOSEL_ASSERT(source != NULL);
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */

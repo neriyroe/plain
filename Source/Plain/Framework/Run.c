@@ -8,7 +8,7 @@
 
 #include <Plain/VM.h>
 
-MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(void* __restrict context, MOCOSEL_WORD_DOUBLE flag, struct MOCOSEL_MANIFEST* __restrict manifest, struct MOCOSEL_OBJECT* __restrict object, struct MOCOSEL_SEGMENT* __restrict segment) {
+MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(void* MOCOSEL_RESTRICT context, MOCOSEL_WORD_DOUBLE flag, struct MOCOSEL_MANIFEST* MOCOSEL_RESTRICT manifest, struct MOCOSEL_OBJECT* MOCOSEL_RESTRICT object, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT segment) {
     MOCOSEL_ASSERT(manifest != NULL);
     MOCOSEL_ASSERT(object != NULL);
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */
@@ -21,11 +21,11 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(void* __restrict context, MOCOSEL_WORD_DOUBLE fl
         if(segment == NULL) {
             return 0;
         }
-        /* Retain. */    
         if(flag & MOCOSEL_SEGMENT_RETAIN) {
-            object->segment.data.from = segment->from;
-            object->segment.data.to = segment->to;
-        /* Copy. */
+            /* MOCOSEL_ERROR_SYSTEM. */
+            if(memcpy(segment, &object->segment.data, sizeof(struct MOCOSEL_SEGMENT)) == NULL) {
+                return MOCOSEL_ERROR_SYSTEM;
+            }
         } else {
             MOCOSEL_WORD_DOUBLE error = MOCOSEL_CONCAT(&object->segment.data, segment);
             if(error != 0) {

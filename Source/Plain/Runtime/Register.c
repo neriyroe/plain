@@ -8,7 +8,7 @@
 
 #include <Plain/Mocosel.h>
 
-MOCOSEL_WORD_DOUBLE MOCOSEL_REGISTER(struct MOCOSEL_SEGMENT* __restrict registry, struct MOCOSEL_STATEMENT* __restrict statement) {
+MOCOSEL_WORD_DOUBLE MOCOSEL_REGISTER(struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT registry, struct MOCOSEL_STATEMENT* MOCOSEL_RESTRICT statement) {
     MOCOSEL_ASSERT(registry != NULL);
     MOCOSEL_ASSERT(statement != NULL);
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */

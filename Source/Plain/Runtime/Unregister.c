@@ -1,14 +1,14 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/09/2013,
- * Revision 11/13/2013,
+ * Revision 11/15/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
 
 #include <Plain/Mocosel.h>
 
-MOCOSEL_WORD_DOUBLE MOCOSEL_UNREGISTER(struct MOCOSEL_SEGMENT* __restrict keyword, struct MOCOSEL_SEGMENT* __restrict registry) {
+MOCOSEL_WORD_DOUBLE MOCOSEL_UNREGISTER(struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT keyword, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT registry) {
     MOCOSEL_ASSERT(registry != NULL);
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */
     if(registry == NULL) {

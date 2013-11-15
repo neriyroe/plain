@@ -27,7 +27,7 @@ void PLAIN_STOP(struct PLAIN_SESSION* session) {
     MOCOSEL_FINALIZE(&session->program);
 }
 
-void PLAIN_TYPE(const char* __restrict format, struct PLAIN_SESSION* __restrict session, ...) {
+void PLAIN_TYPE(const char* MOCOSEL_RESTRICT format, struct PLAIN_SESSION* MOCOSEL_RESTRICT session, ...) {
     MOCOSEL_ASSERT(format != NULL);
     MOCOSEL_ASSERT(session != NULL);
     if(format == NULL || session == NULL) {

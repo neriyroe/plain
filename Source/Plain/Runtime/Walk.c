@@ -8,7 +8,7 @@
 
 #include <Plain/Mocosel.h>
 
-MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(void* __restrict context, struct MOCOSEL_LIST* __restrict node, struct MOCOSEL_SEGMENT* __restrict registry, struct MOCOSEL_VALUE* __restrict value) {
+MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(void* MOCOSEL_RESTRICT context, struct MOCOSEL_LIST* MOCOSEL_RESTRICT node, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT registry, struct MOCOSEL_VALUE* MOCOSEL_RESTRICT value) {
     MOCOSEL_ASSERT(node != NULL);
     MOCOSEL_ASSERT(registry != NULL);
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */

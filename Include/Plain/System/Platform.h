@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 11/13/2013,
+ * Revision 11/15/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -69,6 +69,17 @@
     #define MOCOSEL_INLINE static inline
 #else
     #define MOCOSEL_INLINE static
+#endif
+
+/* MOCOSEL_RESTRICT. */
+#if MOCOSEL_TARGET & MOCOSEL_TARGET_POSIX
+    #define MOCOSEL_RESTRICT __restrict__
+#elif MOCOSEL_TARGET & MOCOSEL_TARGET_WINDOWS
+    #define MOCOSEL_RESTRICT __restrict
+#elif __STDC_VERSION__ >= 199901L
+    #define MOCOSEL_RESTRICT restrict
+#else
+    #define MOCOSEL_RESTRICT
 #endif
 
  /* Standard. */

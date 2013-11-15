@@ -31,16 +31,16 @@ extern "C" {
 #include "Runtime/Statement.h"
 
 /* Appends <source> to <destination>. Notice: <destination> will be reallocated. */
-MOCOSEL_WORD_DOUBLE MOCOSEL_CONCAT(struct MOCOSEL_SEGMENT* __restrict destination, struct MOCOSEL_SEGMENT* __restrict source);
+MOCOSEL_WORD_DOUBLE MOCOSEL_CONCAT(struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT destination, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT source);
 
 /* Returns 32-bit hash of <segment>. */
 MOCOSEL_WORD_DOUBLE MOCOSEL_HASH(struct MOCOSEL_SEGMENT* segment);
 
 /* Appends an argument of type <type> and length <length> to the layout of <node>. */
-MOCOSEL_WORD_DOUBLE MOCOSEL_JOIN(MOCOSEL_BYTE* __restrict data, MOCOSEL_WORD_DOUBLE length, struct MOCOSEL_LIST* __restrict node, MOCOSEL_WORD_DOUBLE type);
+MOCOSEL_WORD_DOUBLE MOCOSEL_JOIN(MOCOSEL_BYTE* MOCOSEL_RESTRICT data, MOCOSEL_WORD_DOUBLE length, struct MOCOSEL_LIST* MOCOSEL_RESTRICT node, MOCOSEL_WORD_DOUBLE type);
 
 /* Returns statement matching <keyword> in registry, or NULL otherwise. */
-struct MOCOSEL_STATEMENT* MOCOSEL_LOOKUP(struct MOCOSEL_SEGMENT* __restrict keyword, struct MOCOSEL_SEGMENT* __restrict registry);
+struct MOCOSEL_STATEMENT* MOCOSEL_LOOKUP(struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT keyword, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT registry);
 
 /* Frees all memory occupied by <node>, resulting in a nil list. */
 void MOCOSEL_PURGE(struct MOCOSEL_LIST* node);
@@ -52,16 +52,16 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_RESERVE(MOCOSEL_WORD_DOUBLE number, struct MOCOSEL_S
 void* MOCOSEL_RESIZE(void* data, MOCOSEL_WORD_DOUBLE destination, MOCOSEL_WORD_DOUBLE source);
 
 /* Adds <statement> to <registry>. */
-MOCOSEL_WORD_DOUBLE MOCOSEL_REGISTER(struct MOCOSEL_SEGMENT* __restrict registry, struct MOCOSEL_STATEMENT* __restrict statement);
+MOCOSEL_WORD_DOUBLE MOCOSEL_REGISTER(struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT registry, struct MOCOSEL_STATEMENT* MOCOSEL_RESTRICT statement);
 
 /* Parses <segment> to <node>. Notice: <parent> can be NULL. */
-MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* __restrict node, struct MOCOSEL_LIST* __restrict parent, struct MOCOSEL_SEGMENT* __restrict pattern, struct MOCOSEL_SEGMENT* __restrict segment);
+MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node, struct MOCOSEL_LIST* MOCOSEL_RESTRICT parent, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT pattern, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT segment);
 
 /* Removes <keyword> from <registry>. */
-MOCOSEL_WORD_DOUBLE MOCOSEL_UNREGISTER(struct MOCOSEL_SEGMENT* __restrict keyword, struct MOCOSEL_SEGMENT* __restrict registry);
+MOCOSEL_WORD_DOUBLE MOCOSEL_UNREGISTER(struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT keyword, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT registry);
 
 /* Evaluates <node>, returning value. Notice: <value> can be NULL, procedures do not return values. */
-MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(void* __restrict context, struct MOCOSEL_LIST* __restrict node, struct MOCOSEL_SEGMENT* __restrict registry, struct MOCOSEL_VALUE* __restrict value);
+MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(void* MOCOSEL_RESTRICT context, struct MOCOSEL_LIST* MOCOSEL_RESTRICT node, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT registry, struct MOCOSEL_VALUE* MOCOSEL_RESTRICT value);
 
 /* C++. */
 #ifdef __cplusplus

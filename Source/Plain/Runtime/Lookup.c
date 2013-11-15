@@ -1,14 +1,14 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/09/2013,
- * Revision 11/12/2013,
+ * Revision 11/15/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
 
 #include <Plain/Mocosel.h>
 
-struct MOCOSEL_STATEMENT* MOCOSEL_LOOKUP(struct MOCOSEL_SEGMENT* __restrict keyword, struct MOCOSEL_SEGMENT* __restrict registry) {
+struct MOCOSEL_STATEMENT* MOCOSEL_LOOKUP(struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT keyword, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT registry) {
     MOCOSEL_ASSERT(keyword != NULL);
     MOCOSEL_ASSERT(registry != NULL);
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */

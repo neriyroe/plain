@@ -8,7 +8,7 @@
 
 #include <Plain/Mocosel.h>
 
-MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* __restrict node, struct MOCOSEL_LIST* __restrict parent, struct MOCOSEL_SEGMENT* __restrict pattern, struct MOCOSEL_SEGMENT* __restrict segment) {
+MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node, struct MOCOSEL_LIST* MOCOSEL_RESTRICT parent, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT pattern, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT segment) {
     MOCOSEL_ASSERT(node != NULL);
     MOCOSEL_ASSERT(pattern != NULL);
     MOCOSEL_ASSERT(pattern->from != NULL);
@@ -259,12 +259,9 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* __restrict node, struc
                 if(l > 0 || n > 0) {
                     double number = atof((const char*)&segment->from[k]);
                     /* MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION. */
-                    if(number == HUGE_VAL)
-                    {
+                    if(number == HUGE_VAL) {
                         error = MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION;
-                    }
-                    else
-                    {
+                    } else {
                         MOCOSEL_REAL real = (MOCOSEL_REAL)number;
                         /* NWW: MOCOSEL_REAL ensures common ABI. */
                         error = MOCOSEL_JOIN((MOCOSEL_BYTE*)&real, sizeof(MOCOSEL_REAL), node, MOCOSEL_TYPE_REAL);

@@ -6,4 +6,4 @@
  * Copyright 2013 Nerijus Ramanauskas.
  */
 
-typedef MOCOSEL_WORD_DOUBLE (*MOCOSEL_SUBROUTINE) (void* __restrict, struct MOCOSEL_LIST* __restrict, struct MOCOSEL_SEGMENT* __restrict, struct MOCOSEL_VALUE* __restrict);
+typedef MOCOSEL_WORD_DOUBLE (*MOCOSEL_SUBROUTINE) (void* MOCOSEL_RESTRICT, struct MOCOSEL_LIST* MOCOSEL_RESTRICT, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT, struct MOCOSEL_VALUE* MOCOSEL_RESTRICT);

@@ -8,7 +8,7 @@
 
 #include "../Sandbox.h"
 
-void PLAIN_LOAD(const char* __restrict identifier, struct MOCOSEL_SEGMENT* __restrict segment, struct PLAIN_SESSION* __restrict session) {
+void PLAIN_LOAD(const char* MOCOSEL_RESTRICT identifier, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT segment, struct PLAIN_SESSION* MOCOSEL_RESTRICT session) {
     MOCOSEL_ASSERT(identifier != NULL);
     MOCOSEL_ASSERT(segment != NULL);
     MOCOSEL_ASSERT(session != NULL);
