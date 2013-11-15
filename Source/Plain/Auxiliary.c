@@ -15,7 +15,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_EXPORT(MOCOSEL_BYTE* MOCOSEL_RESTRICT name, struct M
     if(name == NULL || registry == NULL) {
         return MOCOSEL_ERROR_SYSTEM_WRONG_DATA;
     }
-    struct MOCOSEL_STATEMENT statement = {{name, name + strlen((const char*)name)}, symbol};
+    struct MOCOSEL_STATEMENT statement = {{name, name + strlen((const char*)name)}, {(void*)symbol, 0, MOCOSEL_TYPE_SUBROUTINE}};
     if(symbol == NULL) {
         MOCOSEL_WORD_DOUBLE error = MOCOSEL_UNREGISTER(&statement.first, registry);
         if(error != 0) {

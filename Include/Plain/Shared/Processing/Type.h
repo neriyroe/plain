@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 11/12/2013,
+ * Revision 11/15/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -13,5 +13,6 @@
     MOCOSEL_TYPE_LIST       = 0x05,
     MOCOSEL_TYPE_NIL        = 0x00,
     MOCOSEL_TYPE_REAL       = 0x06,
-    MOCOSEL_TYPE_STRING     = 0x03
+    MOCOSEL_TYPE_STRING     = 0x03,
+    MOCOSEL_TYPE_SUBROUTINE = 0x07
  };

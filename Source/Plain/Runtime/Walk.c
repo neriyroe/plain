@@ -23,12 +23,22 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(void* MOCOSEL_RESTRICT context, struct MOCOSEL_
     if(statement == NULL) {
         return MOCOSEL_ERROR_RUNTIME_UNDEFINED_STATEMENT;
     }
-    MOCOSEL_WORD_DOUBLE error = statement->second(context, node, registry, value);
-    if (error != 0) {
-        return error;
+    /* Subroutine. */
+    if(statement->second.type == MOCOSEL_TYPE_SUBROUTINE) {
+        statement->second.data = NULL;
+        MOCOSEL_WORD_DOUBLE error = ((MOCOSEL_SUBROUTINE)statement->second.data)(context, node, registry, value);
+        if (error != 0) {
+            return error;
+        }
+    /* Value. */
+    } else if(value != NULL) {
+        /* MOCOSEL_ERROR_SYSTEM. */
+        if(memcpy(value, &statement->second, sizeof(struct MOCOSEL_VALUE)) == NULL) {
+            return MOCOSEL_ERROR_SYSTEM;
+        }
     }
     if(node->node) {
-        error = MOCOSEL_WALK(context, node->node, registry, NULL);
+        MOCOSEL_WORD_DOUBLE error = MOCOSEL_WALK(context, node->node, registry, NULL);
         if(error != 0) {
             return error;
         }

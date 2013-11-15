@@ -24,8 +24,10 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_REGISTER(struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT re
     /* Keyword. */
     destination->first.from = NULL;
     destination->first.to = NULL;
-    /* Subroutine. */
-    destination->second = statement->second;
+    /* Value. */
+    if(memcpy(&destination->second, &statement->second, sizeof(struct MOCOSEL_VALUE)) == NULL) {
+        return MOCOSEL_ERROR_SYSTEM;
+    }
     /* Keyword. */
     return MOCOSEL_CONCAT(&destination->first, &statement->first);
 }
