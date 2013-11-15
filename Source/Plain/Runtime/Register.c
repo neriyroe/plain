@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/09/2013,
- * Revision 11/13/2013,
+ * Revision 11/15/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -16,12 +16,9 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_REGISTER(struct MOCOSEL_SEGMENT* __restrict registry
         return MOCOSEL_ERROR_SYSTEM_WRONG_DATA;
     }
     MOCOSEL_WORD_DOUBLE distance = registry->to - registry->from;
-    MOCOSEL_WORD_DOUBLE number = distance + sizeof(struct MOCOSEL_STATEMENT);
-    registry->from = (MOCOSEL_BYTE*)MOCOSEL_RESIZE(registry->from, number, distance);
-    registry->to = registry->from + number;
-    /* MOCOSEL_ERROR_SYSTEM. */
-    if(registry->from == NULL) {
-        return MOCOSEL_ERROR_SYSTEM;
+    MOCOSEL_WORD_DOUBLE error = MOCOSEL_RESERVE(sizeof(struct MOCOSEL_STATEMENT), registry);
+    if(error != 0) {
+        return error;
     }
     struct MOCOSEL_STATEMENT* destination = (struct MOCOSEL_STATEMENT*)&registry->from[distance];
     /* Keyword. */

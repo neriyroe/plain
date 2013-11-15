@@ -1,4 +1,4 @@
-/*
+ /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/14/2013,
  * Revision 11/13/2013,

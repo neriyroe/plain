@@ -1,7 +1,7 @@
  /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/14/2013,
- * Revision 11/13/2013,
+ * Revision 11/15/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -17,19 +17,16 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_CONCAT(struct MOCOSEL_SEGMENT* __restrict destinatio
     }
     MOCOSEL_WORD_DOUBLE distance = destination->to - destination->from;
     MOCOSEL_WORD_DOUBLE length = source->to - source->from;
-    MOCOSEL_WORD_DOUBLE number = distance + length;
     if(length < 1) {
         return 0;
     }
-    MOCOSEL_BYTE* buffer = (MOCOSEL_BYTE*)MOCOSEL_RESIZE(destination->from, number, distance);
-    /* MOCOSEL_ERROR_SYSTEM. */
-    if(buffer == NULL) {
-        return MOCOSEL_ERROR_SYSTEM;
+    MOCOSEL_WORD_DOUBLE error = MOCOSEL_RESERVE(length, destination);
+    if(error != 0) {
+        return error;
     }
-    destination->from = buffer;
-    destination->to = buffer + number;
-    if(length > 0) {
-        memcpy(destination->from + distance, source->from, length);
+    /* MOCOSEL_ERROR_SYSTEM. */
+    if(memcpy(destination->from + distance, source->from, length) == NULL) {
+        return MOCOSEL_ERROR_SYSTEM;
     }
     return 0;
 }

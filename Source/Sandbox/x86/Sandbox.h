@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/11/2013,
- * Revision 11/13/2013,
+ * Revision 11/15/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -12,7 +12,7 @@
 
 struct PLAIN_SESSION {
     struct MOCOSEL_MANIFEST manifest;
-    struct MOCOSEL_OBJECT program;
+    struct MOCOSEL_OBJECT   program;
 };
 
 /* Reads all data from an external resource to <segment>. */

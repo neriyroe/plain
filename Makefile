@@ -9,6 +9,7 @@
 INCLUDE	=	Include
 SOURCE	=	Source/Plain/Shared/Algorithm/Hash.c \
 			Source/Plain/Shared/Concat.c \
+			Source/Plain/Shared/Reserve.c \
 			Source/Plain/Shared/Processing/Join.c \
 			Source/Plain/Shared/Processing/Purge.c \
 			Source/Plain/Shared/Processing/Tokenize.c \

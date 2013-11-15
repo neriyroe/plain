@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/24/2013,
- * Revision 11/12/2013,
+ * Revision 11/15/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -15,12 +15,9 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_JOIN(MOCOSEL_BYTE* __restrict data, MOCOSEL_WORD_DOU
         return MOCOSEL_ERROR_SYSTEM_WRONG_DATA;
     }
     MOCOSEL_WORD_DOUBLE distance = node->layout.to - node->layout.from;
-    MOCOSEL_WORD_DOUBLE number = distance + sizeof(struct MOCOSEL_VALUE);
-    node->layout.from = (MOCOSEL_BYTE*)MOCOSEL_RESIZE(node->layout.from, number, distance);
-    node->layout.to = node->layout.from + number;
-    /* MOCOSEL_ERROR_SYSTEM. */
-    if(node->layout.from == NULL) {
-        return MOCOSEL_ERROR_SYSTEM;
+    MOCOSEL_WORD_DOUBLE error = MOCOSEL_RESERVE(sizeof(struct MOCOSEL_VALUE), &node->layout);
+    if(error != 0) {
+        return error;
     }
     struct MOCOSEL_VALUE* value = (struct MOCOSEL_VALUE*)&node->layout.from[distance];
     switch(type) {
