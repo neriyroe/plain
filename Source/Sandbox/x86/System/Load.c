@@ -8,11 +8,11 @@
 
 #include "../Sandbox.h"
 
-void PLAIN_LOAD(const char* __restrict identifier, struct MOCOSEL_OBJECT* __restrict object, struct PLAIN_SESSION* __restrict session) {
+void PLAIN_LOAD(const char* __restrict identifier, struct MOCOSEL_SEGMENT* __restrict segment, struct PLAIN_SESSION* __restrict session) {
     MOCOSEL_ASSERT(identifier != NULL);
-    MOCOSEL_ASSERT(object != NULL);
+    MOCOSEL_ASSERT(segment != NULL);
     MOCOSEL_ASSERT(session != NULL);
-    if(identifier == NULL || object == NULL || session == NULL) {
+    if(identifier == NULL || segment == NULL || session == NULL) {
         return;
     }
     FILE* file = fopen(identifier, "rb");
@@ -24,13 +24,13 @@ void PLAIN_LOAD(const char* __restrict identifier, struct MOCOSEL_OBJECT* __rest
     }
     long int length = ftell(file);
     if(length > 0) {
-        object->segment.data.from = (MOCOSEL_BYTE*)MOCOSEL_RESIZE(NULL, (MOCOSEL_WORD_DOUBLE)length, 0);
-        object->segment.data.to = object->segment.data.from + length;
-        if(object->segment.data.from == NULL) {
+        segment->from = (MOCOSEL_BYTE*)MOCOSEL_RESIZE(NULL, (MOCOSEL_WORD_DOUBLE)length, 0);
+        segment->to = segment->from + length;
+        if(segment->from == NULL) {
             PLAIN_TYPE("System error: cannot allocate %ld bytes of memory.\n", session, length);
         } else {
             fseek(file, 0, SEEK_SET);
-            if(fread(object->segment.data.from, length, 1, file) != 1) {
+            if(fread(segment->from, length, 1, file) != 1) {
                 PLAIN_TYPE("System error: failed reading file %s.\n", session, identifier);
             }
         }

@@ -16,7 +16,7 @@ struct PLAIN_SESSION {
 };
 
 /* Reads all data from an external resource to <segment>. */
-void PLAIN_LOAD(const char* __restrict identifier, struct MOCOSEL_OBJECT* __restrict object, struct PLAIN_SESSION* __restrict session);
+void PLAIN_LOAD(const char* __restrict identifier, struct MOCOSEL_SEGMENT* __restrict segment, struct PLAIN_SESSION* __restrict session);
 
 /* Starts a new session. */
 MOCOSEL_WORD_DOUBLE PLAIN_START(struct PLAIN_SESSION* session);

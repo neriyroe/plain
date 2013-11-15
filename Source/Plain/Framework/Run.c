@@ -21,9 +21,11 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(void* __restrict context, MOCOSEL_WORD_DOUBLE fl
         if(segment == NULL) {
             return 0;
         }
+        /* Retain. */    
         if(flag & MOCOSEL_SEGMENT_RETAIN) {
             object->segment.data.from = segment->from;
             object->segment.data.to = segment->to;
+        /* Copy. */
         } else {
             MOCOSEL_WORD_DOUBLE error = MOCOSEL_CONCAT(&object->segment.data, segment);
             if(error != 0) {
