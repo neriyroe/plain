@@ -33,4 +33,4 @@ clean:
 	find . -name *.DS_Store.* -exec rm -rf {} \;
 
 x86:
-	gcc -I $(INCLUDE) -o Binary/x86/Plain -O3 $(SOURCE) $(SANDBOX) -D MOCOSEL_DEBUGGING -Wall
+	gcc -std=c99 -I $(INCLUDE) -o Binary/x86/Plain -O3 $(SOURCE) $(SANDBOX) -D MOCOSEL_DEBUGGING -Wall
