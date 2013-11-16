@@ -62,8 +62,10 @@
 
 /* MOCOSEL_INLINE. */
 #if MOCOSEL_TARGET & MOCOSEL_TARGET_POSIX
-    #if defined(__cplusplus) || (__STDC_VERSION__ >= 199101L)
+    #if defined(__cplusplus)
         #define MOCOSEL_INLINE static inline __attribute__((always_inline))
+    #elif __STDC_VERSION__ >= 199101L
+        #define MOCOSEL_INLINE static __inline__ __attribute__((always_inline))
     #else
         #define MOCOSEL_INLINE static
     #endif
