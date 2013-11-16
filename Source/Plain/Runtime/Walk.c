@@ -26,11 +26,16 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(void* MOCOSEL_RESTRICT context, struct MOCOSEL_
     /* Subroutine. */
     if(statement->second.type == MOCOSEL_TYPE_SUBROUTINE) {
         MOCOSEL_WORD_DOUBLE error = ((MOCOSEL_SUBROUTINE)statement->second.data)(context, node, registry, value);
-        if (error != 0) {
+        if(error != 0) {
             return error;
         }
     /* Value. */
-    } else if(value != NULL) {
+    } else {
+        MOCOSEL_ASSERT(value != NULL);
+        /* MOCOSEL_ERROR_SYSTEM. */
+        if(value == NULL) {
+            return MOCOSEL_ERROR_SYSTEM;
+        }
         /* MOCOSEL_ERROR_SYSTEM. */
         if(memcpy(value, &statement->second, sizeof(struct MOCOSEL_VALUE)) == NULL) {
             return MOCOSEL_ERROR_SYSTEM;
