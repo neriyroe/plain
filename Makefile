@@ -1,7 +1,7 @@
 #
 # Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
 # Date     11/13/2013,
-# Revision 11/13/2013,
+# Revision 11/15/2013,
 #
 # Copyright 2013 Nerijus Ramanauskas.
 #
@@ -29,6 +29,8 @@ SANDBOX  =	Source/Sandbox/x86/Session.c \
 
 clean:
 	rm -rf Binary/x86/* Binary/x86/*.*
+	find . -name *.DS_Store -exec rm -rf {} \;
+	find . -name *.DS_Store.* -exec rm -rf {} \;
 
 x86:
 	gcc -I $(INCLUDE) -o Binary/x86/Plain -O3 $(SOURCE) $(SANDBOX) -D MOCOSEL_DEBUGGING -Wall
