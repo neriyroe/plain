@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/09/2013,
- * Revision 11/15/2013,
+ * Revision 11/16/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -25,7 +25,6 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(void* MOCOSEL_RESTRICT context, struct MOCOSEL_
     }
     /* Subroutine. */
     if(statement->second.type == MOCOSEL_TYPE_SUBROUTINE) {
-        statement->second.data = NULL;
         MOCOSEL_WORD_DOUBLE error = ((MOCOSEL_SUBROUTINE)statement->second.data)(context, node, registry, value);
         if (error != 0) {
             return error;

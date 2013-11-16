@@ -1,12 +1,13 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/09/2013,
- * Revision 11/15/2013,
+ * Revision 11/16/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
 
 #include <Plain/VM.h>
+#include <stdio.h>
 
 MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(void* MOCOSEL_RESTRICT context, MOCOSEL_WORD_DOUBLE flag, struct MOCOSEL_MANIFEST* MOCOSEL_RESTRICT manifest, struct MOCOSEL_OBJECT* MOCOSEL_RESTRICT object, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT segment) {
     MOCOSEL_ASSERT(manifest != NULL);
@@ -22,17 +23,15 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(void* MOCOSEL_RESTRICT context, MOCOSEL_WORD_DOU
             return 0;
         }
         if(flag & MOCOSEL_SEGMENT_RETAIN) {
-            /* MOCOSEL_ERROR_SYSTEM. */
-            if(memcpy(segment, &object->segment.data, sizeof(struct MOCOSEL_SEGMENT)) == NULL) {
-                return MOCOSEL_ERROR_SYSTEM;
-            }
+            object->segment.data.from = segment->from;
+            object->segment.data.to = segment->to;
         } else {
             MOCOSEL_WORD_DOUBLE error = MOCOSEL_CONCAT(&object->segment.data, segment);
             if(error != 0) {
                 return error;
             }
         }
-        MOCOSEL_WORD_DOUBLE error = MOCOSEL_TOKENIZE(&object->segment.structure, NULL, &manifest->pattern, segment);
+        MOCOSEL_WORD_DOUBLE error = MOCOSEL_TOKENIZE(&object->segment.structure, NULL, &manifest->pattern, &object->segment.data);
         if(error != 0) {
             return error;
         }
