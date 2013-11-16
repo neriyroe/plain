@@ -1,0 +1,4 @@
+` This script demonstrates the famous "Hello, World!" and is the first example
+` in the history of the Plain SDK.
+
+out 'Hello, World!'
