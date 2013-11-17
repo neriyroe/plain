@@ -25,15 +25,15 @@ USAGE
     9) <Array>.
 
 REMARKS
-    1) Integer,
-    2) Real,
-    3) String,
-    4) Nil,
-    5) Boolean,
-    6) See <Node>,
-    7) List,
-    8) Function,
-    9) Array.
+    1) integer,
+    2) real,
+    3) string,
+    4) nil,
+    5) boolean,
+    6) see <Node>,
+    7) list,
+    8) function,
+    9) array.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.

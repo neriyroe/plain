@@ -8,17 +8,20 @@ CATEGORY
     <Language>.
 
 DEPENDENCIES
+    <And>,
     <Array>,
     <Boolean>,
     <Comment>,
     <Difference>,
     <Do>,
     <If>,
+    <Is>,
     <Integer>,
     <Keyword>,
     <List>,
     <Nil>,
     <Node>,
+    <Or>,
     <Quotient>,
     <Product>,
     <Real>,

@@ -1,0 +1,27 @@
+TOPIC
+    And.
+
+TYPE
+    <Node>.
+
+CATEGORY
+    <Compact>.
+
+DEPENDENCIES
+    <Value>.
+
+USAGE
+    and <Boolean>, <Boolean>+.
+
+REMARKS
+    The statement shall return the logical product (conjunction) of the
+    <Boolean> values.
+
+AUTHOR
+    Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
+
+DATE
+    11/17/2013.
+
+REVISION
+    11/17/2013.
