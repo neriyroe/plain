@@ -27,10 +27,10 @@ COMPLAIN  =	Source/Complain/x86/Session.c \
  			Source/Complain/x86/System/Load.c \
  			Source/Complain/x86/Complain.c \
 
+x86:
+	gcc -std=c99 -I $(INCLUDE) -o Binary/x86/Complain -O3 $(SOURCE) $(COMPLAIN) -D MOCOSEL_DEBUGGING -Wall
+
 clean:
 	rm -rf Binary/x86/* Binary/x86/*.*
 	find . -name *.DS_Store -exec rm -rf {} \;
 	find . -name *.DS_Store.* -exec rm -rf {} \;
-
-x86:
-	gcc -std=c99 -I $(INCLUDE) -o Binary/x86/Complain -O3 $(SOURCE) $(COMPLAIN) -D MOCOSEL_DEBUGGING -Wall

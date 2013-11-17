@@ -12,11 +12,11 @@ DEPENDENCIES
     <List>.
 
 USAGE
-    1) do <String>[, <String>[, ...]],
-    2) do <List>[, <List>[, ...]].
+    1) do <String>+,
+    2) do <List>+.
 
 REMARKS
-    The statement do shall
+    The statement shall
         1) concatenate, interpret and evaluate,
         2) evaluate each <List>.
 
