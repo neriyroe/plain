@@ -7,7 +7,7 @@
 #
 
 INCLUDE	=	Include
-SOURCE	=	Source/Plain/Shared/Algorithm/Hash.c \
+COMPACT	=	Source/Plain/Shared/Algorithm/Hash.c \
 			Source/Plain/Shared/Concat.c \
 			Source/Plain/Shared/Reserve.c \
 			Source/Plain/Shared/Processing/Join.c \
@@ -22,13 +22,14 @@ SOURCE	=	Source/Plain/Shared/Algorithm/Hash.c \
 			Source/Plain/Framework/Version.c \
  			Source/Plain/Framework/Finalize.c \
  			Source/Plain/Auxiliary.c \
+ 			Source/Plain/Compact.c \
 
 COMPLAIN  =	Source/Complain/x86/Session.c \
  			Source/Complain/x86/System/Load.c \
  			Source/Complain/x86/Complain.c \
 
 x86:
-	gcc -std=c99 -I $(INCLUDE) -o Binary/x86/Complain -O3 $(SOURCE) $(COMPLAIN) -D MOCOSEL_DEBUGGING -Wall
+	gcc -std=c89 -I $(INCLUDE) -o Binary/x86/Complain -O3 $(COMPACT) $(COMPLAIN) -D MOCOSEL_DEBUGGING -Wall
 
 clean:
 	rm -rf Binary/x86/* Binary/x86/*.*
