@@ -29,7 +29,7 @@ COMPLAIN  =	Source/Complain/x86/Session.c \
  			Source/Complain/x86/Complain.c \
 
 x86:
-	gcc -std=c89 -I $(INCLUDE) -o Binary/x86/Complain -O3 $(COMPACT) $(COMPLAIN) -D MOCOSEL_DEBUGGING -Wall
+	gcc -std=c99 -I $(INCLUDE) -o Binary/x86/Complain -O3 $(COMPACT) $(COMPLAIN) -D MOCOSEL_DEBUGGING -Wall
 
 clean:
 	rm -rf Binary/x86/* Binary/x86/*.*
