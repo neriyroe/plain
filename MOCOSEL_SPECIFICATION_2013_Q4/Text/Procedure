@@ -5,7 +5,7 @@ TYPE
     <Node>.
 
 CATEGORY
-    <Language>.
+    <Full>.
 
 DEPENDENCIES
     <List>,
@@ -37,4 +37,4 @@ DATE
     03/11/2013.
 
 REVISION
-    05/11/2013.
+    11/17/2013.

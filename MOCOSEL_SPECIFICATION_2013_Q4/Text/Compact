@@ -1,0 +1,45 @@
+TOPIC
+    Compact.
+
+TYPE
+    None.
+
+CATEGORY
+    <Language>.
+
+DEPENDENCIES
+    <Array>,
+    <Boolean>,
+    <Comment>,
+    <Difference>,
+    <Do>,
+    <Integer>,
+    <Keyword>,
+    <List>,
+    <Nil>,
+    <Node>,
+    <Quotient>,
+    <Product>,
+    <Real>,
+    <Remainder>,
+    <Return>,
+    <Statement>,
+    <String>,
+    <Sum>,
+    <Target>,
+    <Value>.
+
+USAGE
+
+REMARKS
+    Specification for the compact version of the Mocosel Programming Language,
+    as of 2013 November 17.
+
+AUTHOR
+    Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
+
+DATE
+    11/17/2013.
+
+REVISION
+    11/17/2013.

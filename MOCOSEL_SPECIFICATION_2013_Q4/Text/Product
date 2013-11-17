@@ -1,27 +1,26 @@
 TOPIC
-    Map.
+    Product.
 
 TYPE
     <Node>.
 
 CATEGORY
-    <Full>.
+    <Compact>.
 
 DEPENDENCIES
-    <Function>,
-    <Array>.
+    <Value>.
 
 USAGE
-    map <Function> to <Array>.
+    * <Value>, <Value>+.
 
 REMARKS
-    New <Array> of transformed elements shall be returned.
+    The statement shall return the product of two or more numeric values.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
 
 DATE
-    04/21/2013.
+    11/17/2013.
 
 REVISION
     11/17/2013.

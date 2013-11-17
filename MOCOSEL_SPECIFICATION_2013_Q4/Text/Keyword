@@ -5,7 +5,7 @@ TYPE
     None.
 
 CATEGORY
-    <Language>.
+    <Compact>.
 
 DEPENDENCIES
     None.
@@ -21,7 +21,7 @@ USAGE
     or a bare single character of the sequence.
 
 REMARKS
-    No exceptions allowed.
+    Constants will not be overwritten.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
@@ -30,4 +30,4 @@ DATE
     03/11/2013.
 
 REVISION
-    11/11/2013.
+    11/17/2013.

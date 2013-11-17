@@ -5,7 +5,7 @@ TYPE
     <Statement>.
 
 CATEGORY
-    <Language>.
+    <Compact>.
 
 DEPENDENCIES
     <String>,
@@ -27,4 +27,4 @@ DATE
     03/24/2013.
 
 REVISION
-    05/11/2013.
+    11/17/2013.

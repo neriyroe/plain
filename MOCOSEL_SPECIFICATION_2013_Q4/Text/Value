@@ -5,7 +5,7 @@ TYPE
     None.
 
 CATEGORY
-    <Language>.
+    <Compact>.
 
 DEPENDENCIES
     <Keyword>,
@@ -30,8 +30,7 @@ REMARKS
     3) String,
     4) Nil,
     5) Boolean,
-    6) <Keyword> shall be treated as <String> constant in case it's not declared
-    or defined,
+    6) See <Node>,
     7) List,
     8) Function,
     9) Array.
@@ -43,4 +42,4 @@ DATE
     03/11/2013.
 
 REVISION
-    05/11/2013.
+    11/17/2013.

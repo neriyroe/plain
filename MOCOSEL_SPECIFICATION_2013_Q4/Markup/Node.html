@@ -5,7 +5,7 @@
     <a href="Value.html">&lt;Value&gt;</a>.
 
 <b>CATEGORY</b>
-    <a href="Language.html">&lt;Language&gt;</a>.
+    <a href="Compact.html">&lt;Compact&gt;</a>.
 
 <b>DEPENDENCIES</b>
     <a href="Statement.html">&lt;Statement&gt;</a>,
@@ -19,9 +19,10 @@
 <b>REMARKS</b>
     <a href="Statement.html">&lt;Statement&gt;</a> as defined in <a href="Statement.html">./Statement</a>. Nodes shall be passed by arguments.
 
-    1) <a href="Statement.html">&lt;Statement&gt;</a> must be defined as <a href="Function.html">&lt;Function&gt;</a> that returns <a href="Value.html">&lt;Value&gt;</a>.
-    2) <a href="Keyword.html">&lt;Keyword&gt;</a> shall be defined as <a href="Value.html">&lt;Value&gt;</a>. <a href="Keyword.html">&lt;Keyword&gt;</a> shall not be
-    dereferenced.
+    1) <a href="Statement.html">&lt;Statement&gt;</a> must be <a href="Declaration.html">&lt;Declaration&gt;</a> or <a href="Definition.html">&lt;Definition&gt;</a>. <a href="Statement.html">&lt;Statement&gt;</a> shall be
+    expanded to returning <a href="Value.html">&lt;Value&gt;</a>, plus arguments.
+    2) Translation can be supressed. <a href="Keyword.html">&lt;Keyword&gt;</a> shall be expanded to any
+    returning <a href="Value.html">&lt;Value&gt;</a> but <a href="Function.html">&lt;Function&gt;</a>.
 
 <b>AUTHOR</b>
     Nerijus Ramanauskas &lt;nerijus.ramanauskas@mocosel.org&gt;.
@@ -30,5 +31,5 @@
     03/11/2013.
 
 <b>REVISION</b>
-    05/11/2013.
+    11/17/2013.
 </pre></body></html>

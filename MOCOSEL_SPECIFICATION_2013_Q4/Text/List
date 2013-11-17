@@ -5,7 +5,7 @@ TYPE
     <Value>.
 
 CATEGORY
-    <Language>.
+    <Compact>.
 
 DEPENDENCIES
     <Statement>.
@@ -17,7 +17,7 @@ REMARKS
     <Statement> as defined in ./Statement.
 
     Statements shall be separated (linked) by semicolons. Lists shall be passed
-    by arguments and unlike nodes, lists shall not be dereferenced. Thus, list
+    by arguments and unlike nodes, lists shall not be expanded. Thus, list
     shall be handled directly by that statement which the list is passed to. 
 
 AUTHOR
@@ -27,4 +27,4 @@ DATE
     03/11/2013.
 
 REVISION
-    05/11/2013.
+    11/17/2013.

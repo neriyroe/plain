@@ -5,7 +5,7 @@ TYPE
     <Node>.
 
 CATEGORY
-    <Language>.
+    <Compact>.
 
 DEPENDENCIES
     <Value>.
@@ -23,4 +23,4 @@ DATE
     04/07/2013.
 
 REVISION
-    05/11/2013.
+    11/17/2013.

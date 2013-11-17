@@ -14,8 +14,7 @@ USAGE
     <Statement> -> <Statement>.
 
 REMARKS
-    Target is a list passed to <Function> or <Procedure>. By default, all
-    statements are passed to <Do>.
+    Target is <List> passed to <Function> or <Procedure>.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
@@ -24,4 +23,4 @@ DATE
     04/14/2013.
 
 REVISION
-    05/11/2013.
+    11/17/2013.

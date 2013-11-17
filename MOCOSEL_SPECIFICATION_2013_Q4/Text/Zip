@@ -5,7 +5,7 @@ TYPE
     <Node>.
 
 CATEGORY
-    <Language>.
+    <Compact>.
 
 DEPENDENCIES
     <Function>,
@@ -15,7 +15,7 @@ USAGE
     zip <Array>, <Array>[, <Array>]*.
 
 REMARKS
-    Zip shall merge together the values of the <Array>s with the values at the
+    Zip shall merge together the values of the array with the values at the
     corresponding position.
 
 AUTHOR
@@ -25,4 +25,4 @@ DATE
     04/21/2013.
 
 REVISION
-    05/11/2013.
+    11/17/2013.

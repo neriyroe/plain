@@ -1,7 +1,7 @@
 #
 # Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
 # Date     11/13/2013,
-# Revision 11/16/2013,
+# Revision 11/17/2013,
 #
 # Copyright 2013 Nerijus Ramanauskas.
 #
@@ -23,9 +23,9 @@ SOURCE	=	Source/Plain/Shared/Algorithm/Hash.c \
  			Source/Plain/Framework/Finalize.c \
  			Source/Plain/Auxiliary.c \
 
-SANDBOX  =	Source/Sandbox/x86/Session.c \
- 			Source/Sandbox/x86/System/Load.c \
- 			Source/Sandbox/x86/Sandbox.c \
+COMPLAIN  =	Source/Complain/x86/Session.c \
+ 			Source/Complain/x86/System/Load.c \
+ 			Source/Complain/x86/Complain.c \
 
 clean:
 	rm -rf Binary/x86/* Binary/x86/*.*
@@ -33,4 +33,4 @@ clean:
 	find . -name *.DS_Store.* -exec rm -rf {} \;
 
 x86:
-	gcc -std=c99 -I $(INCLUDE) -o Binary/x86/Plain -O3 $(SOURCE) $(SANDBOX) -D MOCOSEL_DEBUGGING -Wall
+	gcc -std=c99 -I $(INCLUDE) -o Binary/x86/Complain -O3 $(SOURCE) $(COMPLAIN) -D MOCOSEL_DEBUGGING -Wall

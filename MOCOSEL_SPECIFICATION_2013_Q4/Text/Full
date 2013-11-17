@@ -1,0 +1,37 @@
+TOPIC
+    Full.
+
+TYPE
+    None.
+
+CATEGORY
+    <Language>.
+
+DEPENDENCIES
+    <Apply>,
+    <Compact>,
+    <Declaration>,
+    <Definition>,
+    <Filter>,
+    <Fold>,
+    <Function>,
+    <If>,
+    <Map>,
+    <Procedure>,
+    <Range>,
+    <Zip>.
+
+USAGE
+
+REMARKS
+    Incomplete Specification for the full version of the Mocosel Programming
+    Language, as of 2013 November 17.
+
+AUTHOR
+    Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
+
+DATE
+    03/12/2013.
+
+REVISION
+    11/17/2013.

@@ -1,34 +1,34 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/13/2013,
- * Revision 11/16/2013,
+ * Revision 11/17/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
 
-#include "Sandbox.h"
+#include "Complain.h"
 
-MOCOSEL_WORD_DOUBLE PLAIN_START(struct PLAIN_SESSION* session) {
+MOCOSEL_WORD_DOUBLE COMPLAIN_START(struct COMPLAIN_SESSION* session) {
     MOCOSEL_ASSERT(session != NULL);
     /* MOCOSEL_ERROR_SYSTEM. */
     if(session == NULL) {
         return MOCOSEL_ERROR_SYSTEM;
     }
-    memset(session, 0, sizeof(struct PLAIN_SESSION));
+    memset(session, 0, sizeof(struct COMPLAIN_SESSION));
     if(MOCOSEL_VERSION(&session->manifest) == 0) {
-        PLAIN_WRITE("%s\n", session, "Warning: Plain might not function properly on this platform or operating system.");
+        COMPLAIN_WRITE("%s\n", session, "Warning: Complain might not operate properly on this platform or operating system.");
     }
     return 0;
 }
 
-void PLAIN_STOP(struct PLAIN_SESSION* session) {
+void COMPLAIN_STOP(struct COMPLAIN_SESSION* session) {
     if(session == NULL) {
         return;
     }
     MOCOSEL_FINALIZE(&session->program);
 }
 
-void PLAIN_WRITE(const char* MOCOSEL_RESTRICT format, struct PLAIN_SESSION* MOCOSEL_RESTRICT session, ...) {
+void COMPLAIN_WRITE(const char* MOCOSEL_RESTRICT format, struct COMPLAIN_SESSION* MOCOSEL_RESTRICT session, ...) {
     MOCOSEL_ASSERT(format != NULL);
     MOCOSEL_ASSERT(session != NULL);
     if(format == NULL || session == NULL) {

@@ -1,5 +1,5 @@
 TOPIC
-    Return.
+    Difference.
 
 TYPE
     <Node>.
@@ -11,16 +11,17 @@ DEPENDENCIES
     <Value>.
 
 USAGE
-    return <Value>.
+    - <Value>, <Value>+.
 
 REMARKS
-    The statement return shall return <Value>.
+    The statement shall return the difference between two or more numeric
+    values.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
 
 DATE
-    03/11/2013.
+    11/17/2013.
 
 REVISION
     11/17/2013.
