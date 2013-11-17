@@ -2,7 +2,7 @@
 #
 # Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
 # Date     03/16/2013,
-# Revision 11/10/2013,
+# Revision 11/17/2013,
 #
 # Copyright 2013 Mocosel.org.
 #
@@ -18,22 +18,24 @@ else
     Dir.entries(ARGV[0]).each do |entry|
         if entry != '.' and entry != '..'
             text = CGI::escapeHTML(File.read("#{ARGV[0]}/#{entry}"))
-            text.gsub! /&lt;(\w+[\w ]*)&gt;/ do |match|
-                if File.exists?("#{ARGV[0]}/#{$1}")
-                    "<a href=\"#{$1}.html\">&lt;#{$1}&gt;</a>"
-                else
-                    match
+            if entry != 'License'
+                text.gsub! /&lt;(\w+[\w ]*)&gt;/ do |match|
+                    if File.exists?("#{ARGV[0]}/#{$1}")
+                        "<a href=\"#{$1}.html\">&lt;#{$1}&gt;</a>"
+                    else
+                        match
+                    end
                 end
-            end
-            text.gsub! /\.\/(\w+)/ do |match|
-                if File.exists?("#{ARGV[0]}/#{$1}")
-                    "<a href=\"#{$1}.html\">./#{$1}</a>"
-                else
-                    match
+                text.gsub! /\.\/(\w+)/ do |match|
+                    if File.exists?("#{ARGV[0]}/#{$1}")
+                        "<a href=\"#{$1}.html\">./#{$1}</a>"
+                    else
+                        match
+                    end
                 end
+                text.gsub! /^(\w+[\w ]*)$/, '<b>\1</b>'
+                text.gsub! /(http:\/\/[^\s]+)/, '<a href="\1">\1</a>'
             end
-            text.gsub! /^(\w+[\w ]*)$/, '<b>\1</b>'
-            text.gsub! /(http:\/\/[^\s]+)/, '<a href="\1">\1</a>'
             file = File.open("#{ARGV[1]}/#{entry}.html", 'w')
             file.write "<html><head><title>#{entry}</title></head><body><pre>#{text}</pre></body></html>"
             file.close
