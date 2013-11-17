@@ -15,7 +15,6 @@ DEPENDENCIES
     <Filter>,
     <Fold>,
     <Function>,
-    <If>,
     <Map>,
     <Procedure>,
     <Range>,

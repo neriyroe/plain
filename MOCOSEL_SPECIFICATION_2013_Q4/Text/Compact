@@ -13,6 +13,7 @@ DEPENDENCIES
     <Comment>,
     <Difference>,
     <Do>,
+    <If>,
     <Integer>,
     <Keyword>,
     <List>,
