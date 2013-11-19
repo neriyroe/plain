@@ -1,7 +1,7 @@
 #
 # Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
 # Date     11/13/2013,
-# Revision 11/17/2013,
+# Revision 11/19/2013,
 #
 # Copyright 2013 Nerijus Ramanauskas.
 #
@@ -24,12 +24,12 @@ COMPACT	=	Source/Plain/Shared/Algorithm/Hash.c \
  			Source/Plain/Auxiliary.c \
  			Source/Plain/Compact.c \
 
-COMPLAIN  =	Source/Complain/x86/Session.c \
- 			Source/Complain/x86/System/Load.c \
- 			Source/Complain/x86/Complain.c \
+EASY	=	Source/Easy/x86/Session.c \
+ 			Source/Easy/x86/System/Load.c \
+ 			Source/Easy/x86/Easy.c \
 
 x86:
-	gcc -std=c99 -I $(INCLUDE) -o Binary/x86/Complain -O3 $(COMPACT) $(COMPLAIN) -D MOCOSEL_DEBUGGING -Wall
+	gcc -std=c99 -I $(INCLUDE) -o Binary/x86/Easy -O3 $(COMPACT) $(EASY) -D MOCOSEL_DEBUGGING -Wall
 
 clean:
 	rm -rf Binary/x86/* Binary/x86/*.*
