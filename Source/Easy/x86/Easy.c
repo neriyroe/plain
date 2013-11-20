@@ -9,7 +9,7 @@
 #include "Easy.h"
 
 /* For use within the translation unit. */
-MOCOSEL_PROTOTYPE(EASY_OUT) {
+MOCOSEL_PROTOTYPE(EASY_TYPE) {
     MOCOSEL_WORD_DOUBLE index = 0;
     MOCOSEL_WORD_DOUBLE length = MOCOSEL_MEASURE(NODE);
     for(; index < length; index++) {
@@ -53,7 +53,7 @@ int main(int count, const char* layout[]) {
     if(count > 1) {
         MOCOSEL_WORD_DOUBLE error = EASY_LOAD(layout[1], &session.program, &session);
         if(error == 0) {
-            error = MOCOSEL_EXPORT("out", &session.program.registry.data, &EASY_OUT);
+            error = MOCOSEL_EXPORT("type", &session.program.registry.data, &EASY_TYPE);
             if(error != 0) {
                 EASY_WRITE("Warning: could not resolve `%s`.\n", &session, "out");
             }
