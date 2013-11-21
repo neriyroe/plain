@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/09/2013,
- * Revision 11/16/2013,
+ * Revision 11/21/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -31,15 +31,21 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(void* MOCOSEL_RESTRICT context, struct MOCOSEL_
         }
     /* Value. */
     } else {
-        MOCOSEL_ASSERT(value != NULL);
-        /* MOCOSEL_ERROR_SYSTEM. */
+        /* MOCOSEL_ERROR_RUNTIME_WRONG_DATA. */
         if(value == NULL) {
-            return MOCOSEL_ERROR_SYSTEM;
+            return MOCOSEL_ERROR_RUNTIME_WRONG_DATA;
         }
+        #if 0
         /* MOCOSEL_ERROR_SYSTEM. */
         if(memcpy(value, &statement->second, sizeof(struct MOCOSEL_VALUE)) == NULL) {
             return MOCOSEL_ERROR_SYSTEM;
         }
+        #else
+        value->data = statement->second.data;
+        value->length = statement->second.length;
+        value->type = statement->second.type;
+        #endif
+
     }
     if(node->node) {
         MOCOSEL_WORD_DOUBLE error = MOCOSEL_WALK(context, node->node, registry, NULL);

@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/09/2013,
- * Revision 11/15/2013,
+ * Revision 11/21/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -25,9 +25,15 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_REGISTER(struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT re
     destination->first.from = NULL;
     destination->first.to = NULL;
     /* Value. */
+    #if 0
     if(memcpy(&destination->second, &statement->second, sizeof(struct MOCOSEL_VALUE)) == NULL) {
         return MOCOSEL_ERROR_SYSTEM;
     }
+    #else
+    destination->second.data = statement->second.data;
+    destination->second.length = statement->second.length;
+    destination->second.type = statement->second.type;
+    #endif
     /* Keyword. */
     return MOCOSEL_CONCAT(&destination->first, &statement->first);
 }
