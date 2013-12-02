@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/11/2013,
- * Revision 11/19/2013,
+ * Revision 12/02/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -68,7 +68,7 @@ MOCOSEL_WORD_DOUBLE EASY_LOAD(const char* MOCOSEL_RESTRICT identifier, struct MO
     if(error != 0 || segment.from == NULL) {
         return error;
     }
-    error = MOCOSEL_RUN(NULL, MOCOSEL_SEGMENT_COMPILE | MOCOSEL_SEGMENT_RETAIN, &session->manifest, object, &segment);
+    error = MOCOSEL_RUN(NULL, MOCOSEL_SEGMENT_COMPILE, &session->manifest, object, &segment);
     /* MOCOSEL_ERROR_RUNTIME. */
     if(error & MOCOSEL_ERROR_RUNTIME) {
         EASY_WRITE("Runtime error %d occured while compiling %s.\n", session, error, identifier);
