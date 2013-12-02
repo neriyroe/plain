@@ -8,7 +8,7 @@
 
 #include <Plain/Mocosel.h>
 
-struct MOCOSEL_STATEMENT* MOCOSEL_LOOKUP(struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT keyword, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT registry) {
+struct MOCOSEL_STATEMENT* MOCOSEL_LOOKUP(const struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT keyword, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT registry) {
     MOCOSEL_ASSERT(keyword != NULL);
     MOCOSEL_ASSERT(registry != NULL);
     if(keyword == NULL || registry == NULL) {

@@ -7,6 +7,6 @@
  */
 
 struct MOCOSEL_MANIFEST {
-    MOCOSEL_BYTE*   pattern;
-    MOCOSEL_BYTE*   version;
+    const MOCOSEL_BYTE* pattern;
+    const MOCOSEL_BYTE* version;
 };

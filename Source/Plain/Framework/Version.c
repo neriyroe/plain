@@ -12,8 +12,8 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_VERSION(struct MOCOSEL_MANIFEST* manifest) {
     static const char PATTERN[] = "!$%^&*-_+=/|?<>0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     static const char VERSION[] = "0.0.1";
     if(manifest != NULL) {
-        manifest->pattern = (MOCOSEL_BYTE*)PATTERN;
-        manifest->version = (MOCOSEL_BYTE*)VERSION;
+        manifest->pattern = (const MOCOSEL_BYTE*)PATTERN;
+        manifest->version = (const MOCOSEL_BYTE*)VERSION;
     }
     return 1;
 }

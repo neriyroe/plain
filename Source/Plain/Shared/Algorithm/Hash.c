@@ -8,7 +8,7 @@
 
 #include <Plain/Mocosel.h>
 
-MOCOSEL_WORD_DOUBLE MOCOSEL_HASH(MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE length) {
+MOCOSEL_WORD_DOUBLE MOCOSEL_HASH(const MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE length) {
     MOCOSEL_WORD_DOUBLE identifier = 2166136261;
     MOCOSEL_WORD_DOUBLE index = 0;
     for(; index < length; index++) {

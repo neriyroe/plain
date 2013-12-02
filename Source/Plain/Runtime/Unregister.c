@@ -1,14 +1,14 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/09/2013,
- * Revision 11/15/2013,
+ * Revision 12/02/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
 
 #include <Plain/Mocosel.h>
 
-MOCOSEL_WORD_DOUBLE MOCOSEL_UNREGISTER(struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT keyword, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT registry) {
+MOCOSEL_WORD_DOUBLE MOCOSEL_UNREGISTER(const struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT keyword, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT registry) {
     MOCOSEL_ASSERT(registry != NULL);
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */
     if(registry == NULL) {
@@ -29,14 +29,18 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_UNREGISTER(struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT 
         MOCOSEL_BYTE* to = registry->to;
         for(; from != to; from += sizeof(struct MOCOSEL_STATEMENT)) {
             struct MOCOSEL_STATEMENT* statement = (struct MOCOSEL_STATEMENT*)from;
-            if(0 == strncmp((const char*)keyword->from, (const char*)statement->first.from, MOCOSEL_MAXIMUM(keyword->to - keyword->from, statement->first.to - statement->first.from))) {
-                MOCOSEL_FREE(statement->first.from);
+            if(keyword->to - keyword->from != statement->first.to - statement->first.from) {
+                continue;
+            }
+            if(0 == strncmp((const char*)keyword->from, (const char*)statement->first.from, keyword->to - keyword->from)) {
                 break;
             }
         }
         /* MOCOSEL_ERROR_RUNTIME_WRONG_DATA. */
         if(from == to) {
             return MOCOSEL_ERROR_RUNTIME_WRONG_DATA;
+        } else {
+            MOCOSEL_FREE(((struct MOCOSEL_STATEMENT*)from)->first.from);
         }
         MOCOSEL_WORD_DOUBLE number = registry->to - registry->from - sizeof(struct MOCOSEL_STATEMENT);
         MOCOSEL_WORD_DOUBLE remainder = to - from - sizeof(struct MOCOSEL_STATEMENT);

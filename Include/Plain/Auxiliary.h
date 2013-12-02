@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/12/2013,
- * Revision 11/15/2013,
+ * Revision 12/02/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -33,10 +33,10 @@ MOCOSEL_INLINE struct MOCOSEL_VALUE* MOCOSEL_ARGUMENT(struct MOCOSEL_LIST* node,
 }
 
 /* Exports <symbol> to <registry>, forming a statement. Notice: <symbol> has to be declared, pass NULL to <symbol> to remove the statement. */
-MOCOSEL_WORD_DOUBLE MOCOSEL_EXPORT(MOCOSEL_BYTE* MOCOSEL_RESTRICT name, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT registry, MOCOSEL_SUBROUTINE symbol);
+MOCOSEL_WORD_DOUBLE MOCOSEL_EXPORT(const MOCOSEL_BYTE* MOCOSEL_RESTRICT name, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT registry, MOCOSEL_SUBROUTINE symbol);
 
 /* Returns number of arguments of <node>. */
-MOCOSEL_INLINE MOCOSEL_WORD_DOUBLE MOCOSEL_MEASURE(struct MOCOSEL_LIST* node) {
+MOCOSEL_INLINE MOCOSEL_WORD_DOUBLE MOCOSEL_MEASURE(const struct MOCOSEL_LIST* node) {
     MOCOSEL_ASSERT(node != NULL);
     if(node == NULL) {
         return 0;
