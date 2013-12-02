@@ -22,7 +22,6 @@ COMPACT	=	Source/Plain/Shared/Algorithm/Hash.c \
 			Source/Plain/Framework/Version.c \
  			Source/Plain/Framework/Finalize.c \
  			Source/Plain/Auxiliary.c \
- 			Source/Plain/Compact.c \
 
 EASY	=	Source/Easy/x86/Session.c \
  			Source/Easy/x86/System/Load.c \
