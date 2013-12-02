@@ -38,7 +38,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(void* MOCOSEL_RESTRICT context, MOCOSEL_WORD_DOU
                 return error;
             }
         }
-        MOCOSEL_WORD_DOUBLE error = MOCOSEL_TOKENIZE(&object->segment.structure, NULL, &manifest->pattern, &object->segment.data);
+        MOCOSEL_WORD_DOUBLE error = MOCOSEL_TOKENIZE(&object->segment.structure, NULL, manifest->pattern, &object->segment.data);
         if(error != 0) {
             return error;
         }

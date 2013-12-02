@@ -8,12 +8,9 @@
 
 #include <Plain/Mocosel.h>
 
-MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node, struct MOCOSEL_LIST* MOCOSEL_RESTRICT parent, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT pattern, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT segment) {
+MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node, struct MOCOSEL_LIST* MOCOSEL_RESTRICT parent, MOCOSEL_BYTE* MOCOSEL_RESTRICT pattern, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT segment) {
     MOCOSEL_ASSERT(node != NULL);
     MOCOSEL_ASSERT(pattern != NULL);
-    MOCOSEL_ASSERT(pattern->from != NULL);
-    MOCOSEL_ASSERT(pattern->from != pattern->to);
-    MOCOSEL_ASSERT(pattern->to != NULL);
     MOCOSEL_ASSERT(segment != NULL);
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */
     if(node == NULL || pattern == NULL || segment == NULL) {
@@ -72,7 +69,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
     node->segment.from = &segment->from[i];
     node->segment.to = &segment->from[j];
     for(; i < j; i++) {
-        if(strchr((const char*)pattern->from, (char)segment->from[i]) == NULL) {
+        if(strchr((const char*)pattern, (char)segment->from[i]) == NULL) {
             break;
         }
     }
@@ -275,7 +272,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
             /* String. */
             } else {
                 for(m = i - 1; m < j; m++) {
-                    if(strchr((const char*)pattern->from, (char)segment->from[m]) == NULL) {
+                    if(strchr((const char*)pattern, (char)segment->from[m]) == NULL) {
                         break;
                     }
                 }
@@ -323,7 +320,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
         } else {
             MOCOSEL_WORD_DOUBLE identifier = 2166136261;
             for(k = i; i < j; i++) {
-                if(strchr((const char*)pattern->from, (char)segment->from[i]) == NULL) {
+                if(strchr((const char*)pattern, (char)segment->from[i]) == NULL) {
                     break;
                 }
                 identifier ^= segment->from[i];
