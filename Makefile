@@ -1,7 +1,7 @@
 #
 # Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
 # Date     11/13/2013,
-# Revision 11/19/2013,
+# Revision 12/02/2013,
 #
 # Copyright 2013 Nerijus Ramanauskas.
 #
