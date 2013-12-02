@@ -1,24 +1,20 @@
  /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/14/2013,
- * Revision 11/15/2013,
+ * Revision 12/02/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
 
 #include <Plain/Mocosel.h>
 
-MOCOSEL_WORD_DOUBLE MOCOSEL_HASH(struct MOCOSEL_SEGMENT* segment) {
-    MOCOSEL_WORD_DOUBLE hash = 2166136261;
-    if(segment == NULL || segment->from == segment->to) {
-        return hash;
-    }
-    MOCOSEL_BYTE* MOCOSEL_RESTRICT from = segment->from;
-    MOCOSEL_BYTE* MOCOSEL_RESTRICT to = segment->to;
-    for(; from != to; from++) {
-        hash ^= *from;
+MOCOSEL_WORD_DOUBLE MOCOSEL_HASH(MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE length) {
+    MOCOSEL_WORD_DOUBLE identifier = 2166136261;
+    MOCOSEL_WORD_DOUBLE index = 0;
+    for(; index < length; index++) {
+        identifier ^= data[index];
         /* 2 ^ 24 + 2 ^ 8 + 0x93. */
-        hash *= 16777619;
+        identifier *= 16777619;
     } 
-    return hash;
+    return identifier;
 }

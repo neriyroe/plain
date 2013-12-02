@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 11/15/2013,
+ * Revision 12/02/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -33,8 +33,8 @@ extern "C" {
 /* Appends <source> to <destination>. Notice: <destination> will be reallocated. */
 MOCOSEL_WORD_DOUBLE MOCOSEL_CONCAT(struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT destination, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT source);
 
-/* Returns 32-bit hash of <segment>. */
-MOCOSEL_WORD_DOUBLE MOCOSEL_HASH(struct MOCOSEL_SEGMENT* segment);
+/* Returns 32-bit hash of <data>. */
+MOCOSEL_WORD_DOUBLE MOCOSEL_HASH(MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE length);
 
 /* Appends an argument of type <type> and length <length> to the layout of <node>. */
 MOCOSEL_WORD_DOUBLE MOCOSEL_JOIN(MOCOSEL_BYTE* MOCOSEL_RESTRICT data, MOCOSEL_WORD_DOUBLE length, struct MOCOSEL_LIST* MOCOSEL_RESTRICT node, MOCOSEL_WORD_DOUBLE type);

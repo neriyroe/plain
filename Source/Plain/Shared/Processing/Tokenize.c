@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 11/15/2013,
+ * Revision 12/02/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -321,10 +321,14 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
             break;
         /* Keyword. */
         } else {
+            MOCOSEL_WORD_DOUBLE identifier = 2166136261;
             for(k = i; i < j; i++) {
                 if(strchr((const char*)pattern->from, (char)segment->from[i]) == NULL) {
                     break;
                 }
+                identifier ^= segment->from[i];
+                /* 2 ^ 24 + 2 ^ 8 + 0x93. */
+                identifier *= 16777619;
             }
             /* MOCOSEL_ERROR_SYNTAX_UNKOWN_TOKEN. */
             if(i == k) {
@@ -332,19 +336,19 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
             }
             --i;
             /* Boolean. */
-            if(0 == strncmp((const char*)&segment->from[k], "no", MOCOSEL_MAXIMUM(i - k + 1, 2))) {
+            if(identifier == 1647734778) {
                 MOCOSEL_WORD_DOUBLE error = MOCOSEL_JOIN(NULL, 0, node, MOCOSEL_TYPE_BOOLEAN);
                 if(error != 0) {
                     return error;
                 }
             /* Nil. */
-            } else if(0 == strncmp((const char*)&segment->from[k], "none", MOCOSEL_MAXIMUM(i - k + 1, 4))) {
+            } else if(identifier == 2913447899) {
                 MOCOSEL_WORD_DOUBLE error = MOCOSEL_JOIN(NULL, 0, node, MOCOSEL_TYPE_NIL);
                 if(error != 0) {
                     return error;
                 }
             /* Boolean. */
-            } else if(0 == strncmp((const char*)&segment->from[k], "yes", MOCOSEL_MAXIMUM(i - k + 1, 3))) {
+            } else if(identifier == 1319056784) {
                 MOCOSEL_WORD_DOUBLE error = MOCOSEL_JOIN((MOCOSEL_BYTE*)0xFF, 0, node, MOCOSEL_TYPE_BOOLEAN);
                 if(error != 0) {
                     return error;
