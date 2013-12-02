@@ -1,0 +1,37 @@
+TOPIC
+    Naked.
+
+TYPE
+    None.
+
+CATEGORY
+    <Language>.
+
+DEPENDENCIES
+    <Boolean>,
+    <Comment>,
+    <Integer>,
+    <Keyword>,
+    <List>,
+    <Nil>,
+    <Node>,
+    <Real>,
+    <Statement>,
+    <String>,
+    <Target>,
+    <Value>.
+
+USAGE
+
+REMARKS
+    Specification for the naked version of the Mocosel Programming Language,
+    as of 2013 December 02.
+
+AUTHOR
+    Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
+
+DATE
+    12/02/2013.
+
+REVISION
+    12/02/2013.

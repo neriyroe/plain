@@ -10,34 +10,24 @@ CATEGORY
 DEPENDENCIES
     <And>,
     <Array>,
-    <Boolean>,
-    <Comment>,
     <Difference>,
     <Do>,
     <If>,
     <Is>,
-    <Integer>,
-    <Keyword>,
-    <List>,
-    <Nil>,
-    <Node>,
+    <Naked>,
     <Or>,
     <Quotient>,
     <Product>,
     <Real>,
     <Remainder>,
     <Return>,
-    <Statement>,
-    <String>,
-    <Sum>,
-    <Target>,
-    <Value>.
+    <Sum>.
 
 USAGE
 
 REMARKS
     Specification for the compact version of the Mocosel Programming Language,
-    as of 2013 November 17.
+    as of 2013 December 02.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
@@ -46,4 +36,4 @@ DATE
     11/17/2013.
 
 REVISION
-    11/17/2013.
+    12/02/2013.

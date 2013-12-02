@@ -5,7 +5,7 @@ TYPE
     None.
 
 CATEGORY
-    <Compact>.
+    <Naked>.
 
 DEPENDENCIES
     <Value>,
@@ -28,4 +28,4 @@ DATE
     03/11/2013.
 
 REVISION
-    05/11/2013.
+    12/02/2013.

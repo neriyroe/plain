@@ -9,13 +9,14 @@ CATEGORY
 
 DEPENDENCIES
     <Compact>,
-    <Full>.
+    <Full>,
+    <Naked>.
 
 USAGE
 
 REMARKS
     Mocosel Programming Language Specification 2013 Q4, as of
-    2013 November 17.
+    2013 December 02.
 
     Please read <License> carefully before copying or redistributing the
     Mocosel Programming Language Specification and/or dependencies, other
@@ -28,4 +29,4 @@ DATE
     03/12/2013.
 
 REVISION
-    11/17/2013.
+    12/02/2013.

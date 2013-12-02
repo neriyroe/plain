@@ -5,7 +5,7 @@ TYPE
     <List>.
 
 CATEGORY
-    <Language>.
+    <Naked>.
 
 DEPENDENCIES
     <Statement>.
@@ -23,4 +23,4 @@ DATE
     04/14/2013.
 
 REVISION
-    11/17/2013.
+    12/02/2013.
