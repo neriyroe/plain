@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/09/2013,
- * Revision 12/02/2013,
+ * Revision 12/03/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -9,7 +9,7 @@
 #include <Plain/VM.h>
 #include <stdio.h>
 
-MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(void* MOCOSEL_RESTRICT context, MOCOSEL_WORD_DOUBLE flag, const struct MOCOSEL_MANIFEST* MOCOSEL_RESTRICT manifest, struct MOCOSEL_OBJECT* MOCOSEL_RESTRICT object, const struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT segment) {
+MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(void* context, MOCOSEL_WORD_DOUBLE flag, const struct MOCOSEL_MANIFEST* manifest, struct MOCOSEL_OBJECT* object, const struct MOCOSEL_SEGMENT* segment) {
     MOCOSEL_ASSERT(manifest != NULL);
     MOCOSEL_ASSERT(object != NULL);
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */

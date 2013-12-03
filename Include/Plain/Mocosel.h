@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 12/02/2013,
+ * Revision 12/03/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -61,7 +61,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
 MOCOSEL_WORD_DOUBLE MOCOSEL_UNREGISTER(const struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT keyword, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT registry);
 
 /* Evaluates <node>, returning value. Notice: <value> can be NULL, procedures do not return values. */
-MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(void* MOCOSEL_RESTRICT context, struct MOCOSEL_LIST* MOCOSEL_RESTRICT node, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT registry, struct MOCOSEL_VALUE* MOCOSEL_RESTRICT value);
+MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(void* context, struct MOCOSEL_LIST* node, struct MOCOSEL_SEGMENT* registry, struct MOCOSEL_VALUE* value);
 
 /* C++. */
 #ifdef __cplusplus
