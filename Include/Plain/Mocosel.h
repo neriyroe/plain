@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 12/03/2013,
+ * Revision 12/04/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -32,9 +32,6 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_CONCAT(struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT dest
 
 /* Returns 32-bit hash of <data>. */
 MOCOSEL_WORD_DOUBLE MOCOSEL_HASH(const MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE length);
-
-/* Appends an argument of type <type> and length <length> to the layout of <node>. */
-MOCOSEL_WORD_DOUBLE MOCOSEL_JOIN(MOCOSEL_BYTE* MOCOSEL_RESTRICT data, MOCOSEL_WORD_DOUBLE length, struct MOCOSEL_LIST* MOCOSEL_RESTRICT node, MOCOSEL_WORD_DOUBLE type);
 
 /* Returns statement matching <keyword> in registry, or NULL otherwise. */
 struct MOCOSEL_STATEMENT* MOCOSEL_LOOKUP(const struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT keyword, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT registry);
