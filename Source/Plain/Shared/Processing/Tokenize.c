@@ -42,10 +42,19 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_JOIN(MOCOSEL_BYTE* MOCOSEL_RESTRICT data, MOCOSEL_WO
     if(length > 0) {
         /* Keyword, string. */
         if(type == MOCOSEL_TYPE_KEYWORD || type == MOCOSEL_TYPE_STRING) {
-            value->data[--length] = 0;
-        }
+            MOCOSEL_WORD_DOUBLE index = 0;
+            for(--length; index < length; index++) {
+                if(value->data[index] == '\\') {
+                    if(++index == length) {
+                        break;
+                    }
+                } else {
+                    value->data[index] = data[index];
+                }
+            }
+            value->data[length] = 0;
         /* MOCOSEL_ERROR_SYSTEM. */
-        if(memcpy(value->data, data, length) == NULL) {
+        } else if(memcpy(value->data, data, length) == NULL) {
             return MOCOSEL_ERROR_SYSTEM;
         }
     } else {
