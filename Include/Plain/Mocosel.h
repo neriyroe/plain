@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 12/04/2013,
+ * Revision 12/18/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -27,6 +27,20 @@ extern "C" {
 #include "Runtime/Subroutine.h"
 #include "Runtime/Statement.h"
 
+/* Returns argument of <node> at <position>. */
+MOCOSEL_INLINE struct MOCOSEL_VALUE* MOCOSEL_ARGUMENT(struct MOCOSEL_LIST* node, MOCOSEL_WORD_DOUBLE position) {
+    MOCOSEL_ASSERT(node != NULL);
+    if(node == NULL) {
+        return NULL;
+    }
+    MOCOSEL_WORD_DOUBLE length = node->layout.to - node->layout.from;
+    MOCOSEL_WORD_DOUBLE offset = sizeof(struct MOCOSEL_VALUE) * position;
+    if(offset >= length) {
+        return NULL;
+    }
+    return (struct MOCOSEL_VALUE*)&node->layout.from[offset];
+}
+
 /* Appends <source> to <destination>. Notice: <destination> will be reallocated. */
 MOCOSEL_WORD_DOUBLE MOCOSEL_CONCAT(struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT destination, const struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT source);
 
@@ -35,6 +49,15 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_HASH(const MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE l
 
 /* Returns statement matching <keyword> in registry, or NULL otherwise. */
 struct MOCOSEL_STATEMENT* MOCOSEL_LOOKUP(const struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT keyword, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT registry);
+
+/* Returns number of arguments of <node>. */
+MOCOSEL_INLINE MOCOSEL_WORD_DOUBLE MOCOSEL_MEASURE(const struct MOCOSEL_LIST* node) {
+    MOCOSEL_ASSERT(node != NULL);
+    if(node == NULL) {
+        return 0;
+    }
+    return (node->layout.to - node->layout.from) / sizeof(struct MOCOSEL_VALUE);
+}
 
 /* Frees all memory occupied by <node>, resulting in a nil list. */
 void MOCOSEL_PURGE(struct MOCOSEL_LIST* node);
