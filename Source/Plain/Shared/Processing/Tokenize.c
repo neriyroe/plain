@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 12/07/2013,
+ * Revision 12/18/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -349,6 +349,10 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
             }
         /* Node. */
         } else if(segment->from[i] == ';') {
+            /* MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION. */
+            if(node->parent != NULL) {
+                return MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION;
+            }
             struct MOCOSEL_SEGMENT fragment = {&segment->from[++i], &segment->from[j]};
             /* Dummy. */
             if(fragment.from == fragment.to) {
