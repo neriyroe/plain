@@ -92,7 +92,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(void* context, struct MOCOSEL_LIST* MOCOSEL_RES
     }
     /* Node. */
     if(node->node) {
-        MOCOSEL_WORD_DOUBLE error = MOCOSEL_WALK(context, node->node, registry, value);
+        MOCOSEL_WORD_DOUBLE error = MOCOSEL_WALK(context, node->node, registry, NULL);
         if(error != 0) {
             return error;
         }
