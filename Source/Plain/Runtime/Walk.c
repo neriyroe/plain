@@ -23,9 +23,11 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_EXPAND(void* context, struct MOCOSEL_VALUE* destinat
     }
     source = (struct MOCOSEL_LIST*)destination->data;
     if(destination->type == MOCOSEL_TYPE_LIST) {
-        error = MOCOSEL_EXPAND(context, destination, registry, source);
-        if(error != 0) {
-            return error;
+        if(source->parent != NULL) {
+            error = MOCOSEL_EXPAND(context, destination, registry, source);
+            if(error != 0) {
+                return error;
+            }
         }
         MOCOSEL_PURGE(source);
     }
@@ -55,6 +57,9 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(void* context, struct MOCOSEL_LIST* MOCOSEL_RES
         struct MOCOSEL_LIST* source = (struct MOCOSEL_LIST*)destination->data;
         /* List. */
         if(destination->type == MOCOSEL_TYPE_LIST) {
+            if(source->parent == NULL) {
+                continue;
+            }
             MOCOSEL_WORD_DOUBLE error = MOCOSEL_EXPAND(context, destination, registry, source);
             if(error != 0) {
                 return error;
@@ -86,7 +91,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(void* context, struct MOCOSEL_LIST* MOCOSEL_RES
         #endif
     }
     if(node->node) {
-        MOCOSEL_WORD_DOUBLE error = MOCOSEL_WALK(context, node->node, registry, NULL);
+        MOCOSEL_WORD_DOUBLE error = MOCOSEL_WALK(context, node->node, registry, value);
         if(error != 0) {
             return error;
         }
