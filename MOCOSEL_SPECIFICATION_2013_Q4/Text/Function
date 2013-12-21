@@ -12,21 +12,18 @@ DEPENDENCIES
     <String>,
     <Statement>,
     <Keyword>,
-    <Array>,
-    <Target>.
+    <Array>.
 
 USAGE
-    <Statement> -> function [with <Value>*].
+    function [with <Value>*]: <Statement>.
 
 REMARKS
-    <Statement> as defined in ./Statement.
-
     <Value> shall be <String> or <Keyword>. Function shall not be limited to
     any number of argument declarations. Arguments shall be immutable, declared
     in function scope. `...` shall be reserved and defined as ordered <Array>
     of unnamed (indexed) arguments.
 
-    <Statement> shall be passed to function as <Target> to list.
+    <Statement> must return <Value>.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
@@ -35,4 +32,4 @@ DATE
     03/11/2013.
 
 REVISION
-    11/17/2013.
+    12/21/2013.

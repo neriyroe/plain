@@ -14,7 +14,7 @@ USAGE
     return <Value>.
 
 REMARKS
-    The statement return shall return <Value>.
+    `return` shall return <Value>.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
@@ -23,4 +23,4 @@ DATE
     03/11/2013.
 
 REVISION
-    11/17/2013.
+    12/21/2013.

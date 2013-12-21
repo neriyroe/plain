@@ -16,8 +16,8 @@ USAGE
     from <Value> to <Value> [by <Value>].
 
 REMARKS
-    <Array> of numbers shall be returned. Step (defined by `by`) shall default
-    to 1.
+    An <Array> of numbers shall be returned. Step (defined by `by`) shall
+    default to 1.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
@@ -26,4 +26,4 @@ DATE
     04/21/2013.
 
 REVISION
-    15/17/2013.
+    12/21/2013.

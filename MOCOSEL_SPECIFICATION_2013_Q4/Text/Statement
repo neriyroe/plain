@@ -15,11 +15,9 @@ USAGE
     <Keyword> <Value>*.
 
 REMARKS
-    Statement shall be defined as singly linked list, containing array of
-    arguments and metadata. Arguments shall be separated by commas and
+    Statement shall be defined as a singly linked list, containing an array of
+    arguments and metadata. Arguments shall be separated by commas and/or
     whitespace characters.
-
-    <Keyword> as defined in ./Keyword.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
@@ -28,4 +26,4 @@ DATE
     03/11/2013.
 
 REVISION
-    12/02/2013.
+    12/21/2013.

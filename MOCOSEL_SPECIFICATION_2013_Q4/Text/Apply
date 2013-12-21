@@ -14,11 +14,11 @@ DEPENDENCIES
     <Procedure>.
 
 USAGE
-    apply <Function> to <Value>.
+    apply <Array> to <Value>.
 
 REMARKS
-    The statement apply shall invoke <Procedure> or <Function> given by <Value>
-    with arguments given by <Array>.
+    Apply shall invoke <Procedure> or <Function> given by <Value> with
+    arguments given by <Array>.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
@@ -27,4 +27,4 @@ DATE
     04/07/2013.
 
 REVISION
-    11/17/2013.
+    12/21/2013.

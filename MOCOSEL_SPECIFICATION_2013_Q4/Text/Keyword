@@ -21,7 +21,7 @@ USAGE
     or a bare single character in the sequence.
 
 REMARKS
-    Constants will not be overwritten.
+    Reserved keywords will not be overwritten.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
@@ -30,4 +30,4 @@ DATE
     03/11/2013.
 
 REVISION
-    12/02/2013.
+    12/21/2013.

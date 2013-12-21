@@ -12,10 +12,10 @@ DEPENDENCIES
     <Value>.
 
 USAGE
-    <Keyword> <- <Value>.
+    <Keyword> = <Value>.
 
 REMARKS
-    <Keyword> must not be declared in current scope.
+    <Keyword> must not be declared in top scope.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
@@ -24,4 +24,4 @@ DATE
     03/11/2013.
 
 REVISION
-    11/17/2013.
+    12/21/2013.

@@ -18,12 +18,10 @@ USAGE
     procedure [with <Value>*]: <List>.
 
 REMARKS
-    <List> as defined in ./List.
-
-    Procedure shall only return <List> without making any modifications to it.
-    Unlike functions, procedures shall not return any values or make any use of
-    argument declarations. Procedures shall be allowed to make modifications to
-    definitions in any scope.
+    Procedure shall only return <List> and a scope associated with it without
+    making any additional modifications to the list. Unlike functions,
+    procedures shall be allowed to make modifications to definitions in any
+    accessible scope within the program object.
 
     <Value> shall be <String> or <Keyword>. Procedure shall not be limited to
     any number of argument declarations. Arguments shall be immutable, declared
@@ -37,4 +35,4 @@ DATE
     03/11/2013.
 
 REVISION
-    11/17/2013.
+    12/21/2013.

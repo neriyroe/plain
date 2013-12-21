@@ -15,7 +15,7 @@ USAGE
     map <Function> to <Array>.
 
 REMARKS
-    New <Array> of transformed elements shall be returned.
+    A new <Array> of transformed elements shall be returned.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
@@ -24,4 +24,4 @@ DATE
     04/21/2013.
 
 REVISION
-    11/17/2013.
+    12/21/2013.

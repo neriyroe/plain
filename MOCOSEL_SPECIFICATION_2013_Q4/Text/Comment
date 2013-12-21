@@ -14,7 +14,7 @@ USAGE
     ` .*
 
 REMARKS
-    Comment line is terminated by whitespace.
+    A comment line shall be terminated by an LF character.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
@@ -23,4 +23,4 @@ DATE
     03/11/2013.
 
 REVISION
-    12/02/2013.
+    12/21/2013.

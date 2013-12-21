@@ -16,9 +16,9 @@ USAGE
     2) do <List>+.
 
 REMARKS
-    The statement shall
-        1) concatenate, interpret and evaluate,
-        2) evaluate each <List>.
+    Do shall
+        1) concatenate, interpret and evaluate in top scope,
+        2) evaluate each <List> in top scope.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
@@ -27,4 +27,4 @@ DATE
     03/24/2013.
 
 REVISION
-    11/17/2013.
+    12/21/2013.

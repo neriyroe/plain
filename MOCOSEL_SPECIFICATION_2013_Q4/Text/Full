@@ -24,7 +24,7 @@ USAGE
 
 REMARKS
     Incomplete specification for the full version of the Mocosel Programming
-    Language, as of 2013 November 17.
+    Language, as of 2013 November 21.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
@@ -33,4 +33,4 @@ DATE
     03/12/2013.
 
 REVISION
-    11/17/2013.
+    12/21/2013.

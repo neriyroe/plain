@@ -18,12 +18,10 @@
     procedure [with <a href="Value.html">&lt;Value&gt;</a>*]: <a href="List.html">&lt;List&gt;</a>.
 
 <b>REMARKS</b>
-    <a href="List.html">&lt;List&gt;</a> as defined in <a href="List.html">./List</a>.
-
-    Procedure shall only return <a href="List.html">&lt;List&gt;</a> without making any modifications to it.
-    Unlike functions, procedures shall not return any values or make any use of
-    argument declarations. Procedures shall be allowed to make modifications to
-    definitions in any scope.
+    Procedure shall only return <a href="List.html">&lt;List&gt;</a> and a scope associated with it without
+    making any additional modifications to the list. Unlike functions,
+    procedures shall be allowed to make modifications to definitions in any
+    accessible scope within the program object.
 
     <a href="Value.html">&lt;Value&gt;</a> shall be <a href="String.html">&lt;String&gt;</a> or <a href="Keyword.html">&lt;Keyword&gt;</a>. Procedure shall not be limited to
     any number of argument declarations. Arguments shall be immutable, declared
@@ -37,5 +35,5 @@
     03/11/2013.
 
 <b>REVISION</b>
-    11/17/2013.
+    12/21/2013.
 </pre></body></html>

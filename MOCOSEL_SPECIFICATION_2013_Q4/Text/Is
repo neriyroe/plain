@@ -17,8 +17,8 @@ USAGE
     4) is not <Value>, <Value>+.
 
 REMARKS
-    The statement shall return positive <Boolean> on success or negative
-    otherwise. Type safety shall be guaranteed, excepting for numeric values.
+    Is shall return a positive <Boolean> on success or negative otherwise. Type
+    safety shall be guaranteed, excepting for numeric values.
 
     1) Shall operate on any values and succeed if the first <Value> is
     identical to the rest,
@@ -36,4 +36,4 @@ DATE
     11/17/2013.
 
 REVISION
-    12/02/2013.
+    12/21/2013.

@@ -14,8 +14,8 @@ USAGE
     or <Boolean>, <Boolean>+.
 
 REMARKS
-    The statement shall return the logical sum (inclusive disjunction) of the
-    <Boolean> values.
+    Or shall return the logical sum (inclusive disjunction) of the <Boolean>
+    values.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
@@ -24,4 +24,4 @@ DATE
     11/17/2013.
 
 REVISION
-    11/17/2013.
+    12/21/2013.

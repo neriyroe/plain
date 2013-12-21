@@ -14,7 +14,7 @@ USAGE
     array <Value>*.
 
 REMARKS
-    The statement array shall return an array of arguments.
+    Array shall return an array of arguments.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
@@ -23,4 +23,4 @@ DATE
     04/07/2013.
 
 REVISION
-    11/17/2013.
+    12/21/2013.

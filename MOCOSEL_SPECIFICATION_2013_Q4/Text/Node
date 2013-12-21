@@ -17,12 +17,12 @@ USAGE
     2) <Keyword>.
 
 REMARKS
-    <Statement> as defined in ./Statement. Nodes shall be passed by arguments.
+    Nodes shall be passed by arguments.
 
     1) <Statement> must be <Declaration> or <Definition>. <Statement> shall be
-    expanded to returning <Value>, plus arguments.
-    2) Translation can be supressed. <Keyword> shall be expanded to any
-    returning <Value> but <Function>.
+    expanded to the value it returns.
+    2) Translation to [[<Keyword>]] can be supressed. [[<Keyword>]] shall be
+    expanded to any <Value> it returns but <Function>.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
@@ -31,4 +31,4 @@ DATE
     03/11/2013.
 
 REVISION
-    12/02/2013.
+    12/21/2013.

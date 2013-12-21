@@ -14,7 +14,7 @@ USAGE
     / <Value>, <Value>+.
 
 REMARKS
-    The statement shall return the quotient of two or more numeric values.
+    `/` shall return the quotient of two or more numeric values.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
@@ -23,4 +23,4 @@ DATE
     11/17/2013.
 
 REVISION
-    11/17/2013.
+    12/21/2013.
