@@ -383,7 +383,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
             if(child == NULL) {
                 return MOCOSEL_ERROR_SYSTEM;
             }
-            MOCOSEL_WORD_DOUBLE error = MOCOSEL_TOKENIZE(child, node, pattern, &fragment);
+            MOCOSEL_WORD_DOUBLE error = MOCOSEL_TOKENIZE(child, NULL, pattern, &fragment);
             /* Dummy. */
             if(child->keyword.from == child->keyword.to || error != 0) {
                 MOCOSEL_FREE(child);
