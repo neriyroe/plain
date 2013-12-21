@@ -14,7 +14,7 @@ USAGE
     array <Value>*.
 
 REMARKS
-    Array shall return an array of arguments.
+    `array` shall return an array of arguments.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.

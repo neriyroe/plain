@@ -14,7 +14,8 @@ USAGE
     % <Value>, <Value>+.
 
 REMARKS
-    `%` return the remainder of the division of two or more numeric values.
+    `%` shall return the remainder of the division of two or more numeric
+    values.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.

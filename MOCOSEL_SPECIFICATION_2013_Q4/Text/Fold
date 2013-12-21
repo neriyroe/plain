@@ -16,7 +16,7 @@ USAGE
 
 REMARKS
     Fold shall accumulate elements of <Array> using predicate given by
-    <Function>, building up a return value.
+    <Function>, building up a returning value.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
