@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 12/18/2013,
+ * Revision 12/21/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -343,10 +343,65 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
             i--;
         /* Colon. */
         } else if(segment->from[i] == ':') {
-            MOCOSEL_WORD_DOUBLE error = MOCOSEL_JOIN(&segment->from[i], 2, node, MOCOSEL_TYPE_STRING);
+            m = ++i;
+            /* Layout. */
+            for(; m < j; m++) {
+                /* String. */
+                if(segment->from[m] == '"' || segment->from[m] == '\'') {
+                    for(o = m + 1; o < j; o++) {
+                        if(segment->from[o] == '\\') {
+                            o++;
+                        } else if(segment->from[o] == segment->from[m]) {
+                            break;
+                        }
+                    }
+                    /* MOCOSEL_ERROR_SYNTAX_MISSING_QUATATION_MARK. */
+                    if(o == j) {
+                        return MOCOSEL_ERROR_SYNTAX_MISSING_QUOTATION_MARK;
+                    }
+                    m = o;
+                /* Node. */
+                } else if(segment->from[m] == ';') {
+                    break;
+                /* Comment. */
+                } else if(segment->from[m] == '`') {
+                    for(m++; m < j; m++) {
+                        if(segment->from[m] == '\r' || segment->from[m] == '\n') {
+                            break;
+                        }
+                    }
+                }
+            }
+            struct MOCOSEL_SEGMENT fragment = {&segment->from[i], &segment->from[m]};
+            /* MOCOSEL_ERROR_SYNTAX_MISSING_BRACKET. */
+            if(n != 0) {
+                return MOCOSEL_ERROR_SYNTAX_MISSING_BRACKET;
+            }
+            /* Node. */
+            struct MOCOSEL_LIST* child = (struct MOCOSEL_LIST*)MOCOSEL_RESIZE(NULL, sizeof(struct MOCOSEL_LIST), 0);
+            /* MOCOSEL_ERROR_SYSTEM. */
+            if(child == NULL) {
+                return MOCOSEL_ERROR_SYSTEM;
+            }
+            MOCOSEL_WORD_DOUBLE error = MOCOSEL_TOKENIZE(child, node, pattern, &fragment);
+            /* Dummy. */
+            if(child->keyword.from == child->keyword.to || error != 0) {
+                MOCOSEL_FREE(child);
+                if(error != 0) {
+                    return error;
+                }
+            }
+            /* Nil. */
+            if(child->keyword.from == child->keyword.to) {
+                error = MOCOSEL_JOIN(NULL, 0, node, MOCOSEL_TYPE_NIL);
+            /* List. */
+            } else {
+                error = MOCOSEL_JOIN((MOCOSEL_BYTE*)child, sizeof(struct MOCOSEL_LIST), node, MOCOSEL_TYPE_LIST);
+            }
             if(error != 0) {
                 return error;
             }
+            i = m;
         /* Node. */
         } else if(segment->from[i] == ';') {
             /* MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION. */
