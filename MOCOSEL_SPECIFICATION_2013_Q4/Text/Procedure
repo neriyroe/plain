@@ -15,7 +15,7 @@ DEPENDENCIES
     <Array>.
 
 USAGE
-    procedure [with <Value>*]: <List>.
+    procedure [with <Value>*] do <List>.
 
 REMARKS
     Procedure shall only return <List> and a scope associated with it without
