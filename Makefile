@@ -27,7 +27,7 @@ EASY	=	Source/Easy/x86/Session.c \
  			Source/Easy/x86/Easy.c \
 
 x86:
-	gcc -std=c99 -I $(INCLUDE) -o Binary/x86/Easy -O3 $(COMPACT) $(NAKED) -D MOCOSEL_DEBUGGING -Wall
+	gcc -std=c99 -I $(INCLUDE) -o Binary/x86/Easy -O3 $(NAKED) $(EASY) -D MOCOSEL_DEBUGGING -Wall
 
 clean:
 	rm -rf Binary/x86/* Binary/x86/*.*
