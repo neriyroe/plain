@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/09/2013,
- * Revision 12/02/2013,
+ * Revision 12/22/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -20,10 +20,10 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_UNREGISTER(const struct MOCOSEL_SEGMENT* MOCOSEL_RES
         for(; from != to; from += sizeof(struct MOCOSEL_STATEMENT)) {
             struct MOCOSEL_STATEMENT* statement = (struct MOCOSEL_STATEMENT*)from;
             if(statement->first.from != NULL) {
-                MOCOSEL_FREE(statement->first.from);
+                MOCOSEL_RESIZE(statement->first.from, 0, statement->first.to - statement->first.from);
             }
         }
-        MOCOSEL_FREE(registry->from);
+        MOCOSEL_RESIZE(registry->from, 0, registry->to - registry->from);
     } else {
         MOCOSEL_BYTE* from = registry->from;
         MOCOSEL_BYTE* to = registry->to;
@@ -40,7 +40,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_UNREGISTER(const struct MOCOSEL_SEGMENT* MOCOSEL_RES
         if(from == to) {
             return MOCOSEL_ERROR_RUNTIME_WRONG_DATA;
         } else {
-            MOCOSEL_FREE(((struct MOCOSEL_STATEMENT*)from)->first.from);
+            MOCOSEL_RESIZE(((struct MOCOSEL_STATEMENT*)from)->first.from, 0, ((struct MOCOSEL_STATEMENT*)from)->first.to - ((struct MOCOSEL_STATEMENT*)from)->first.from);
         }
         MOCOSEL_WORD_DOUBLE number = registry->to - registry->from - sizeof(struct MOCOSEL_STATEMENT);
         MOCOSEL_WORD_DOUBLE remainder = to - from - sizeof(struct MOCOSEL_STATEMENT);

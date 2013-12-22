@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/09/2013,
- * Revision 11/09/2013,
+ * Revision 12/22/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -14,5 +14,5 @@ void MOCOSEL_FINALIZE(struct MOCOSEL_OBJECT* object) {
     }
     MOCOSEL_UNREGISTER(NULL, &object->registry.data);
     MOCOSEL_PURGE(&object->segment.structure);
-    MOCOSEL_FREE(object->segment.data.from);
+    MOCOSEL_RESIZE(object->segment.data.from, 0, object->segment.data.to - object->segment.data.from);
 }

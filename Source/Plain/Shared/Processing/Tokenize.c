@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 12/21/2013,
+ * Revision 12/22/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -244,7 +244,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
             }
             /* Dummy. */
             if(child->keyword.from == child->keyword.to || error != 0) {
-                MOCOSEL_FREE(child);
+                MOCOSEL_RESIZE(child, 0, sizeof(struct MOCOSEL_LIST));
                 if(error != 0) {
                     return error;
                 }
@@ -386,7 +386,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
             MOCOSEL_WORD_DOUBLE error = MOCOSEL_TOKENIZE(child, NULL, pattern, &fragment);
             /* Dummy. */
             if(child->keyword.from == child->keyword.to || error != 0) {
-                MOCOSEL_FREE(child);
+                MOCOSEL_RESIZE(child, 0, sizeof(struct MOCOSEL_LIST));
                 if(error != 0) {
                     return error;
                 }
@@ -414,7 +414,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
                 break;
             }
             /* Node. */
-            struct MOCOSEL_LIST* next = (struct MOCOSEL_LIST*)malloc(sizeof(struct MOCOSEL_LIST));
+            struct MOCOSEL_LIST* next = (struct MOCOSEL_LIST*)MOCOSEL_RESIZE(NULL, sizeof(struct MOCOSEL_LIST), 0);
             /* MOCOSEL_ERROR_SYSTEM. */
             if(next == NULL) {
                 return MOCOSEL_ERROR_SYSTEM;
@@ -422,7 +422,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
             MOCOSEL_WORD_DOUBLE error = MOCOSEL_TOKENIZE(next, NULL, pattern, &fragment);
             /* Dummy. */
             if(next->keyword.from == next->keyword.to || error != 0) {
-                MOCOSEL_FREE(next);
+                MOCOSEL_RESIZE(next, 0, sizeof(struct MOCOSEL_LIST));
                 if(error != 0) {
                     return error;
                 }

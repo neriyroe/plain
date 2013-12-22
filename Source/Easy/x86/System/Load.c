@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/11/2013,
- * Revision 12/02/2013,
+ * Revision 12/22/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -77,6 +77,6 @@ MOCOSEL_WORD_DOUBLE EASY_LOAD(const char* MOCOSEL_RESTRICT identifier, struct MO
         EASY_WRITE("System error %d occured while compiling %s.\n", session, error, identifier);
         EASY_WRITE("Error %d occured while compiling %s.\n", session, error, identifier);
     }
-    MOCOSEL_FREE(segment.from);
+    MOCOSEL_RESIZE(segment.from, 0, segment.to - segment.from);
     return error;
 }
