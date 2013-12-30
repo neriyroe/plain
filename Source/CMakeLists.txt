@@ -10,20 +10,20 @@ cmake_minimum_required(VERSION 2.8)
 project(Plain)
 set(CMAKE_BUILD_TYPE Release)
 set(SOURCE
-    Auxiliary.c
-    Framework/Finalize.c
-    Framework/Run.c
-    Framework/Version.c
-    Runtime/Lookup.c
-    Runtime/Register.c
-    Runtime/Unregister.c
-    Runtime/Walk.c 
-    Shared/Concat.c
-    Shared/Reserve.c
-    Shared/Algorithm/Hash.c
-    Shared/Processing/Purge.c
-    Shared/Processing/Tokenize.c
-    x86/Resize.c)
+    ${CMAKE_SOURCE_DIR}/Auxiliary.c
+    ${CMAKE_SOURCE_DIR}/Framework/Finalize.c
+    ${CMAKE_SOURCE_DIR}/Framework/Run.c
+    ${CMAKE_SOURCE_DIR}/Framework/Version.c
+    ${CMAKE_SOURCE_DIR}/Runtime/Lookup.c
+    ${CMAKE_SOURCE_DIR}/Runtime/Register.c
+    ${CMAKE_SOURCE_DIR}/Runtime/Unregister.c
+    ${CMAKE_SOURCE_DIR}/Runtime/Walk.c 
+    ${CMAKE_SOURCE_DIR}/Shared/Concat.c
+    ${CMAKE_SOURCE_DIR}/Shared/Reserve.c
+    ${CMAKE_SOURCE_DIR}/Shared/Algorithm/Hash.c
+    ${CMAKE_SOURCE_DIR}/Shared/Processing/Purge.c
+    ${CMAKE_SOURCE_DIR}/Shared/Processing/Tokenize.c
+    ${CMAKE_SOURCE_DIR}/x86/Resize.c)
 if(MOCOSEL_DEBUGGING)
     ADD_DEFINITIONS(-DNDEBUG=1 -DMOCOSEL_DEBUGGING=1)
 endif()

@@ -1,12 +1,12 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 11/16/2013,
+ * Revision 12/30/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
 
-#define MOCOSEL_TARGET_DUMMY        0x00
+#define MOCOSEL_TARGET_STANDARD     0x00
 #define MOCOSEL_TARGET_POSIX        0x01
 #define MOCOSEL_TARGET_LINUX        0x02
 #define MOCOSEL_TARGET_ANDROID      0x04
@@ -39,9 +39,9 @@
 /* Microsoft Windows. */
 #elif defined(_MSC_VER) || defined(_WIN32)
     #define MOCOSEL_TARGET MOCOSEL_TARGET_WINDOWS
-/* Dummy. */
+/* Standard. */
 #else
-    #define MOCOSEL_TARGET MOCOSEL_TARGET_DUMMY
+    #define MOCOSEL_TARGET MOCOSEL_TARGET_STANDARD
 #endif
 
 /* MOCOSEL_ALIGN. */
