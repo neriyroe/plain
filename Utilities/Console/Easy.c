@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/11/2013,
- * Revision 12/22/2013,
+ * Revision 12/30/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -11,37 +11,37 @@
 /* For use within the translation unit. */
 MOCOSEL_PROTOTYPE(EASY_TYPE) {
     MOCOSEL_WORD_DOUBLE index = 0;
-    MOCOSEL_WORD_DOUBLE length = MOCOSEL_MEASURE(NODE);
+    MOCOSEL_WORD_DOUBLE length = MOCOSEL_MEASURE(node);
     for(; index < length; index++) {
-        struct MOCOSEL_VALUE* value = MOCOSEL_ARGUMENT(NODE, index);
+        struct MOCOSEL_VALUE* value = MOCOSEL_ARGUMENT(node, index);
         /* MOCOSEL_TYPE_BOOLEAN. */
         if(value->type == MOCOSEL_TYPE_BOOLEAN) {
             if(value->data == NULL) {
-                EASY_WRITE("<no>", (struct EASY_SESSION*)CONTEXT);
+                EASY_WRITE("<no>", (struct EASY_SESSION*)context);
             } else {
-                EASY_WRITE("<yes>", (struct EASY_SESSION*)CONTEXT);
+                EASY_WRITE("<yes>", (struct EASY_SESSION*)context);
             }
         /* MOCOSEL_TYPE_INTEGER. */
         } else if(value->type == MOCOSEL_TYPE_INTEGER) {
-            EASY_WRITE("%d", (struct EASY_SESSION*)CONTEXT, *(int*)value->data);
+            EASY_WRITE("%d", (struct EASY_SESSION*)context, *(int*)value->data);
         /* MOCOSEL_TYPE_KEYWORD. */
         } else if(value->type == MOCOSEL_TYPE_KEYWORD) {
-            EASY_WRITE("<%s>", (struct EASY_SESSION*)CONTEXT, (const char*)value->data);
+            EASY_WRITE("<%s>", (struct EASY_SESSION*)context, (const char*)value->data);
         /* MOCOSEL_TYPE_LIST. */
         } else if(value->type == MOCOSEL_TYPE_LIST) {
-            EASY_WRITE("<List>", (struct EASY_SESSION*)CONTEXT);
+            EASY_WRITE("<List>", (struct EASY_SESSION*)context);
         /* MOCOSEL_TYPE_NIL. */
         } else if(value->type == MOCOSEL_TYPE_NIL) {
-            EASY_WRITE("<none>", (struct EASY_SESSION*)CONTEXT);
+            EASY_WRITE("<none>", (struct EASY_SESSION*)context);
         /* MOCOSEL_TYPE_REAL. */
         } else if(value->type == MOCOSEL_TYPE_REAL) {
-            EASY_WRITE("%f", (struct EASY_SESSION*)CONTEXT, *(float*)value->data);
+            EASY_WRITE("%f", (struct EASY_SESSION*)context, *(float*)value->data);
         /* MOCOSEL_TYPE_STRING. */
         } else if(value->type == MOCOSEL_TYPE_STRING) {
-            EASY_WRITE("%s", (struct EASY_SESSION*)CONTEXT, (const char*)value->data);
+            EASY_WRITE("%s", (struct EASY_SESSION*)context, (const char*)value->data);
         }
     }
-    EASY_WRITE("\n", (struct EASY_SESSION*)CONTEXT);
+    EASY_WRITE("\n", (struct EASY_SESSION*)context);
     return 0;
 }
 
