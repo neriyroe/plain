@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/11/2013,
- * Revision 12/30/2013,
+ * Revision 12/31/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -69,7 +69,7 @@ int main(int count, const char* layout[]) {
             }
         }
     } else {
-        EASY_WRITE("%s", &session, "Usage: ./Easy <source>.\n");
+        EASY_WRITE("%s", &session, "Usage: ./easy <source>.\n");
     }
     EASY_STOP(&session);
     return 0;
