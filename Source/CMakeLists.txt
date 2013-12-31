@@ -7,7 +7,7 @@
 #
 
 cmake_minimum_required(VERSION 2.8.3)
-project(Plain)
+project(pfvl)
 set(CMAKE_BUILD_TYPE Release)
 set(SOURCE
     ${CMAKE_CURRENT_LIST_DIR}/Auxiliary.c
@@ -28,4 +28,4 @@ if(MOCOSEL_DEBUGGING)
     add_definitions(-DMOCOSEL_DEBUGGING=1)
 endif()
 include_directories(../Include)
-add_library(plain SHARED ${SOURCE})
+add_library(pfvl SHARED ${SOURCE})

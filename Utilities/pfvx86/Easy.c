@@ -69,7 +69,7 @@ int main(int count, const char* layout[]) {
             }
         }
     } else {
-        EASY_WRITE("%s", &session, "Usage: ./easy <source>.\n");
+        EASY_WRITE("%s", &session, "Usage: ./pfvx86 <source>.\n");
     }
     EASY_STOP(&session);
     return 0;
