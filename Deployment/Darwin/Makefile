@@ -9,7 +9,7 @@
 all: clean development
 
 clean:
-	rm -rf libpfvl.so
+	rm -rf libpfvl.dylib
 	rm -rf pfvx86
 	rm -rf Intermediate
 	rm -rf Binary
@@ -20,17 +20,17 @@ development:
 	if [ ! -d Intermediate ]; then \
 	    mkdir Intermediate; \
 	fi
-	cd Intermediate && cmake ../../../../ -DMOCOSEL_DEBUGGING=1 -DCMAKE_TOOLCHAIN_FILE=Deployment/Linux/x86/Target.cmake
+	cd Intermediate && cmake ../../../ -DMOCOSEL_DEBUGGING=1
 	cd Intermediate && make
-	cp Intermediate/Source/libpfvl.so libpfvl.so
+	cp Intermediate/Source/libpfvl.dylib libpfvl.dylib
 	cp Intermediate/Utilities/pfvx86/pfvx86 pfvx86
 
 distribution: clean
 	mkdir Intermediate
 	mkdir Binary
 	mkdir Library
-	cd Intermediate && cmake ../../../../
+	cd Intermediate && cmake ../../../
 	cd Intermediate && make
-	cp Intermediate/Source/libpfvl.so Library/libpfv1.so
+	cp Intermediate/Source/libpfvl.dylib Library/libpfv1.dylib
 	cp Intermediate/Utilities/pfvx86/pfvx86 Binary/pfvx86
-	cp -R ../../../Include Include
+	cp -R ../../Include Include
