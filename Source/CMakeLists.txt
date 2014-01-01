@@ -1,15 +1,15 @@
 #
 # Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
 # Date     12/30/2013,
-# Revision 12/31/2013,
+# Revision 01/01/2013,
 #
 # Copyright 2013 Nerijus Ramanauskas.
 #
 
-cmake_minimum_required(VERSION 2.8.3)
-project(pfvl)
-set(CMAKE_BUILD_TYPE Release)
-set(SOURCE
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.3)
+PROJECT(pfvl)
+SET(CMAKE_BUILD_TYPE Release)
+SET(SOURCE
     ${CMAKE_CURRENT_LIST_DIR}/Auxiliary.c
     ${CMAKE_CURRENT_LIST_DIR}/Framework/Finalize.c
     ${CMAKE_CURRENT_LIST_DIR}/Framework/Run.c
@@ -24,8 +24,8 @@ set(SOURCE
     ${CMAKE_CURRENT_LIST_DIR}/Shared/Processing/Purge.c
     ${CMAKE_CURRENT_LIST_DIR}/Shared/Processing/Tokenize.c
     ${CMAKE_CURRENT_LIST_DIR}/x86/Resize.c)
-if(MOCOSEL_DEBUGGING)
-    add_definitions(-DMOCOSEL_DEBUGGING=1)
-endif()
-include_directories(../Include)
-add_library(pfvl SHARED ${SOURCE})
+IF(MOCOSEL_DEBUGGING)
+    ADD_DEFINITIONS(-DMOCOSEL_DEBUGGING=1)
+ENDIF()
+INCLUDE_DIRECTORIES(../Include)
+ADD_LIBRARY(pfvl SHARED ${SOURCE})
