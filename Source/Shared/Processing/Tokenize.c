@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 12/22/2013,
+ * Revision 01/01/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -25,6 +25,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_JOIN(MOCOSEL_BYTE* MOCOSEL_RESTRICT data, MOCOSEL_WO
         case MOCOSEL_TYPE_INTEGER:
         case MOCOSEL_TYPE_KEYWORD:
         case MOCOSEL_TYPE_LIST:
+        case MOCOSEL_TYPE_POINTER:
         case MOCOSEL_TYPE_REAL:
         case MOCOSEL_TYPE_STRING:
             MOCOSEL_ASSERT(data != NULL);
