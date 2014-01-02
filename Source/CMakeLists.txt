@@ -1,7 +1,7 @@
 #
 # Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
 # Date     12/30/2013,
-# Revision 01/01/2013,
+# Revision 01/02/2013,
 #
 # Copyright 2013 Nerijus Ramanauskas.
 #
@@ -28,4 +28,8 @@ IF(MOCOSEL_DEBUGGING)
     ADD_DEFINITIONS(-DMOCOSEL_DEBUGGING=1)
 ENDIF()
 INCLUDE_DIRECTORIES(../Include)
-ADD_LIBRARY(pfvl SHARED ${SOURCE})
+IF(MOCOSEL_EMBEDDED)
+    ADD_LIBRARY(pfv1 STATIC $(SOURCE))
+ELSE()
+    ADD_LIBRARY(pfvl SHARED ${SOURCE})
+ENDIF()
