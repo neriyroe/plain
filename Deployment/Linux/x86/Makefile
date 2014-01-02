@@ -20,7 +20,7 @@ development:
 	if [ ! -d Intermediate ]; then \
 	    mkdir Intermediate; \
 	fi
-	cd Intermediate && cmake ../../../../ -DMOCOSEL_DEBUGGING=1
+	cd Intermediate && cmake ../../../../ -DCMAKE_C_FLAGS=-m32 -DMOCOSEL_DEBUGGING=1
 	cd Intermediate && make
 	cp Intermediate/Source/libpfvl.so libpfvl.so
 	cp Intermediate/Utilities/pfvx86/pfvx86 pfvx86
@@ -29,8 +29,8 @@ distribution: clean
 	mkdir Intermediate
 	mkdir Binary
 	mkdir Library
-	cd Intermediate && cmake ../../../../
+	cd Intermediate && cmake ../../../../ -DCMAKE_C_FLAGS=-m32
 	cd Intermediate && make
 	cp Intermediate/Source/libpfvl.so Library/libpfv1.so
 	cp Intermediate/Utilities/pfvx86/pfvx86 Binary/pfvx86
-	cp -R ../../Include Include
+	cp -R ../../../Include Include
