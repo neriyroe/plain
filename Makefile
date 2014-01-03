@@ -10,3 +10,4 @@ clean:
 	cd Deployment/Darwin/x86 && make clean
 	cd Deployment/Linux/x86 && make clean
 	find . -name .DS_Store -exec rm -f -- {} \;
+	find . -name Thumbs.db -exec rm -rf -- {} \;
