@@ -1,7 +1,7 @@
 #
 # Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
 # Date     12/31/2013,
-# Revision 01/02/2013,
+# Revision 01/03/2013,
 #
 # Copyright 2013 Nerijus Ramanauskas.
 #
@@ -15,6 +15,7 @@ clean:
 	rm -rf Binary
 	rm -rf Include
 	rm -rf Library
+	find . -name .DS_Store -exec rm -f -- {} \;
 
 development:
 	if [ ! -d Intermediate ]; then \
@@ -34,3 +35,4 @@ distribution: clean
 	cp Intermediate/Source/libpfvl.dylib Library/libpfv1.dylib
 	cp Intermediate/Utilities/pfvx86/pfvx86 Binary/pfvx86
 	cp -R ../../../Include Include
+
