@@ -15,8 +15,8 @@ DEPENDENCIES
 USAGE
 
 REMARKS
-    Mocosel Programming Language Specification 2013 Q4, as of
-    2013 December 21.
+    Mocosel Programming Language Specification 2014 Q1, as of
+    2014 January 09.
 
     Please read <License> carefully before copying or redistributing the
     Mocosel Programming Language Specification and/or dependencies, other
@@ -29,4 +29,4 @@ DATE
     03/12/2013.
 
 REVISION
-    12/21/2013.
+    01/09/2013.

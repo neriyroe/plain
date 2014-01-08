@@ -20,9 +20,10 @@ REMARKS
     Nodes shall be passed by arguments.
 
     1) <Statement> must be <Declaration> or <Definition>. <Statement> shall be
-    expanded to the value it returns.
-    2) Translation to [[<Keyword>]] can be supressed. [[<Keyword>]] shall be
-    expanded to any <Value> it returns but <Function>.
+    expanded to any <Value> it returns. If <Statement> expands to <Function>,
+    value of the function shall be returned.
+    2) <Keyword> must be <Declaration> or <Definition>. <Keyword> shall be
+    expanded to any <Value> it returns.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
@@ -31,4 +32,4 @@ DATE
     03/11/2013.
 
 REVISION
-    12/21/2013.
+    01/09/2013.

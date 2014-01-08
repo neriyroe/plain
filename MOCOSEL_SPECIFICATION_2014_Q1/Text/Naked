@@ -24,7 +24,7 @@ USAGE
 
 REMARKS
     Specification for the naked version of the Mocosel Programming Language,
-    as of 2013 December 21.
+    as of 2014 January 09.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
@@ -33,4 +33,4 @@ DATE
     12/02/2013.
 
 REVISION
-    12/21/2013.
+    01/09/2013.

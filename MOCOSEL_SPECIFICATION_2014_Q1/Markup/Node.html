@@ -20,9 +20,10 @@
     Nodes shall be passed by arguments.
 
     1) <a href="Statement.html">&lt;Statement&gt;</a> must be <a href="Declaration.html">&lt;Declaration&gt;</a> or <a href="Definition.html">&lt;Definition&gt;</a>. <a href="Statement.html">&lt;Statement&gt;</a> shall be
-    expanded to the value it returns.
-    2) Translation to [[<a href="Keyword.html">&lt;Keyword&gt;</a>]] can be supressed. [[<a href="Keyword.html">&lt;Keyword&gt;</a>]] shall be
-    expanded to any <a href="Value.html">&lt;Value&gt;</a> it returns but <a href="Function.html">&lt;Function&gt;</a>.
+    expanded to any <a href="Value.html">&lt;Value&gt;</a> it returns. If <a href="Statement.html">&lt;Statement&gt;</a> expands to <a href="Function.html">&lt;Function&gt;</a>,
+    value of the function shall be returned.
+    2) <a href="Keyword.html">&lt;Keyword&gt;</a> must be <a href="Declaration.html">&lt;Declaration&gt;</a> or <a href="Definition.html">&lt;Definition&gt;</a>. <a href="Keyword.html">&lt;Keyword&gt;</a> shall be
+    expanded to any <a href="Value.html">&lt;Value&gt;</a> it returns.
 
 <b>AUTHOR</b>
     Nerijus Ramanauskas &lt;nerijus.ramanauskas@mocosel.org&gt;.
@@ -31,5 +32,5 @@
     03/11/2013.
 
 <b>REVISION</b>
-    12/21/2013.
+    01/09/2013.
 </pre></body></html>
