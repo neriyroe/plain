@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/09/2013,
- * Revision 12/18/2013,
+ * Revision 01/09/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -54,9 +54,8 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(void* context, struct MOCOSEL_LIST* MOCOSEL_RES
     MOCOSEL_WORD_DOUBLE length = MOCOSEL_MEASURE(node);
     for(; index < length; index++) {
         struct MOCOSEL_VALUE* destination = MOCOSEL_ARGUMENT(node, index);
-        struct MOCOSEL_LIST* source = (struct MOCOSEL_LIST*)destination->data;
-        /* List. */
         if(destination->type == MOCOSEL_TYPE_LIST) {
+            struct MOCOSEL_LIST* source = (struct MOCOSEL_LIST*)destination->data;
             if(source->parent == NULL) {
                 continue;
             }
@@ -79,16 +78,9 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(void* context, struct MOCOSEL_LIST* MOCOSEL_RES
         if(value == NULL) {
             return MOCOSEL_ERROR_RUNTIME_WRONG_DATA;
         }
-        #if 0
-        /* MOCOSEL_ERROR_SYSTEM. */
-        if(memcpy(value, &statement->second, sizeof(struct MOCOSEL_VALUE)) == NULL) {
-            return MOCOSEL_ERROR_SYSTEM;
-        }
-        #else
         value->data = statement->second.data;
         value->length = statement->second.length;
         value->type = statement->second.type;
-        #endif
     }
     /* Node. */
     if(node->node) {
