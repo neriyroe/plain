@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 12/30/2013,
+ * Revision 01/09/2013,
  *
  * Copyright 2013 Nerijus Ramanauskas.
  */
@@ -100,6 +100,7 @@
 #include <string.h>
 
 #define MOCOSEL_BYTE                unsigned char
+#define MOCOSEL_CHARACTER           char
 #define MOCOSEL_REAL                float
 #define MOCOSEL_REAL_DOUBLE         double
 #define MOCOSEL_WORD                unsigned short int
