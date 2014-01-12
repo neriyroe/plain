@@ -6,4 +6,4 @@
  * Copyright 2014 Nerijus Ramanauskas.
  */
 
-typedef MOCOSEL_WORD_DOUBLE (*MOCOSEL_SUBROUTINE) (void*, MOCOSEL_LOOKUP function, struct MOCOSEL_LIST*, struct MOCOSEL_VALUE*);
+typedef MOCOSEL_WORD_DOUBLE (*MOCOSEL_SUBROUTINE) (void*, MOCOSEL_LOOKUP, struct MOCOSEL_LIST*, struct MOCOSEL_VALUE*);
