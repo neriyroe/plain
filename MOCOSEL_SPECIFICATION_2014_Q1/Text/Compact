@@ -27,7 +27,7 @@ USAGE
 
 REMARKS
     Specification for the compact version of the Mocosel Programming Language,
-    as of 2013 December 21.
+    as of 2014 January 12.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
@@ -36,4 +36,4 @@ DATE
     11/17/2013.
 
 REVISION
-    12/21/2013.
+    01/12/2014.
