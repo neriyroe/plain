@@ -18,18 +18,49 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(MOCOSEL_CONTEXT* context, MOCOSEL_LOOKUP functi
     if(node->keyword.from == NULL) {
         return 0;
     }
+    /* Layout. */
+    MOCOSEL_WORD_DOUBLE index = 0;
+    MOCOSEL_WORD_DOUBLE length = MOCOSEL_MEASURE(node);
+    for(; index < length; index++) {
+        struct MOCOSEL_VALUE* argument = (struct MOCOSEL_VALUE*)MOCOSEL_ARGUMENT(node, index);
+        /* Keyword. */
+        if(argument->type == MOCOSEL_TYPE_KEYWORD) {
+            struct MOCOSEL_SEGMENT keyword = {(MOCOSEL_BYTE*)argument->data, (MOCOSEL_BYTE*)argument->data + argument->length};
+            struct MOCOSEL_VALUE* subvalue = function(context, &keyword);
+            /* MOCOSEL_ERROR_RUNTIME_UNDEFINED_STATEMENT. */
+            if(subvalue == NULL) {
+                return MOCOSEL_ERROR_RUNTIME_UNDEFINED_STATEMENT;
+            }
+            argument->data = subvalue->data;
+            argument->length = subvalue->length;
+            argument->type = subvalue->type;
+            /* NWW: let's just make sure it won't crash in ANY (im)possible case. */
+            if(argument->data != keyword.from) {
+                MOCOSEL_RESIZE(keyword.from, 0, keyword.to - keyword.from);
+            }
+        /* Node. */
+        } else if(value->type == MOCOSEL_TYPE_LIST) {
+            struct MOCOSEL_LIST* node = (struct MOCOSEL_LIST*)argument->data;
+            if(node->parent == NULL) {
+                continue;
+            }
+            MOCOSEL_WORD_DOUBLE error = MOCOSEL_WALK(context, function, node, argument);
+            /* NWW: functions may return values early. */
+            if(argument->data != (MOCOSEL_BYTE*)node) {
+                MOCOSEL_PURGE(node);
+            }
+            if(error != 0) {
+                return error;
+            }
+        }
+    }
     struct MOCOSEL_VALUE* subvalue = function(context, &node->keyword);
+    /* MOCOSEL_ERROR_RUNTIME_UNDEFINED_STATEMENT. */
     if(subvalue == NULL) {
         return MOCOSEL_ERROR_RUNTIME_UNDEFINED_STATEMENT;
     }
     /* Subroutine. */
     if(subvalue->type == MOCOSEL_TYPE_SUBROUTINE) {
-        /* NWW: functions must return values. */
-        if(value != NULL) {
-            value->data = NULL;
-            value->length = 0;
-            value->type = MOCOSEL_TYPE_NIL;
-        }
         MOCOSEL_WORD_DOUBLE error = ((MOCOSEL_SUBROUTINE)subvalue->data)(context, function, node, value);
         if(error != 0) {
             return error;
