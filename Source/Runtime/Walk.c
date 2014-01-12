@@ -51,7 +51,8 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(MOCOSEL_CONTEXT* context, MOCOSEL_LOOKUP functi
         struct MOCOSEL_VALUE* argument = MOCOSEL_ARGUMENT(node, index);
         /* Keyword. */
         if(argument->type == MOCOSEL_TYPE_KEYWORD) {
-            struct MOCOSEL_VALUE* subvalue = function(context, (const MOCOSEL_GLYPH*)argument->data, node);
+            struct MOCOSEL_SEGMENT keyword = {(MOCOSEL_BYTE*)argument->data, (MOCOSEL_BYTE*)argument->data + argument->length};
+            struct MOCOSEL_VALUE* subvalue = function(context, &keyword);
             /* MOCOSEL_ERROR_RUNTIME_UNDEFINED_STATEMENT. */
             if(subvalue == NULL) {
                 return MOCOSEL_ERROR_RUNTIME_UNDEFINED_STATEMENT;
@@ -80,7 +81,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(MOCOSEL_CONTEXT* context, MOCOSEL_LOOKUP functi
             MOCOSEL_PURGE((struct MOCOSEL_LIST*)argument->data);
         }
     }
-    struct MOCOSEL_VALUE* subvalue = function(context, NULL, node);
+    struct MOCOSEL_VALUE* subvalue = function(context, &node->keyword);
     /* MOCOSEL_ERROR_RUNTIME_UNDEFINED_STATEMENT. */
     if(subvalue == NULL) {
         return MOCOSEL_ERROR_RUNTIME_UNDEFINED_STATEMENT;

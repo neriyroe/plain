@@ -6,4 +6,4 @@
  * Copyright 2013 Nerijus Ramanauskas.
  */
 
-typedef struct MOCOSEL_VALUE* (*MOCOSEL_LOOKUP) (MOCOSEL_CONTEXT*, const MOCOSEL_GLYPH*, const struct MOCOSEL_LIST*);
+typedef struct MOCOSEL_VALUE* (*MOCOSEL_LOOKUP) (MOCOSEL_CONTEXT*, const struct MOCOSEL_SEGMENT*);
