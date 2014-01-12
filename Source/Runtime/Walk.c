@@ -8,32 +8,6 @@
 
 #include <Plain/Mocosel.h>
 
-/* For use within the translation unit. */
-MOCOSEL_WORD_DOUBLE MOCOSEL_EXPAND(MOCOSEL_CONTEXT* context, MOCOSEL_LOOKUP function, struct MOCOSEL_LIST* node, struct MOCOSEL_VALUE* value) {
-    MOCOSEL_ASSERT(function != NULL);
-    MOCOSEL_ASSERT(node != NULL);
-    MOCOSEL_ASSERT(value != NULL);
-    /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */
-    if(function == NULL || node == NULL || value == NULL) {
-        return 0;
-    }
-    MOCOSEL_WORD_DOUBLE error = MOCOSEL_WALK(context, function, node, value);
-    if(error != 0) {
-        return error;
-    }
-    node = (struct MOCOSEL_LIST*)value->data;
-    if(value->type == MOCOSEL_TYPE_LIST) {
-        if(node->parent != NULL) {
-            error = MOCOSEL_EXPAND(context, function, node, value);
-            if(error != 0) {
-                return error;
-            }
-        }
-        MOCOSEL_PURGE(node);
-    }
-    return 0;
-}
-
 MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(MOCOSEL_CONTEXT* context, MOCOSEL_LOOKUP function, struct MOCOSEL_LIST* MOCOSEL_RESTRICT node, struct MOCOSEL_VALUE* value) {
     MOCOSEL_ASSERT(function != NULL);
     MOCOSEL_ASSERT(node != NULL);
@@ -44,45 +18,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(MOCOSEL_CONTEXT* context, MOCOSEL_LOOKUP functi
     if(node->keyword.from == NULL) {
         return 0;
     }
-    /* Layout. */
-    MOCOSEL_WORD_DOUBLE index = 0;
-    MOCOSEL_WORD_DOUBLE length = MOCOSEL_MEASURE(node);
-    for(; index < length; index++) {
-        struct MOCOSEL_VALUE* argument = MOCOSEL_ARGUMENT(node, index);
-        /* Keyword. */
-        if(argument->type == MOCOSEL_TYPE_KEYWORD) {
-            struct MOCOSEL_SEGMENT keyword = {(MOCOSEL_BYTE*)argument->data, (MOCOSEL_BYTE*)argument->data + argument->length};
-            struct MOCOSEL_VALUE* subvalue = function(context, &keyword);
-            /* MOCOSEL_ERROR_RUNTIME_UNDEFINED_STATEMENT. */
-            if(subvalue == NULL) {
-                return MOCOSEL_ERROR_RUNTIME_UNDEFINED_STATEMENT;
-            }
-            MOCOSEL_RESIZE(value->data, 0, value->length);
-            if(subvalue->length > 0) {
-                value->data = (MOCOSEL_BYTE*)MOCOSEL_RESIZE(NULL, subvalue->length, 0);
-                /* MOCOSEL_ERROR_SYSTEM. */
-                if(memcpy(value->data, subvalue->data, subvalue->length) == NULL) {
-                    return MOCOSEL_ERROR_SYSTEM;
-                }
-            } else {
-                value->data = subvalue->data;
-            }
-            value->length = subvalue->length;
-            value->type = subvalue->type;
-        /* Node. */
-        } else if(argument->type == MOCOSEL_TYPE_LIST) {
-            if(((struct MOCOSEL_LIST*)argument->data)->parent == NULL) {
-                continue;
-            }
-            MOCOSEL_WORD_DOUBLE error = MOCOSEL_EXPAND(context, function, (struct MOCOSEL_LIST*)argument->data, argument);
-            if(error != 0) {
-                return error;
-            }
-            MOCOSEL_PURGE((struct MOCOSEL_LIST*)argument->data);
-        }
-    }
     struct MOCOSEL_VALUE* subvalue = function(context, &node->keyword);
-    /* MOCOSEL_ERROR_RUNTIME_UNDEFINED_STATEMENT. */
     if(subvalue == NULL) {
         return MOCOSEL_ERROR_RUNTIME_UNDEFINED_STATEMENT;
     }
