@@ -26,6 +26,6 @@ distribution: clean
 	mkdir Library
 	cd Intermediate && cmake ../../../../ "-DCMAKE_OSX_ARCHITECTURES=i386;x86_64"
 	cd Intermediate && make
-	cp Intermediate/Source/libpfvl.dylib Library/libpfv1.dylib
+	cp Intermediate/Source/libplain.dylib Library/libplain.dylib
 	cp -R ../../../Include Include
 

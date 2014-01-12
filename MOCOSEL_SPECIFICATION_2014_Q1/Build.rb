@@ -2,9 +2,9 @@
 #
 # Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
 # Date     03/16/2013,
-# Revision 11/17/2013,
+# Revision 01/12/2014,
 #
-# Copyright 2013 Mocosel.org.
+# Copyright 2014 Mocosel.org.
 #
 
 require 'cgi'
@@ -21,7 +21,7 @@ else
             if entry != 'License'
                 text.gsub! /&lt;(\w+[\w ]*)&gt;/ do |match|
                     if File.exists?("#{ARGV[0]}/#{$1}")
-                        "<a href=\"#{$1}.html\">&lt;#{$1}&gt;</a>"
+                        "<a href=\"#{$1.downcase}.html\">&lt;#{$1}&gt;</a>"
                     else
                         match
                     end
@@ -36,7 +36,7 @@ else
                 text.gsub! /^(\w+[\w ]*)$/, '<b>\1</b>'
                 text.gsub! /(http:\/\/[^\s]+)/, '<a href="\1">\1</a>'
             end
-            file = File.open("#{ARGV[1]}/#{entry}.html", 'w')
+            file = File.open("#{ARGV[1]}/#{entry.downcase}.html", 'w')
             file.write "<html><head><title>#{entry}</title></head><body><pre>#{text}</pre></body></html>"
             file.close
         end
