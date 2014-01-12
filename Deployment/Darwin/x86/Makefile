@@ -1,17 +1,16 @@
 #
 # Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
 # Date     12/31/2013,
-# Revision 01/09/2013,
+# Revision 01/12/2014,
 #
-# Copyright 2013 Nerijus Ramanauskas.
+# Copyright 2014 Nerijus Ramanauskas.
 #
 
 all: clean development
 
 clean:
-	rm -rf pfvx86
-	rm -rf Intermediate
 	rm -rf Include
+	rm -rf Intermediate
 	rm -rf Library
 	find . -name .DS_Store -exec rm -rf -- {} \;
 
@@ -21,7 +20,6 @@ development:
 	fi
 	cd Intermediate && cmake ../../../../ "-DCMAKE_OSX_ARCHITECTURES=i386;x86_64" -DMOCOSEL_DEBUGGING=1
 	cd Intermediate && make
-	cp Intermediate/Development/pfvx86/pfvx86 pfvx86
 
 distribution: clean
 	mkdir Intermediate

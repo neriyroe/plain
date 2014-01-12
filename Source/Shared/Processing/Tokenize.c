@@ -1,15 +1,15 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 01/01/2013,
+ * Revision 01/12/2014,
  *
- * Copyright 2013 Nerijus Ramanauskas.
+ * Copyright 2014 Nerijus Ramanauskas.
  */
 
 #include <Plain/Mocosel.h>
 
 /* For use within the translation unit. */
-MOCOSEL_WORD_DOUBLE MOCOSEL_JOIN(MOCOSEL_BYTE* MOCOSEL_RESTRICT data, MOCOSEL_WORD_DOUBLE length, struct MOCOSEL_LIST* MOCOSEL_RESTRICT node, MOCOSEL_WORD_DOUBLE type) {
+MOCOSEL_WORD_DOUBLE MOCOSEL_ADOPT(MOCOSEL_BYTE* MOCOSEL_RESTRICT data, MOCOSEL_WORD_DOUBLE length, struct MOCOSEL_LIST* MOCOSEL_RESTRICT node, MOCOSEL_WORD_DOUBLE type) {
     MOCOSEL_ASSERT(node != NULL);
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */
     if(node == NULL) {
@@ -179,7 +179,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
                 return MOCOSEL_ERROR_SYNTAX_MISSING_QUOTATION_MARK;
             }
             /* String. */
-            MOCOSEL_WORD_DOUBLE error = MOCOSEL_JOIN(&segment->from[i], l - i + 1, node, MOCOSEL_TYPE_STRING);
+            MOCOSEL_WORD_DOUBLE error = MOCOSEL_ADOPT(&segment->from[i], l - i + 1, node, MOCOSEL_TYPE_STRING);
             if(error != 0) {
                 return error;
             }
@@ -252,10 +252,10 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
             }
             /* Nil. */
             if(child->keyword.from == child->keyword.to) {
-                error = MOCOSEL_JOIN(NULL, 0, node, MOCOSEL_TYPE_NIL);
+                error = MOCOSEL_ADOPT(NULL, 0, node, MOCOSEL_TYPE_NIL);
             /* List. */
             } else {
-                error = MOCOSEL_JOIN((MOCOSEL_BYTE*)child, sizeof(struct MOCOSEL_LIST), node, MOCOSEL_TYPE_LIST);
+                error = MOCOSEL_ADOPT((MOCOSEL_BYTE*)child, sizeof(struct MOCOSEL_LIST), node, MOCOSEL_TYPE_LIST);
             }
             if(error != 0) {
                 return error;
@@ -317,13 +317,13 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
                     } else {
                         MOCOSEL_REAL real = (MOCOSEL_REAL)number;
                         /* NWW: MOCOSEL_REAL ensures common ABI. */
-                        error = MOCOSEL_JOIN((MOCOSEL_BYTE*)&real, sizeof(MOCOSEL_REAL), node, MOCOSEL_TYPE_REAL);
+                        error = MOCOSEL_ADOPT((MOCOSEL_BYTE*)&real, sizeof(MOCOSEL_REAL), node, MOCOSEL_TYPE_REAL);
                     }
                 /* Integer. */
                 } else {
                     MOCOSEL_WORD_DOUBLE integer = (MOCOSEL_WORD_DOUBLE)atoi((const char*)&segment->from[k]);
                     /* NWW: MOCOSEL_WORD_DOUBLE ensures common ABI. */
-                    error = MOCOSEL_JOIN((MOCOSEL_BYTE*)&integer, sizeof(MOCOSEL_WORD_DOUBLE), node, MOCOSEL_TYPE_INTEGER);
+                    error = MOCOSEL_ADOPT((MOCOSEL_BYTE*)&integer, sizeof(MOCOSEL_WORD_DOUBLE), node, MOCOSEL_TYPE_INTEGER);
                 }
             /* String. */
             } else {
@@ -336,7 +336,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
                 if(m == k) {
                     return MOCOSEL_ERROR_SYNTAX_UNKNOWN_TOKEN;
                 }
-                error = MOCOSEL_JOIN(&segment->from[k], m - i++ + 2, node, MOCOSEL_TYPE_STRING);
+                error = MOCOSEL_ADOPT(&segment->from[k], m - i++ + 2, node, MOCOSEL_TYPE_STRING);
             }
             if (error != 0) {
                 return error;
@@ -394,10 +394,10 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
             }
             /* Nil. */
             if(child->keyword.from == child->keyword.to) {
-                error = MOCOSEL_JOIN(NULL, 0, node, MOCOSEL_TYPE_NIL);
+                error = MOCOSEL_ADOPT(NULL, 0, node, MOCOSEL_TYPE_NIL);
             /* List. */
             } else {
-                error = MOCOSEL_JOIN((MOCOSEL_BYTE*)child, sizeof(struct MOCOSEL_LIST), node, MOCOSEL_TYPE_LIST);
+                error = MOCOSEL_ADOPT((MOCOSEL_BYTE*)child, sizeof(struct MOCOSEL_LIST), node, MOCOSEL_TYPE_LIST);
             }
             if(error != 0) {
                 return error;
@@ -449,25 +449,25 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
             --i;
             /* Boolean. */
             if(identifier == 1647734778) {
-                MOCOSEL_WORD_DOUBLE error = MOCOSEL_JOIN(NULL, 0, node, MOCOSEL_TYPE_BOOLEAN);
+                MOCOSEL_WORD_DOUBLE error = MOCOSEL_ADOPT(NULL, 0, node, MOCOSEL_TYPE_BOOLEAN);
                 if(error != 0) {
                     return error;
                 }
             /* Nil. */
             } else if(identifier == 2913447899) {
-                MOCOSEL_WORD_DOUBLE error = MOCOSEL_JOIN(NULL, 0, node, MOCOSEL_TYPE_NIL);
+                MOCOSEL_WORD_DOUBLE error = MOCOSEL_ADOPT(NULL, 0, node, MOCOSEL_TYPE_NIL);
                 if(error != 0) {
                     return error;
                 }
             /* Boolean. */
             } else if(identifier == 1319056784) {
-                MOCOSEL_WORD_DOUBLE error = MOCOSEL_JOIN((MOCOSEL_BYTE*)0xFF, 0, node, MOCOSEL_TYPE_BOOLEAN);
+                MOCOSEL_WORD_DOUBLE error = MOCOSEL_ADOPT((MOCOSEL_BYTE*)0xFF, 0, node, MOCOSEL_TYPE_BOOLEAN);
                 if(error != 0) {
                     return error;
                 }
             /* Keyword. */
             } else {
-                MOCOSEL_WORD_DOUBLE error = MOCOSEL_JOIN(&segment->from[k], i - k + 2, node, MOCOSEL_TYPE_KEYWORD);
+                MOCOSEL_WORD_DOUBLE error = MOCOSEL_ADOPT(&segment->from[k], i - k + 2, node, MOCOSEL_TYPE_KEYWORD);
                 if(error != 0) {
                     return error;
                 }

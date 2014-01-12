@@ -9,7 +9,7 @@
 #include <Plain/VM.h>
 #include <stdio.h>
 
-MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(void* context, MOCOSEL_WORD_DOUBLE flag, const struct MOCOSEL_MANIFEST* manifest, struct MOCOSEL_OBJECT* object, const struct MOCOSEL_SEGMENT* segment) {
+MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(MOCOSEL_CONTEXT* context, MOCOSEL_WORD_DOUBLE flag, MOCOSEL_LOOKUP function, const struct MOCOSEL_MANIFEST* manifest, struct MOCOSEL_OBJECT* object, const struct MOCOSEL_SEGMENT* segment) {
     MOCOSEL_ASSERT(manifest != NULL);
     MOCOSEL_ASSERT(object != NULL);
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */
@@ -33,7 +33,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(void* context, MOCOSEL_WORD_DOUBLE flag, const s
     }
     /* MOCOSEL_EXECUTE. */
     if(flag & MOCOSEL_SEGMENT_EXECUTE) {
-        MOCOSEL_WORD_DOUBLE error = MOCOSEL_WALK(context, &object->segment.structure, &object->registry.data, NULL);
+        MOCOSEL_WORD_DOUBLE error = MOCOSEL_WALK(context, function, &object->segment.structure, NULL);
         if(error != 0) {
             return error;
         }

@@ -1,9 +1,9 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/09/2013,
- * Revision 12/30/2013,
+ * Revision 01/12/2014,
  *
- * Copyright 2013 Nerijus Ramanauskas.
+ * Copyright 2014 Nerijus Ramanauskas.
  */
 
-typedef MOCOSEL_WORD_DOUBLE (*MOCOSEL_SUBROUTINE) (void*, struct MOCOSEL_LIST*, struct MOCOSEL_SEGMENT*, struct MOCOSEL_VALUE*);
+typedef MOCOSEL_WORD_DOUBLE (*MOCOSEL_SUBROUTINE) (void*, MOCOSEL_LOOKUP function, struct MOCOSEL_LIST*, struct MOCOSEL_VALUE*);

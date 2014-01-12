@@ -12,7 +12,6 @@ void MOCOSEL_FINALIZE(struct MOCOSEL_OBJECT* object) {
     if(object == NULL) {
         return;
     }
-    MOCOSEL_EMPTY(&object->registry.data);
     MOCOSEL_PURGE(&object->segment.structure);
     MOCOSEL_RESIZE(object->segment.data.from, 0, object->segment.data.to - object->segment.data.from);
 }
