@@ -1,9 +1,9 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 01/09/2013,
+ * Revision 01/12/2014,
  *
- * Copyright 2013 Nerijus Ramanauskas.
+ * Copyright 2014 Nerijus Ramanauskas.
  */
 
 #define MOCOSEL_TARGET_STANDARD     0x00
@@ -100,7 +100,7 @@
 #include <string.h>
 
 #define MOCOSEL_BYTE                unsigned char
-#define MOCOSEL_CHARACTER           char
+#define MOCOSEL_GLYPH               char
 #define MOCOSEL_REAL                float
 #define MOCOSEL_REAL_DOUBLE         double
 #define MOCOSEL_WORD                unsigned short int

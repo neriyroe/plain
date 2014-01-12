@@ -1,14 +1,14 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/12/2013,
- * Revision 01/09/2013,
+ * Revision 01/12/2014,
  *
- * Copyright 2013 Nerijus Ramanauskas.
+ * Copyright 2014 Nerijus Ramanauskas.
  */
 
 #include <Plain/Auxiliary.h>
 
-MOCOSEL_WORD_DOUBLE MOCOSEL_EXPORT(const MOCOSEL_CHARACTER* MOCOSEL_RESTRICT name, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT registry, MOCOSEL_SUBROUTINE symbol) {
+MOCOSEL_WORD_DOUBLE MOCOSEL_EXPORT(const MOCOSEL_GLYPH* MOCOSEL_RESTRICT name, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT registry, MOCOSEL_SUBROUTINE symbol) {
     MOCOSEL_ASSERT(name != NULL);
     MOCOSEL_ASSERT(registry != NULL);
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */

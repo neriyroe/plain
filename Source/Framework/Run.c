@@ -1,9 +1,9 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/09/2013,
- * Revision 12/03/2013,
+ * Revision 01/12/2014,
  *
- * Copyright 2013 Nerijus Ramanauskas.
+ * Copyright 2014 Nerijus Ramanauskas.
  */
 
 #include <Plain/VM.h>
@@ -26,7 +26,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(void* context, MOCOSEL_WORD_DOUBLE flag, const s
         if(error != 0) {
             return error;
         }
-        error = MOCOSEL_TOKENIZE(&object->segment.structure, NULL, manifest->pattern, &object->segment.data);
+        error = MOCOSEL_TOKENIZE(&object->segment.structure, NULL, (MOCOSEL_BYTE*)manifest->pattern, &object->segment.data);
         if(error != 0) {
             return error;
         }
