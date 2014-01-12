@@ -14,7 +14,7 @@ extern "C" {
 #endif
 
 #define MOCOSEL_MAXIMUM(LEFT, RIGHT) ((LEFT) > (RIGHT)? (LEFT): (RIGHT))
-#define MOCOSEL_MINIMUM(left, right) ((LEFT) < (RIGHT)? (LEFT): (RIGHT))
+#define MOCOSEL_MINIMUM(LEFT, RIGHT) ((LEFT) < (RIGHT)? (LEFT): (RIGHT))
 #define MOCOSEL_PAIR(LEFT, RIGHT, TYPE) struct TYPE {LEFT first; RIGHT second;}
 
 #include "System/Platform.h"
