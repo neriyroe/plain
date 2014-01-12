@@ -1,0 +1,39 @@
+<html><head><title>Procedure</title></head><body><pre><b>TOPIC</b>
+    Procedure.
+
+<b>TYPE</b>
+    <a href="node.html">&lt;Node&gt;</a>.
+
+<b>CATEGORY</b>
+    <a href="full.html">&lt;Full&gt;</a>.
+
+<b>DEPENDENCIES</b>
+    <a href="list.html">&lt;List&gt;</a>,
+    <a href="value.html">&lt;Value&gt;</a>,
+    <a href="string.html">&lt;String&gt;</a>,
+    <a href="keyword.html">&lt;Keyword&gt;</a>,
+    <a href="array.html">&lt;Array&gt;</a>.
+
+<b>USAGE</b>
+    procedure [with <a href="value.html">&lt;Value&gt;</a>*] do <a href="list.html">&lt;List&gt;</a>.
+
+<b>REMARKS</b>
+    Procedure shall only return <a href="list.html">&lt;List&gt;</a> and a scope associated with it without
+    making any additional modifications to the list. Unlike functions,
+    procedures shall be allowed to make modifications to definitions in any
+    accessible scope within the program object.
+
+    <a href="value.html">&lt;Value&gt;</a> shall be <a href="string.html">&lt;String&gt;</a> or <a href="keyword.html">&lt;Keyword&gt;</a>. Procedure shall not be limited to
+    any number of argument declarations. Arguments shall be immutable, declared
+    in procedure scope. `...` shall be reserved and defined as ordered <a href="array.html">&lt;Array&gt;</a>
+    of unnamed (indexed) arguments.
+
+<b>AUTHOR</b>
+    Nerijus Ramanauskas &lt;nerijus.ramanauskas@mocosel.org&gt;.
+
+<b>DATE</b>
+    03/11/2013.
+
+<b>REVISION</b>
+    12/21/2013.
+</pre></body></html>
