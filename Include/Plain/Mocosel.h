@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 01/12/2014,
+ * Revision 01/13/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -68,10 +68,10 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_RESERVE(MOCOSEL_WORD_DOUBLE number, struct MOCOSEL_S
 /* Allocates <destination> bytes of memory. Note that <data> will be reallocated if <source> > 0, released if destination = 0. */
 void* MOCOSEL_RESIZE(void* data, MOCOSEL_WORD_DOUBLE destination, MOCOSEL_WORD_DOUBLE source);
 
-/* Compiles <segment> to nodes. Note that only <parent> can be NULL. */
+/* Compiles <segment> to nodes and arguments. Note that only <parent> can be NULL. */
 MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node, struct MOCOSEL_LIST* MOCOSEL_RESTRICT parent, const MOCOSEL_BYTE* MOCOSEL_RESTRICT pattern, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT segment);
 
-/* Evaluates <node>, building up a value. */
+/* Evaluates the list given by <node>. Note that both <context> and <value> can be NULL. */
 MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(MOCOSEL_CONTEXT* context, MOCOSEL_LOOKUP function, struct MOCOSEL_LIST* node, struct MOCOSEL_VALUE* value);
 
 /* C++. */

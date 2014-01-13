@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/09/2013,
- * Revision 01/12/2014,
+ * Revision 01/13/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -18,12 +18,12 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(MOCOSEL_CONTEXT* context, MOCOSEL_LOOKUP functi
     if(node->keyword.from == NULL) {
         return 0;
     }
-    /* Layout. */
+    /* Arguments. */
     MOCOSEL_WORD_DOUBLE index = 0;
     MOCOSEL_WORD_DOUBLE length = MOCOSEL_MEASURE(node);
     for(; index < length; index++) {
         struct MOCOSEL_VALUE* argument = (struct MOCOSEL_VALUE*)MOCOSEL_ARGUMENT(node, index);
-        /* Keyword. */
+        /* TO DO: name me. */
         if(argument->type == MOCOSEL_TYPE_KEYWORD) {
             struct MOCOSEL_SEGMENT keyword = {(MOCOSEL_BYTE*)argument->data, (MOCOSEL_BYTE*)argument->data + argument->length};
             struct MOCOSEL_VALUE* subvalue = function(context, &keyword);
@@ -34,18 +34,16 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(MOCOSEL_CONTEXT* context, MOCOSEL_LOOKUP functi
             argument->data = subvalue->data;
             argument->length = subvalue->length;
             argument->type = subvalue->type;
-            /* NWW: let's just make sure it won't crash in ANY (im)possible case. */
             if(argument->data != keyword.from) {
                 MOCOSEL_RESIZE(keyword.from, 0, keyword.to - keyword.from);
             }
-        /* Node. */
+        /* TO DO: name me. */
         } else if(value->type == MOCOSEL_TYPE_LIST) {
             struct MOCOSEL_LIST* node = (struct MOCOSEL_LIST*)argument->data;
             if(node->parent == NULL) {
                 continue;
             }
             MOCOSEL_WORD_DOUBLE error = MOCOSEL_WALK(context, function, node, argument);
-            /* NWW: functions may return values early. */
             if(argument->data != (MOCOSEL_BYTE*)node) {
                 MOCOSEL_PURGE(node);
             }
@@ -66,11 +64,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(MOCOSEL_CONTEXT* context, MOCOSEL_LOOKUP functi
             return error;
         }
     /* Value. */
-    } else {
-        /* MOCOSEL_ERROR_RUNTIME_WRONG_DATA. */
-        if(value == NULL) {
-            return MOCOSEL_ERROR_RUNTIME_WRONG_DATA;
-        }
+    } else if(value != NULL) {
         value->data = subvalue->data;
         value->length = subvalue->length;
         value->type = subvalue->type;
