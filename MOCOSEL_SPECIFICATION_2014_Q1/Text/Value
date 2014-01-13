@@ -10,8 +10,7 @@ CATEGORY
 DEPENDENCIES
     <Keyword>,
     <Function>,
-    <List>,
-    <Array>.
+    <List>.
 
 USAGE
     1) [+\-]?[0-9]+,
@@ -20,9 +19,7 @@ USAGE
     4) [[]], none,
     5) yes, no,
     6) <Keyword>,
-    7) <List>,
-    8) <Function>,
-    9) <Array>.
+    7) <List>.
 
 REMARKS
     1) integer,
@@ -31,9 +28,7 @@ REMARKS
     4) nil,
     5) boolean,
     6) see <Node>,
-    7) list,
-    8) function,
-    9) array.
+    7) list.
 
 AUTHOR
     Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>.
@@ -42,4 +37,4 @@ DATE
     03/11/2013.
 
 REVISION
-    12/02/2013.
+    01/13/2014.
