@@ -8,19 +8,12 @@
 
 #include <Plain/Mocosel.h>
 
-/* For use within the translation unit. */
-MOCOSEL_WORD_DOUBLE MOCOSEL_JOIN(MOCOSEL_BYTE* MOCOSEL_RESTRICT data, MOCOSEL_WORD_DOUBLE length, struct MOCOSEL_LIST* MOCOSEL_RESTRICT node, MOCOSEL_WORD_DOUBLE type) {
-    MOCOSEL_ASSERT(node != NULL);
+MOCOSEL_WORD_DOUBLE MOCOSEL_EXPORT(MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE length, MOCOSEL_WORD_DOUBLE type, struct MOCOSEL_VALUE* value) {
+    MOCOSEL_ASSERT(value != NULL);
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */
-    if(node == NULL) {
+    if(value == NULL) {
         return MOCOSEL_ERROR_SYSTEM_WRONG_DATA;
     }
-    MOCOSEL_WORD_DOUBLE distance = node->layout.to - node->layout.from;
-    MOCOSEL_WORD_DOUBLE error = MOCOSEL_RESERVE(sizeof(struct MOCOSEL_VALUE), &node->layout);
-    if(error != 0) {
-        return error;
-    }
-    struct MOCOSEL_VALUE* value = (struct MOCOSEL_VALUE*)&node->layout.from[distance];
     switch(type) {
         case MOCOSEL_TYPE_INTEGER:
         case MOCOSEL_TYPE_KEYWORD:
@@ -61,6 +54,44 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_JOIN(MOCOSEL_BYTE* MOCOSEL_RESTRICT data, MOCOSEL_WO
         }
     }
     return 0;
+}
+
+MOCOSEL_WORD_DOUBLE MOCOSEL_JOIN(MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE length, struct MOCOSEL_LIST* node, MOCOSEL_WORD_DOUBLE type) {
+    MOCOSEL_ASSERT(node != NULL);
+    /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */
+    if(node == NULL) {
+        return MOCOSEL_ERROR_SYSTEM_WRONG_DATA;
+    }
+    MOCOSEL_WORD_DOUBLE distance = node->layout.to - node->layout.from;
+    MOCOSEL_WORD_DOUBLE error = MOCOSEL_RESERVE(sizeof(struct MOCOSEL_VALUE), &node->layout);
+    if(error != 0) {
+        return error;
+    }
+    return MOCOSEL_EXPORT(data, length, type, (struct MOCOSEL_VALUE*)&node->layout.from[distance]);
+}
+
+void MOCOSEL_PURGE(struct MOCOSEL_LIST* node) {
+    if(node == NULL) {
+        return;
+    }
+    MOCOSEL_BYTE* from = node->layout.from;
+    MOCOSEL_BYTE* to = node->layout.to;
+    for(; from != to; from += sizeof(struct MOCOSEL_VALUE)) {
+        struct MOCOSEL_VALUE* value = (struct MOCOSEL_VALUE*)from;
+        if(value->type == MOCOSEL_TYPE_LIST) {
+            MOCOSEL_PURGE((struct MOCOSEL_LIST*)value->data);
+        }
+        if(value->length > 0) {
+            MOCOSEL_RESIZE(value->data, 0, value->length);
+        }
+    }
+    if(node->layout.from) {
+        MOCOSEL_RESIZE(node->layout.from, 0, node->layout.to - node->layout.from);
+    }
+    MOCOSEL_PURGE(node->node);
+    if(node->node) {
+        MOCOSEL_RESIZE(node->node, 0, sizeof(struct MOCOSEL_LIST));
+    }
 }
 
 MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node, struct MOCOSEL_LIST* MOCOSEL_RESTRICT parent, const MOCOSEL_BYTE* MOCOSEL_RESTRICT pattern, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT segment) {

@@ -1,13 +1,20 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/09/2013,
- * Revision 01/12/2014,
+ * Revision 01/13/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
 
 #include <Plain/VM.h>
-#include <stdio.h>
+
+void MOCOSEL_FINALIZE(struct MOCOSEL_OBJECT* object) {
+    if(object == NULL) {
+        return;
+    }
+    MOCOSEL_PURGE(&object->segment.structure);
+    MOCOSEL_RESIZE(object->segment.data.from, 0, object->segment.data.to - object->segment.data.from);
+}
 
 MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(MOCOSEL_CONTEXT* context, MOCOSEL_WORD_DOUBLE flag, MOCOSEL_LOOKUP function, const struct MOCOSEL_MANIFEST* manifest, struct MOCOSEL_OBJECT* object, const struct MOCOSEL_SEGMENT* segment) {
     MOCOSEL_ASSERT(manifest != NULL);
