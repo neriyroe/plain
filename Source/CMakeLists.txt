@@ -11,7 +11,7 @@ PROJECT(plain)
 SET(CMAKE_BUILD_TYPE Release)
 SET(SOURCE
     ${CMAKE_CURRENT_LIST_DIR}/Framework/Run.c
-    ${CMAKE_CURRENT_LIST_DIR}/Framework/Version.c
+    ${CMAKE_CURRENT_LIST_DIR}/Framework/Host/Version.c
     ${CMAKE_CURRENT_LIST_DIR}/Runtime/Walk.c 
     ${CMAKE_CURRENT_LIST_DIR}/Shared/Concat.c
     ${CMAKE_CURRENT_LIST_DIR}/Shared/Algorithm/Hash.c
