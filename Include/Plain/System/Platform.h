@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 01/13/2014,
+ * Revision 01/14/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -94,6 +94,7 @@
 #endif
 
 #include <ctype.h>
+#include <math.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>

@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 01/13/2014,
+ * Revision 01/14/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -400,14 +400,14 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
             break;
         /* Keyword. */
         } else {
-            MOCOSEL_WORD_DOUBLE identifier = 2166136261;
+            MOCOSEL_WORD_DOUBLE identifier = 2166136261U;
             for(k = i; i < j; i++) {
                 if(strchr((const char*)pattern, (char)segment->from[i]) == NULL) {
                     break;
                 }
                 identifier ^= segment->from[i];
                 /* 2 ^ 24 + 2 ^ 8 + 0x93. */
-                identifier *= 16777619;
+                identifier *= 16777619U;
             }
             /* MOCOSEL_ERROR_SYNTAX_UNKOWN_TOKEN. */
             if(i == k) {
@@ -415,19 +415,19 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
             }
             --i;
             /* Boolean. */
-            if(identifier == 1647734778) {
+            if(identifier == 1647734778U) {
                 MOCOSEL_WORD_DOUBLE error = MOCOSEL_JOIN(NULL, 0, node, MOCOSEL_TYPE_BOOLEAN);
                 if(error != 0) {
                     return error;
                 }
             /* Nil. */
-            } else if(identifier == 2913447899) {
+            } else if(identifier == 2913447899U) {
                 MOCOSEL_WORD_DOUBLE error = MOCOSEL_JOIN(NULL, 0, node, MOCOSEL_TYPE_NIL);
                 if(error != 0) {
                     return error;
                 }
             /* Boolean. */
-            } else if(identifier == 1319056784) {
+            } else if(identifier == 1319056784U) {
                 MOCOSEL_WORD_DOUBLE error = MOCOSEL_JOIN((MOCOSEL_BYTE*)0xFF, 0, node, MOCOSEL_TYPE_BOOLEAN);
                 if(error != 0) {
                     return error;
