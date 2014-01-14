@@ -266,10 +266,10 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
                 return MOCOSEL_ERROR_SYSTEM;
             }
             MOCOSEL_WORD_DOUBLE error = 0;
-            /* TO DO: name me. */
+            /* Expression. */
             if(k == '[') {
                 error = MOCOSEL_TOKENIZE(child, node, pattern, &fragment);
-            /* TO DO: name me. */
+            /* List. */
             } else {
                 error = MOCOSEL_TOKENIZE(child, NULL, pattern, &fragment);
             }
@@ -432,7 +432,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
                 if(error != 0) {
                     return error;
                 }
-            /* Keyword. */
+            /* Variable. */
             } else {
                 MOCOSEL_WORD_DOUBLE error = MOCOSEL_JOIN(&segment->from[k], i - k + 2, node, MOCOSEL_TYPE_KEYWORD);
                 if(error != 0) {

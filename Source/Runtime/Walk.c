@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/09/2013,
- * Revision 01/13/2014,
+ * Revision 01/14/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -23,7 +23,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(MOCOSEL_CONTEXT* context, MOCOSEL_LOOKUP functi
     MOCOSEL_WORD_DOUBLE length = MOCOSEL_MEASURE(node);
     for(; index < length; index++) {
         struct MOCOSEL_VALUE* argument = (struct MOCOSEL_VALUE*)MOCOSEL_ARGUMENT(node, index);
-        /* TO DO: name me. */
+        /* Variable. */
         if(argument->type == MOCOSEL_TYPE_KEYWORD) {
             struct MOCOSEL_SEGMENT keyword = {(MOCOSEL_BYTE*)argument->data, (MOCOSEL_BYTE*)argument->data + argument->length};
             struct MOCOSEL_VALUE* subvalue = function(context, &keyword);
@@ -37,7 +37,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(MOCOSEL_CONTEXT* context, MOCOSEL_LOOKUP functi
             if(argument->data != keyword.from) {
                 MOCOSEL_RESIZE(keyword.from, 0, keyword.to - keyword.from);
             }
-        /* TO DO: name me. */
+        /* Expression. */
         } else if(value->type == MOCOSEL_TYPE_LIST) {
             struct MOCOSEL_LIST* node = (struct MOCOSEL_LIST*)argument->data;
             if(node->parent == NULL) {
