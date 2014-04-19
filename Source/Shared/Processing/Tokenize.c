@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 01/30/2014,
+ * Revision 04/19/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -155,7 +155,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
     node->segment.from = &segment->from[i];
     node->segment.to = &segment->from[j];
     for(; i < j; i++) {
-        if(strchr((const char*)pattern, (char)segment->from[i]) == NULL) {
+        if(strchr((const char*)pattern, (char)segment->from[i]) != NULL) {
             break;
         }
     }
@@ -325,10 +325,8 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
                     }
                     n++;
                 /* Digit. */
-                } else {
-                    if(0 == isdigit(segment->from[i])) {
-                        break;
-                    }
+                } else if(0 == isdigit(segment->from[i])) {
+                    break;
                 }
             }
             MOCOSEL_WORD_DOUBLE error = 0;
@@ -355,10 +353,10 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
                     /* NWW: MOCOSEL_WORD_DOUBLE ensures common ABI. */
                     error = MOCOSEL_JOIN((MOCOSEL_BYTE*)&integer, sizeof(MOCOSEL_WORD_DOUBLE), node, MOCOSEL_TYPE_INTEGER);
                 }
-            /* String. */
+            /* Keyword. */
             } else {
                 for(m = i - 1; m < j; m++) {
-                    if(strchr((const char*)pattern, (char)segment->from[m]) == NULL) {
+                    if(strchr((const char*)pattern, (char)segment->from[m]) != NULL) {
                         break;
                     }
                 }
@@ -366,7 +364,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
                 if(m == k) {
                     return MOCOSEL_ERROR_SYNTAX_UNKNOWN_TOKEN;
                 }
-                error = MOCOSEL_JOIN(&segment->from[k], m - i++ + 2, node, MOCOSEL_TYPE_STRING);
+                error = MOCOSEL_JOIN(&segment->from[k], m - i++ + 2, node, MOCOSEL_TYPE_KEYWORD);
             }
             if (error != 0) {
                 return error;
@@ -402,7 +400,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
         } else {
             MOCOSEL_WORD_DOUBLE identifier = 2166136261U;
             for(k = i; i < j; i++) {
-                if(strchr((const char*)pattern, (char)segment->from[i]) == NULL) {
+                if(strchr((const char*)pattern, (char)segment->from[i]) != NULL) {
                     break;
                 }
                 identifier ^= segment->from[i];
