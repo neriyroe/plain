@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 01/13/2014,
+ * Revision 05/15/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -13,6 +13,7 @@
 extern "C" {
 #endif
 
+#define MOCOSEL_API 201402 /* API version. */
 #define MOCOSEL_MAXIMUM(LEFT, RIGHT) ((LEFT) > (RIGHT)? (LEFT): (RIGHT))
 #define MOCOSEL_MINIMUM(LEFT, RIGHT) ((LEFT) < (RIGHT)? (LEFT): (RIGHT))
 #define MOCOSEL_PAIR(LEFT, RIGHT, TYPE) struct TYPE {LEFT first; RIGHT second;}

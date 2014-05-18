@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 04/19/2014,
+ * Revision 05/15/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -56,7 +56,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_EXPORT(MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE lengt
     return 0;
 }
 
-MOCOSEL_WORD_DOUBLE MOCOSEL_JOIN(MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE length, struct MOCOSEL_LIST* node, MOCOSEL_WORD_DOUBLE type) {
+MOCOSEL_INLINE MOCOSEL_WORD_DOUBLE MOCOSEL_JOIN(MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE length, struct MOCOSEL_LIST* node, MOCOSEL_WORD_DOUBLE type) {
     MOCOSEL_ASSERT(node != NULL);
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */
     if(node == NULL) {

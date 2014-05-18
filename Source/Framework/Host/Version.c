@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/09/2013,
- * Revision 04/19/2014,
+ * Revision 05/15/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -11,7 +11,7 @@
 MOCOSEL_WORD_DOUBLE MOCOSEL_VERSION(struct MOCOSEL_MANIFEST* manifest) {
     if(manifest != NULL) {
         manifest->pattern = "`\"'[{]},; \t\r\n";
-        manifest->version = "2014.1";
+        manifest->version = "2014.2";
     }
-    return 20141;
+    return 20142;
 }
