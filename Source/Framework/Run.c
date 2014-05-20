@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/09/2013,
- * Revision 01/13/2014,
+ * Revision 05/15/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -23,7 +23,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(MOCOSEL_CONTEXT* context, MOCOSEL_WORD_DOUBLE fl
     if(manifest == NULL || object == NULL) {
         return MOCOSEL_ERROR_SYSTEM_WRONG_DATA;
     }
-    /* MOCOSEL_COMPILE. */
+    /* MOCOSEL_SEGMENT_COMPILE. */
     if(flag & MOCOSEL_SEGMENT_COMPILE) {
         memset(object, 0, sizeof(struct MOCOSEL_OBJECT));
         if(segment == NULL) {
@@ -38,7 +38,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(MOCOSEL_CONTEXT* context, MOCOSEL_WORD_DOUBLE fl
             return error;
         }
     }
-    /* MOCOSEL_EXECUTE. */
+    /* MOCOSEL_SEGMENT_EXECUTE. */
     if(flag & MOCOSEL_SEGMENT_EXECUTE) {
         MOCOSEL_WORD_DOUBLE error = MOCOSEL_WALK(context, function, &object->segment.structure, NULL);
         if(error != 0) {
