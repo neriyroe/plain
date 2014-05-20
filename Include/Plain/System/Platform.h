@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 01/14/2014,
+ * Revision 05/20/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -17,7 +17,7 @@
 #define MOCOSEL_TARGET_WINDOWS      0x80
 
 /* Android. */
-#if ANDROID
+#ifdef ANDROID
     #define MOCOSEL_TARGET (MOCOSEL_TARGET_POSIX | MOCOSEL_TARGET_ANDROID)
 /* GNU/Linux. */
 #elif defined(__linux) || defined(__linux__) || defined(linux)
