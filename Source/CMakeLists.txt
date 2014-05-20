@@ -1,7 +1,7 @@
 #
 # Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
 # Date     12/30/2013,
-# Revision 01/13/2014,
+# Revision 05/20/2014,
 #
 # Copyright 2014 Nerijus Ramanauskas.
 #
@@ -18,7 +18,7 @@ SET(SOURCE
     ${CMAKE_CURRENT_LIST_DIR}/Shared/Processing/Tokenize.c
     ${CMAKE_CURRENT_LIST_DIR}/x86/Resize.c)
 IF(MOCOSEL_DEBUGGING)
-    ADD_DEFINITIONS(-DMOCOSEL_DEBUGGING=1)
+    ADD_DEFINITIONS(-DMOCOSEL_DEBUGGING)
 ENDIF()
 INCLUDE_DIRECTORIES(../Include)
 IF(MOCOSEL_EMBEDDED)
