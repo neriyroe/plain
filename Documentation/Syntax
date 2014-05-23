@@ -1,0 +1,68 @@
+As of 05/23/2014, 2014 Q2 (201402).
+
+Syntax
+
+    Keyword
+
+        Any sequence of 8-bit characters. See Source/Framework/Host/Version.c
+        for reserved characters. Keywords "yes", "no" and "none" are immutable.
+
+    Whitespace
+        
+        Space (0x20), line feed (0x0A), horizontal tab (0x09),
+        carriage return (0x0D).
+
+        Can be used, basically, anywhere.
+
+    Comment
+
+        Starts with a grave accent (0x60) and ends with a line feed (0x0A) or a
+        carriage return (0x0D).
+
+    Node
+
+        <Keyword> (with or without <Data>) and links, used for statements and
+        expressions (see <Semantics>).
+
+        Use whitespaces or commas (0x2C) to separate data.
+
+    List
+
+        Or simply a sequence of nodes. Use semicolons (0x3B) to separate
+        two or more nodes.
+
+    Data
+
+        Boolean
+
+            `yes` or `no`.
+
+        Integer
+
+            C style.
+
+        Real
+
+            C style.
+
+        Nil
+
+            Only `none`.
+
+        String
+
+            `''` (0x27) or `""` (0x22).
+
+        Keyword
+
+            As above, used for variables (see <Semantics>).
+
+        Node
+
+            As above, used for expressions (see <Semantics>). Starts with `[`
+            (0x5B) and ends with `]` (0x5D).
+
+        List
+
+            As above, used for blocks (see <Semantics>). Starts with `{` (0x7B)
+            and ends with `}` (0x7D).

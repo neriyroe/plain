@@ -1,0 +1,34 @@
+As of 05/23/2014, 2014 Q2 (201402).
+
+Semantics
+
+    Statement
+
+        As in <Node> (see <Syntax>).
+
+    Program
+
+        As in <List> (see <Syntax>).
+
+    Argument
+
+        As in <Data> (see <Syntax>) with the following substitutions.
+
+        Expression
+
+            <Node>, or simply a "statement that returns a value" or "statement
+            substitution".
+
+        Variable
+
+            <Keyword>, or simply a "keyword that contains a value" or "keyword
+            substitution".
+
+            In fact, a variable can contain any value. So far, there are only
+            only two additional data types: subroutines and pointers.
+
+        String
+
+            As in <String> (see <Syntax>). Insert a backslash (0x5C) before a
+            character to escape from the normal way characters are interpreted,
+            for example, quotation marks.
