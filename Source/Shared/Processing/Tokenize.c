@@ -171,7 +171,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
     MOCOSEL_WORD_DOUBLE m = 0;
     MOCOSEL_WORD_DOUBLE n = 0;
     MOCOSEL_WORD_DOUBLE o = 0;
-    /* Arguments. */
+    /* Data. */
     for(; i < j; i++) {
         /* Whitespace. */
         switch(segment->from[i]) {
