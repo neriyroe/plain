@@ -1,41 +1,21 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 05/20/2014,
+ * Revision 05/23/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
 
 #define MOCOSEL_TARGET_STANDARD     0x00
 #define MOCOSEL_TARGET_POSIX        0x01
-#define MOCOSEL_TARGET_LINUX        0x02
-#define MOCOSEL_TARGET_ANDROID      0x04
-#define MOCOSEL_TARGET_DARWIN       0x08
-#define MOCOSEL_TARGET_OS_X         0x10
-#define MOCOSEL_TARGET_iOS          0x20
-#define MOCOSEL_TARGET_SIMULATOR    0x40
-#define MOCOSEL_TARGET_WINDOWS      0x80
+#define MOCOSEL_TARGET_WINDOWS      0x02
 
-/* Android. */
-#ifdef ANDROID
-    #define MOCOSEL_TARGET (MOCOSEL_TARGET_POSIX | MOCOSEL_TARGET_ANDROID)
 /* GNU/Linux. */
-#elif defined(__linux) || defined(__linux__) || defined(linux)
-    #define MOCOSEL_TARGET (MOCOSEL_TARGET_POSIX | MOCOSEL_TARGET_LINUX)
+#if defined(__linux) || defined(__linux__) || defined(linux)
+    #define MOCOSEL_TARGET MOCOSEL_TARGET_POSIX
 /* Darwin. */
 #elif defined(__APPLE__)
-    #include "TargetConditionals.h"
-
-    /* iOS Simulator. */
-    #if TARGET_OS_IPHONE_SIMULATOR
-        #define MOCOSEL_TARGET (MOCOSEL_TARGET_POSIX | MOCOSEL_TARGET_DARWIN | MOCOSEL_TARGET_iOS | MOCOSEL_TARGET_SIMULATOR)
-    /* iOS. */
-    #elif TARGET_IPHONE
-        #define MOCOSEL_TARGET (MOCOSEL_TARGET_POSIX | MOCOSEL_TARGET_DARWIN | MOCOSEL_TARGET_iOS)
-    /* OS X. */
-    #else
-        #define MOCOSEL_TARGET (MOCOSEL_TARGET_POSIX | MOCOSEL_TARGET_DARWIN | MOCOSEL_TARGET_OS_X)
-    #endif
+    #define MOCOSEL_TARGET MOCOSEL_TARGET_POSIX
 /* Microsoft Windows. */
 #elif defined(_MSC_VER) || defined(_WIN32)
     #define MOCOSEL_TARGET MOCOSEL_TARGET_WINDOWS
