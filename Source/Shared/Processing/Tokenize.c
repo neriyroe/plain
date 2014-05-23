@@ -266,10 +266,10 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
                 return MOCOSEL_ERROR_SYSTEM;
             }
             MOCOSEL_WORD_DOUBLE error = 0;
-            /* Expression. */
+            /* Node. */
             if(k == '[') {
                 error = MOCOSEL_TOKENIZE(child, node, pattern, &fragment);
-            /* Block. */
+            /* List. */
             } else {
                 error = MOCOSEL_TOKENIZE(child, NULL, pattern, &fragment);
             }
