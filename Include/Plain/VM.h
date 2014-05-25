@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     10/05/2013,
- * Revision 01/12/2014,
+ * Revision 05/25/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -14,7 +14,7 @@ extern "C" {
 #endif
 
 #include "Mocosel.h"
-#include "Framework/Host/Manifest.h"
+#include "Framework/Host/Environment.h"
 #include "Framework/Object.h"
 
 enum {
@@ -26,10 +26,10 @@ enum {
 void MOCOSEL_FINALIZE(struct MOCOSEL_OBJECT* object);
 
 /* Compiles and evaluates <segment>. Note that <object> will be modified, <segment> will be copied. */ 
-MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(MOCOSEL_CONTEXT* context, MOCOSEL_WORD_DOUBLE flag, MOCOSEL_LOOKUP function, const struct MOCOSEL_MANIFEST* manifest, struct MOCOSEL_OBJECT* object, const struct MOCOSEL_SEGMENT* segment);
+MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(MOCOSEL_CONTEXT* context, struct MOCOSEL_ENVIRONMENT* environment, MOCOSEL_WORD_DOUBLE flag, MOCOSEL_LOOKUP function, struct MOCOSEL_OBJECT* object, const struct MOCOSEL_SEGMENT* segment);
 
-/* Returns Mocosel version. Other version-specific information will be stored in <manifest>. */
-MOCOSEL_WORD_DOUBLE MOCOSEL_VERSION(struct MOCOSEL_MANIFEST* manifest);
+/* Returns Mocosel version. Other version-specific information will be stored in <environment>. */
+MOCOSEL_WORD_DOUBLE MOCOSEL_VERSION(struct MOCOSEL_ENVIRONMENT* environment);
 
 /* C++. */
 #ifdef __cplusplus

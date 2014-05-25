@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/09/2013,
- * Revision 05/20/2014,
+ * Revision 05/25/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -16,11 +16,11 @@ void MOCOSEL_FINALIZE(struct MOCOSEL_OBJECT* object) {
     MOCOSEL_RESIZE(object->segment.data.from, 0, object->segment.data.to - object->segment.data.from);
 }
 
-MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(MOCOSEL_CONTEXT* context, MOCOSEL_WORD_DOUBLE flag, MOCOSEL_LOOKUP function, const struct MOCOSEL_MANIFEST* manifest, struct MOCOSEL_OBJECT* object, const struct MOCOSEL_SEGMENT* segment) {
-    MOCOSEL_ASSERT(manifest != NULL);
+MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(MOCOSEL_CONTEXT* context, struct MOCOSEL_ENVIRONMENT* environment, MOCOSEL_WORD_DOUBLE flag, MOCOSEL_LOOKUP function, struct MOCOSEL_OBJECT* object, const struct MOCOSEL_SEGMENT* segment) {
+    MOCOSEL_ASSERT(environment != NULL);
     MOCOSEL_ASSERT(object != NULL);
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */
-    if(manifest == NULL || object == NULL) {
+    if(environment == NULL || object == NULL) {
         return MOCOSEL_ERROR_SYSTEM_WRONG_DATA;
     }
     /* MOCOSEL_SEGMENT_COMPILE. */
@@ -33,7 +33,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(MOCOSEL_CONTEXT* context, MOCOSEL_WORD_DOUBLE fl
         if(error != 0) {
             return error;
         }
-        error = MOCOSEL_TOKENIZE(&object->segment.structure, NULL, (MOCOSEL_BYTE*)manifest->pattern, &object->segment.data);
+        error = MOCOSEL_TOKENIZE(&object->segment.structure, NULL, (MOCOSEL_BYTE*)environment->meta.pattern, &object->segment.data);
         if(error != 0) {
             return error;
         }

@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 05/23/2014,
+ * Revision 05/25/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -301,7 +301,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
                 /* Real. */
                 if(segment->from[i] == '.') {
                     /* MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION. */
-                    if(0 == isdigit(segment->from[i - 1])) {
+                    if(isdigit(segment->from[i - 1]) == 0) {
                         return MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION;
                     }
                     l++;
@@ -320,12 +320,12 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
                 /* Scientific. */
                 } else if(segment->from[i] == 'e' || segment->from[i] == 'E') {
                     /* MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION. */
-                    if(0 == isdigit(segment->from[i - 1])) {
+                    if(isdigit(segment->from[i - 1]) == 0) {
                         return MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION;
                     }
                     n++;
                 /* Digit. */
-                } else if(0 == isdigit(segment->from[i])) {
+                } else if(isdigit(segment->from[i]) == 0) {
                     break;
                 }
             }
