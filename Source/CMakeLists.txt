@@ -1,14 +1,18 @@
 #
 # Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
 # Date     12/30/2013,
-# Revision 05/20/2014,
+# Revision 06/01/2014,
 #
 # Copyright 2014 Nerijus Ramanauskas.
 #
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.3)
 PROJECT(plain)
-SET(CMAKE_BUILD_TYPE Release)
+IF(MOCOSEL_DEBUGGING)
+    SET(CMAKE_BUILD_TYPE Debug)
+ELSE()
+    SET(CMAKE_BUILD_TYPE Release)
+ENDIF()
 SET(SOURCE
     ${CMAKE_CURRENT_LIST_DIR}/Framework/Run.c
     ${CMAKE_CURRENT_LIST_DIR}/Framework/Host/Version.c
