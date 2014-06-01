@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 05/23/2014,
+ * Revision 06/01/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -44,17 +44,13 @@
 #if MOCOSEL_TARGET & MOCOSEL_TARGET_POSIX
     #if defined(__cplusplus)
         #define MOCOSEL_INLINE static inline __attribute__((always_inline))
-    #elif __STDC_VERSION__ >= 199101L
-        #define MOCOSEL_INLINE static __inline__ __attribute__((always_inline))
     #else
-        #define MOCOSEL_INLINE static
+        #define MOCOSEL_INLINE static __inline__ __attribute__((always_inline))
     #endif
 #elif MOCOSEL_TARGET & MOCOSEL_TARGET_WINDOWS
     #define MOCOSEL_INLINE static __forceinline
-#elif defined(__cplusplus) || (__STDC_VERSION__ >= 199901L)
-    #define MOCOSEL_INLINE static inline
 #else
-    #define MOCOSEL_INLINE static
+    #define MOCOSEL_INLINE static inline
 #endif
 
 /* MOCOSEL_RESTRICT. */
@@ -62,10 +58,8 @@
     #define MOCOSEL_RESTRICT __restrict__
 #elif MOCOSEL_TARGET & MOCOSEL_TARGET_WINDOWS
     #define MOCOSEL_RESTRICT __restrict
-#elif __STDC_VERSION__ >= 199901L
-    #define MOCOSEL_RESTRICT restrict
 #else
-    #define MOCOSEL_RESTRICT
+    #define MOCOSEL_RESTRICT restrict
 #endif
 
  /* Standard. */
