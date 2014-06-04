@@ -4,9 +4,8 @@ Syntax
 
     Keyword
 
-        Any sequence of 8-bit characters (bytes). See
-        Source/Framework/Host/Version.c for reserved characters. Keywords
-        "yes", "no" and "none" are immutable.
+        Any sequence of bytes. See Source/Framework/Host/Version.c for reserved
+        characters. Keywords "yes", "no" and "none" are immutable.
 
     Whitespace
         
