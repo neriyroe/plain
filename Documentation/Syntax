@@ -1,11 +1,11 @@
-As of 05/24/2014, 2014 Q2 (20142).
+As of 06/04/2014, 2014 Q2 (20142).
 
 Syntax
 
     Keyword
 
-        Any sequence of 8-bit characters. See Source/Framework/Host/Version.c
-        for reserved characters. Keywords "yes", "no" and "none" are immutable.
+        Any sequence of bytes. See Source/Framework/Host/Version.c for reserved
+        characters. Keywords "yes", "no" and "none" are immutable.
 
     Whitespace
         
