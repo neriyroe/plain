@@ -1,26 +1,25 @@
-#
 # Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
 # Date     12/30/2013,
-# Revision 06/01/2014,
+# Revision 06/22/2014,
 #
 # Copyright 2014 Nerijus Ramanauskas.
 #
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.3)
-PROJECT(plain)
+PROJECT(Plain)
 IF(MOCOSEL_DEBUGGING)
     SET(CMAKE_BUILD_TYPE Debug)
 ELSE()
     SET(CMAKE_BUILD_TYPE Release)
 ENDIF()
 SET(SOURCE
-    ${CMAKE_CURRENT_LIST_DIR}/Framework/Run.c
-    ${CMAKE_CURRENT_LIST_DIR}/Framework/Host/Version.c
-    ${CMAKE_CURRENT_LIST_DIR}/Runtime/Walk.c 
-    ${CMAKE_CURRENT_LIST_DIR}/Shared/Concat.c
-    ${CMAKE_CURRENT_LIST_DIR}/Shared/Algorithm/Hash.c
-    ${CMAKE_CURRENT_LIST_DIR}/Shared/Processing/Tokenize.c
-    ${CMAKE_CURRENT_LIST_DIR}/x86/Resize.c)
+    ${CMAKE_CURRENT_LIST_DIR}/Source/Framework/Run.c
+    ${CMAKE_CURRENT_LIST_DIR}/Source/Framework/Host/Version.c
+    ${CMAKE_CURRENT_LIST_DIR}/Source/Runtime/Walk.c 
+    ${CMAKE_CURRENT_LIST_DIR}/Source/Shared/Concat.c
+    ${CMAKE_CURRENT_LIST_DIR}/Source/Shared/Algorithm/Hash.c
+    ${CMAKE_CURRENT_LIST_DIR}/Source/Shared/Processing/Tokenize.c
+    ${CMAKE_CURRENT_LIST_DIR}/Source/System/Resize.c)
 IF(MOCOSEL_DEBUGGING)
     ADD_DEFINITIONS(-DMOCOSEL_DEBUGGING)
 ENDIF()
