@@ -23,5 +23,5 @@ development:
 	fi
 
 	cd $(home)/$(target) && \
-	cmake ../.. -DCMAKE_C_FLAGS=-m32 -DMOCOSEL_DEBUGGING=1 && \
+	cmake `dirname $(home)` -DCMAKE_C_FLAGS=-m32 -DMOCOSEL_DEBUGGING=1 && \
 	make

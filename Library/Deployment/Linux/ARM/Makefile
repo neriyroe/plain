@@ -23,5 +23,5 @@ development:
 	fi
 
 	cd $(home)/$(target) && \
-	cmake ../.. -DCMAKE_C_COMPILER=/usr/bin/arm-linux-gnueabi-gcc -DCMAKE_C_FLAGS="-march=armv6" -DMOCOSEL_DEBUGGING=1 && \
+	cmake `dirname $(home)` -DCMAKE_C_COMPILER=/usr/bin/arm-linux-gnueabi-gcc -DCMAKE_C_FLAGS="-march=armv6" -DMOCOSEL_DEBUGGING=1 && \
 	make
