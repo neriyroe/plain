@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 05/25/2014,
+ * Revision 06/27/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -70,31 +70,7 @@ MOCOSEL_INLINE MOCOSEL_WORD_DOUBLE MOCOSEL_JOIN(MOCOSEL_BYTE* data, MOCOSEL_WORD
     return MOCOSEL_EXPORT(data, length, type, (struct MOCOSEL_VALUE*)&node->layout.from[distance]);
 }
 
-void MOCOSEL_PURGE(struct MOCOSEL_LIST* node) {
-    if(node == NULL) {
-        return;
-    }
-    MOCOSEL_BYTE* from = node->layout.from;
-    MOCOSEL_BYTE* to = node->layout.to;
-    for(; from != to; from += sizeof(struct MOCOSEL_VALUE)) {
-        struct MOCOSEL_VALUE* value = (struct MOCOSEL_VALUE*)from;
-        if(value->type == MOCOSEL_TYPE_LIST) {
-            MOCOSEL_PURGE((struct MOCOSEL_LIST*)value->data);
-        }
-        if(value->length > 0) {
-            MOCOSEL_RESIZE(value->data, 0, value->length);
-        }
-    }
-    if(node->layout.from) {
-        MOCOSEL_RESIZE(node->layout.from, 0, node->layout.to - node->layout.from);
-    }
-    MOCOSEL_PURGE(node->node);
-    if(node->node) {
-        MOCOSEL_RESIZE(node->node, 0, sizeof(struct MOCOSEL_LIST));
-    }
-}
-
-MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node, struct MOCOSEL_LIST* MOCOSEL_RESTRICT parent, const MOCOSEL_BYTE* MOCOSEL_RESTRICT pattern, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT segment) {
+MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* node, struct MOCOSEL_LIST* parent, const MOCOSEL_BYTE* pattern, struct MOCOSEL_SEGMENT* segment) {
     MOCOSEL_ASSERT(node != NULL);
     MOCOSEL_ASSERT(pattern != NULL);
     MOCOSEL_ASSERT(segment != NULL);
@@ -440,4 +416,28 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node,
         }
     }
     return 0;
+}
+
+void MOCOSEL_UNLINK(struct MOCOSEL_LIST* node) {
+    if(node == NULL) {
+        return;
+    }
+    MOCOSEL_BYTE* from = node->layout.from;
+    MOCOSEL_BYTE* to = node->layout.to;
+    for(; from != to; from += sizeof(struct MOCOSEL_VALUE)) {
+        struct MOCOSEL_VALUE* value = (struct MOCOSEL_VALUE*)from;
+        if(value->type == MOCOSEL_TYPE_LIST) {
+            MOCOSEL_UNLINK((struct MOCOSEL_LIST*)value->data);
+        }
+        if(value->length > 0) {
+            MOCOSEL_RESIZE(value->data, 0, value->length);
+        }
+    }
+    if(node->layout.from) {
+        MOCOSEL_RESIZE(node->layout.from, 0, node->layout.to - node->layout.from);
+    }
+    MOCOSEL_UNLINK(node->node);
+    if(node->node) {
+        MOCOSEL_RESIZE(node->node, 0, sizeof(struct MOCOSEL_LIST));
+    }
 }

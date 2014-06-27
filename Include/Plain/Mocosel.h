@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 05/25/2014,
+ * Revision 06/27/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -50,11 +50,11 @@ MOCOSEL_INLINE MOCOSEL_WORD_DOUBLE MOCOSEL_MEASURE(const struct MOCOSEL_LIST* no
     return (node->layout.to - node->layout.from) / sizeof(struct MOCOSEL_VALUE);
 }
 
-/* Frees all memory occupied by <node>. */
-void MOCOSEL_PURGE(struct MOCOSEL_LIST* node);
-
 /* Compiles <segment> to nodes and arguments. Note that only <parent> can be NULL. */
-MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* MOCOSEL_RESTRICT node, struct MOCOSEL_LIST* MOCOSEL_RESTRICT parent, const MOCOSEL_BYTE* MOCOSEL_RESTRICT pattern, struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT segment);
+MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* node, struct MOCOSEL_LIST* parent, const MOCOSEL_BYTE* pattern, struct MOCOSEL_SEGMENT* segment);
+
+/* Frees all memory occupied by <node>. */
+void MOCOSEL_UNLINK(struct MOCOSEL_LIST* node);
 
 /* Evaluates the list given by <node>. Note that both <context> and <value> can be NULL. */
 MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(MOCOSEL_CONTEXT* context, MOCOSEL_LOOKUP function, struct MOCOSEL_LIST* node, struct MOCOSEL_VALUE* value);
