@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/25/2014,
- * Revision 05/25/2014,
+ * Revision 06/28/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -19,6 +19,9 @@ extern "C" {
 
 #include "System/Platform.h"
 #include "Shared/Segment.h"
+
+/* Appends <length> of bytes in <source> to <destination>. Note that <destination> will be reallocated. */
+MOCOSEL_WORD_DOUBLE MOCOSEL_CC(struct MOCOSEL_SEGMENT* destination, MOCOSEL_WORD_DOUBLE length, const MOCOSEL_BYTE* source);
 
 /* Appends <source> to <destination>. Note that <destination> will be reallocated. */
 MOCOSEL_WORD_DOUBLE MOCOSEL_CONCAT(struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT destination, const struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT source);
