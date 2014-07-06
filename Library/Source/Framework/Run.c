@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/09/2013,
- * Revision 05/25/2014,
+ * Revision 07/06/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -29,7 +29,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(MOCOSEL_CONTEXT* context, struct MOCOSEL_ENVIRON
         if(segment == NULL) {
             return 0;
         }
-        MOCOSEL_WORD_DOUBLE error = MOCOSEL_CONCAT(&object->segment.data, segment);
+        MOCOSEL_WORD_DOUBLE error = MOCOSEL_CONCAT(&object->segment.data, segment->to - segment->from, segment->from);
         if(error != 0) {
             return error;
         }

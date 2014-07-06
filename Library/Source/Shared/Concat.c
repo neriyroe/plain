@@ -1,31 +1,30 @@
  /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/14/2013,
- * Revision 07/02/2014,
+ * Revision 07/06/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
 
 #include <Plain/Mocosel.h>
 
-MOCOSEL_WORD_DOUBLE MOCOSEL_CONCAT(struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT destination, const struct MOCOSEL_SEGMENT* MOCOSEL_RESTRICT source) {
+MOCOSEL_WORD_DOUBLE MOCOSEL_CONCAT(struct MOCOSEL_SEGMENT* destination, MOCOSEL_WORD_DOUBLE length, const MOCOSEL_BYTE* source) {
     MOCOSEL_ASSERT(destination != NULL);
     MOCOSEL_ASSERT(source != NULL);
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */
     if(destination == NULL || source == NULL) {
         return MOCOSEL_ERROR_SYSTEM_WRONG_DATA;
     }
-    MOCOSEL_WORD_DOUBLE distance = destination->to - destination->from;
-    MOCOSEL_WORD_DOUBLE length = source->to - source->from;
     if(length == 0) {
-        return 0;
+        return;
     }
+    MOCOSEL_WORD_DOUBLE distance = destination->to - destination->from;
     MOCOSEL_WORD_DOUBLE error = MOCOSEL_RESERVE(length, destination);
     if(error != 0) {
         return error;
     }
     /* MOCOSEL_ERROR_SYSTEM. */
-    if(memcpy(destination->from + distance, source->from, length) == NULL) {
+    if(memcpy(destination->from + distance, source, length) == NULL) {
         return MOCOSEL_ERROR_SYSTEM;
     }
     return 0;
