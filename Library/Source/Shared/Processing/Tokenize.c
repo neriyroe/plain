@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 06/27/2014,
+ * Revision 07/12/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -440,4 +440,5 @@ void MOCOSEL_UNLINK(struct MOCOSEL_LIST* node) {
     if(node->node) {
         MOCOSEL_RESIZE(node->node, 0, sizeof(struct MOCOSEL_LIST));
     }
+    memset(node, 0, sizeof(struct MOCOSEL_LIST));
 }

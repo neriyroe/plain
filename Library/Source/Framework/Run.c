@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/09/2013,
- * Revision 07/06/2014,
+ * Revision 07/13/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -16,7 +16,7 @@ void MOCOSEL_FINALIZE(struct MOCOSEL_OBJECT* object) {
     MOCOSEL_RESIZE(object->segment.data.from, 0, object->segment.data.to - object->segment.data.from);
 }
 
-MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(MOCOSEL_CONTEXT* context, struct MOCOSEL_ENVIRONMENT* environment, MOCOSEL_WORD_DOUBLE flag, MOCOSEL_LOOKUP function, struct MOCOSEL_OBJECT* object, const struct MOCOSEL_SEGMENT* segment) {
+MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(MOCOSEL_CONTEXT* context, struct MOCOSEL_ENVIRONMENT* environment, MOCOSEL_WORD_DOUBLE flag, MOCOSEL_LOOKUP function, struct MOCOSEL_OBJECT* object, const MOCOSEL_BYTE* source) {
     MOCOSEL_ASSERT(environment != NULL);
     MOCOSEL_ASSERT(object != NULL);
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */
@@ -26,10 +26,10 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(MOCOSEL_CONTEXT* context, struct MOCOSEL_ENVIRON
     /* MOCOSEL_SEGMENT_COMPILE. */
     if(flag & MOCOSEL_SEGMENT_COMPILE) {
         memset(object, 0, sizeof(struct MOCOSEL_OBJECT));
-        if(segment == NULL) {
+        if(source == NULL) {
             return 0;
         }
-        MOCOSEL_WORD_DOUBLE error = MOCOSEL_CONCAT(&object->segment.data, segment->to - segment->from, segment->from);
+        MOCOSEL_WORD_DOUBLE error = MOCOSEL_CONCAT(&object->segment.data, strlen((char*)source), source);
         if(error != 0) {
             return error;
         }
