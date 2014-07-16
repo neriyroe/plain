@@ -17,11 +17,20 @@ extern "C" {
 #include "Framework/Host/Environment.h"
 #include "Framework/Object.h"
 
-typedef struct MOCOSEL_ENVIRONMENT  MOCOSEL_ENVIRONMENT;
-typedef struct MOCOSEL_LIST         MOCOSEL_LIST;
-typedef struct MOCOSEL_OBJECT       MOCOSEL_OBJECT;
-typedef struct MOCOSEL_SEGMENT      MOCOSEL_SEGMENT;
-typedef struct MOCOSEL_VALUE        MOCOSEL_VALUE;
+/* Holds current machine state. */
+typedef struct MOCOSEL_ENVIRONMENT MOCOSEL_ENVIRONMENT;
+
+/* Holds node data and subnodes. */
+typedef struct MOCOSEL_LIST MOCOSEL_LIST;
+
+/* Holds program data. */
+typedef struct MOCOSEL_OBJECT MOCOSEL_OBJECT;
+
+/* Holds any region of memory. */
+typedef struct MOCOSEL_SEGMENT MOCOSEL_SEGMENT;
+
+/* Holds any amount of data of an arbitrary type. */
+typedef struct MOCOSEL_VALUE MOCOSEL_VALUE;
 
 enum {
     MOCOSEL_SEGMENT_COMPILE = 0x01,
