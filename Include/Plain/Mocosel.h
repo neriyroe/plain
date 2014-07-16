@@ -13,7 +13,7 @@
 extern "C" {
 #endif
 
-#define MOCOSEL_API 20142 /* API version. */
+#define MOCOSEL_API 20143 /* API version. */
 
 #include "CL.h"
 #include "Shared/Error.h"
