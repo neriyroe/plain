@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     10/05/2013,
- * Revision 07/15/2014,
+ * Revision 07/17/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -29,7 +29,7 @@ enum {
 };
 
 /* Frees all memory occupied by <object>. */
-void MOCOSEL_FINALIZE(struct MOCOSEL_OBJECT* object);
+void MOCOSEL_FINALIZE(MOCOSEL_OBJECT* object);
 
 /* Compiles and evaluates <segment>. Note that <object> will be modified, <segment> will be copied. */ 
 MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(MOCOSEL_CONTEXT* context, MOCOSEL_ENVIRONMENT* environment, MOCOSEL_WORD_DOUBLE flag, MOCOSEL_LOOKUP function, MOCOSEL_OBJECT* object, const MOCOSEL_BYTE* source);

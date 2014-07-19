@@ -1,14 +1,14 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/09/2013,
- * Revision 07/15/2014,
+ * Revision 07/16/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
 
 #include <Plain/VM.h>
 
-void MOCOSEL_FINALIZE(struct MOCOSEL_OBJECT* object) {
+void MOCOSEL_FINALIZE(MOCOSEL_OBJECT* object) {
     if(object == NULL) {
         return;
     }
