@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/09/2013,
- * Revision 04/18/2014,
+ * Revision 07/20/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -38,14 +38,14 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(MOCOSEL_CONTEXT* context, MOCOSEL_LOOKUP functi
                 MOCOSEL_RESIZE(keyword.from, 0, keyword.to - keyword.from);
             }
         /* Expression. */
-        } else if(value->type == MOCOSEL_TYPE_LIST) {
+        } else if(argument->type == MOCOSEL_TYPE_LIST) {
             struct MOCOSEL_LIST* node = (struct MOCOSEL_LIST*)argument->data;
             if(node->parent == NULL) {
                 continue;
             }
             MOCOSEL_WORD_DOUBLE error = MOCOSEL_WALK(context, function, node, argument);
             if(argument->data != (MOCOSEL_BYTE*)node) {
-                MOCOSEL_PURGE(node);
+                MOCOSEL_UNLINK(node);
             }
             if(error != 0) {
                 return error;
@@ -70,7 +70,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(MOCOSEL_CONTEXT* context, MOCOSEL_LOOKUP functi
         value->type = subvalue->type;
     }
     /* Node. */
-    if(node->node) {
+    if(node->node != NULL) {
         MOCOSEL_WORD_DOUBLE error = MOCOSEL_WALK(context, function, node->node, NULL);
         if(error != 0) {
             return error;

@@ -17,7 +17,7 @@ MOCOSEL_VALUE* invoke(MOCOSEL_CONTEXT* context, const MOCOSEL_SEGMENT* segment) 
     if(segment == NULL) {
         return NULL;
     }
-    printf("Invoking %.*s...", (int) (segment->to - segment->from), (const char*)segment->from);
+    printf("\tInvoking %.*s...\n", (int) (segment->to - segment->from), (const char*)segment->from);
     return NULL;
 }
 
@@ -33,7 +33,7 @@ void error(MOCOSEL_WORD_DOUBLE error) {
     } else if(error & MOCOSEL_ERROR_SYSTEM) {
         category = "System";
     }
-    printf("%s error %d.", category, error);
+    printf("\t%s error %X.\n", category, error);
 }
 
 void evaluate(void* context, const MOCOSEL_BYTE* source) {
@@ -76,7 +76,7 @@ int main() {
     MOCOSEL_CONSTRUCT(MOCOSEL_ENVIRONMENT, environment);
     MOCOSEL_VERSION(&environment);
     printf("You are running Plain %d.%d (Mocosel %s).\n", MOCOSEL_API / 10, MOCOSEL_API % 10, environment.meta.version);
-    printf("Please visit http://mocosel.org to retrieve updates.\n");
+    printf("Please visit http://mocosel.org to retrieve updates.\n\n");
     while(prompt(&environment, &evaluate) == PROMPT_CONTINUE) {
     }
     return 0;
