@@ -320,13 +320,13 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* node, struct MOCOSEL_L
                         error = MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION;
                     } else {
                         MOCOSEL_REAL real = (MOCOSEL_REAL)number;
-                        /* NWW: MOCOSEL_REAL ensures common ABI. */
+                        /* MOCOSEL_REAL ensures common ABI. */
                         error = MOCOSEL_JOIN((MOCOSEL_BYTE*)&real, sizeof(MOCOSEL_REAL), node, MOCOSEL_TYPE_REAL);
                     }
                 /* Integer. */
                 } else {
                     MOCOSEL_WORD_DOUBLE integer = (MOCOSEL_WORD_DOUBLE)atoi((const char*)&segment->from[k]);
-                    /* NWW: MOCOSEL_WORD_DOUBLE ensures common ABI. */
+                    /* MOCOSEL_WORD_DOUBLE ensures common ABI. */
                     error = MOCOSEL_JOIN((MOCOSEL_BYTE*)&integer, sizeof(MOCOSEL_WORD_DOUBLE), node, MOCOSEL_TYPE_INTEGER);
                 }
             /* Keyword. */

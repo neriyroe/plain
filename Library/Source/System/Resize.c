@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/07/2013,
- * Revision 01/12/2014,
+ * Revision 07/21/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -12,7 +12,7 @@ void* MOCOSEL_RESIZE(void* data, MOCOSEL_WORD_DOUBLE destination, MOCOSEL_WORD_D
     if(destination == source) {
         return data;
     }
-    if(destination < 1) {
+    if(destination == 0) {
         if(data != NULL) {
             free(data);
         }

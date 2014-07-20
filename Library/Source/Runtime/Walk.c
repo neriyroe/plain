@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/09/2013,
- * Revision 07/20/2014,
+ * Revision 07/21/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -23,53 +23,50 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(MOCOSEL_CONTEXT* context, MOCOSEL_LOOKUP functi
     MOCOSEL_WORD_DOUBLE length = MOCOSEL_MEASURE(node);
     for(; index < length; index++) {
         struct MOCOSEL_VALUE* argument = (struct MOCOSEL_VALUE*)MOCOSEL_ARGUMENT(node, index);
-        /* Variable. */
-        if(argument->type == MOCOSEL_TYPE_KEYWORD) {
-            struct MOCOSEL_SEGMENT keyword = {(MOCOSEL_BYTE*)argument->data, (MOCOSEL_BYTE*)argument->data + argument->length};
-            struct MOCOSEL_VALUE* subvalue = function(context, &keyword);
-            /* MOCOSEL_ERROR_RUNTIME_UNDEFINED_STATEMENT. */
-            if(subvalue == NULL) {
-                return MOCOSEL_ERROR_RUNTIME_UNDEFINED_STATEMENT;
-            }
-            argument->data = subvalue->data;
-            argument->length = subvalue->length;
-            argument->type = subvalue->type;
-            if(argument->data != keyword.from) {
-                MOCOSEL_RESIZE(keyword.from, 0, keyword.to - keyword.from);
-            }
-        /* Expression. */
-        } else if(argument->type == MOCOSEL_TYPE_LIST) {
-            struct MOCOSEL_LIST* subnode = (struct MOCOSEL_LIST*)argument->data;
-            if(subnode->parent == NULL) {
+        if(argument->type == MOCOSEL_TYPE_KEYWORD) { /* Variable. */
+            struct MOCOSEL_SEGMENT keyword = {argument->data, argument->data + argument->length};
+            if(keyword.from == keyword.to) {
                 continue;
             }
-            MOCOSEL_WORD_DOUBLE error = MOCOSEL_WALK(context, function, subnode, argument);
-            if(argument->data != (MOCOSEL_BYTE*)subnode) {
-                MOCOSEL_UNLINK(subnode);
-                /* NWW: for the sake of stupidity, simplicity and flexibility, let's not make MOCOSEL_UNLINK do it for us. */
-                MOCOSEL_RESIZE(subnode, 0, sizeof(struct MOCOSEL_LIST));
+            /* Return as it is. */
+            MOCOSEL_WORD_DOUBLE error = function(context, &keyword, argument);
+            if(argument->data != keyword.from) { /* Data has been changed. */
+                MOCOSEL_RESIZE(keyword.from, 0, keyword.to - keyword.from);
+            }
+            if(error != 0) {
+                return error;
+            }
+        } else if(argument->type == MOCOSEL_TYPE_LIST) { /* Expression. */
+            struct MOCOSEL_LIST* child = (struct MOCOSEL_LIST*)argument->data;
+            if(child == NULL) {
+                continue;
+            }
+            /* Substitute. */
+            MOCOSEL_WORD_DOUBLE error = MOCOSEL_WALK(context, function, child, argument);
+            if((struct MOCOSEL_LIST*)argument->data != child) { /* Data has been changed. */
+                MOCOSEL_UNLINK(child);
+                MOCOSEL_RESIZE(child, 0, sizeof(struct MOCOSEL_LIST));
             }
             if(error != 0) {
                 return error;
             }
         }
     }
-    struct MOCOSEL_VALUE* subvalue = function(context, &node->keyword);
-    /* MOCOSEL_ERROR_RUNTIME_UNDEFINED_STATEMENT. */
-    if(subvalue == NULL) {
-        return MOCOSEL_ERROR_RUNTIME_UNDEFINED_STATEMENT;
+    if (value == NULL) {
+        value = (struct MOCOSEL_VALUE*)MOCOSEL_AUTO(sizeof(struct MOCOSEL_VALUE));
     }
-    /* Subroutine. */
-    if(subvalue->type == MOCOSEL_TYPE_SUBROUTINE) {
-        MOCOSEL_WORD_DOUBLE error = ((MOCOSEL_SUBROUTINE)subvalue->data)(context, function, node, value);
-        if(error != 0) {
-            return error;
+    MOCOSEL_WORD_DOUBLE error = function(context, &node->keyword, value);
+    if(error != 0) {
+        return error;
+    }
+    if(value->data != NULL) {
+        /* Subroutine. */
+        if(value->type == MOCOSEL_TYPE_SUBROUTINE) {
+            error = ((MOCOSEL_SUBROUTINE)value->data)(context, node, value);
+            if(error != 0) {
+                return error;
+            }
         }
-    /* Value. */
-    } else if(value != NULL) {
-        value->data = subvalue->data;
-        value->length = subvalue->length;
-        value->type = subvalue->type;
     }
     /* Node. */
     if(node->node != NULL) {

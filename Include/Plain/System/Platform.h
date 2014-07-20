@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 06/01/2014,
+ * Revision 07/20/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -60,6 +60,13 @@
     #define MOCOSEL_RESTRICT __restrict
 #else
     #define MOCOSEL_RESTRICT restrict
+#endif
+
+/* MOCOSEL_AUTO. */
+#if MOCOSEL_TARGET & MOCOSEL_TARGET_WINDOWS
+    #define MOCOSEL_AUTO(NUMBER) _alloca(NUMBER)
+#else
+    #define MOCOSEL_AUTO(NUMBER) alloca(NUMBER)
 #endif
 
  /* Standard. */
