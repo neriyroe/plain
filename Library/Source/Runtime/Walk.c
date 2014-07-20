@@ -39,13 +39,15 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(MOCOSEL_CONTEXT* context, MOCOSEL_LOOKUP functi
             }
         /* Expression. */
         } else if(argument->type == MOCOSEL_TYPE_LIST) {
-            struct MOCOSEL_LIST* node = (struct MOCOSEL_LIST*)argument->data;
-            if(node->parent == NULL) {
+            struct MOCOSEL_LIST* subnode = (struct MOCOSEL_LIST*)argument->data;
+            if(subnode->parent == NULL) {
                 continue;
             }
-            MOCOSEL_WORD_DOUBLE error = MOCOSEL_WALK(context, function, node, argument);
-            if(argument->data != (MOCOSEL_BYTE*)node) {
-                MOCOSEL_UNLINK(node);
+            MOCOSEL_WORD_DOUBLE error = MOCOSEL_WALK(context, function, subnode, argument);
+            if(argument->data != (MOCOSEL_BYTE*)subnode) {
+                MOCOSEL_UNLINK(subnode);
+                /* NWW: for the sake of stupidity, simplicity and flexibility, let's not make MOCOSEL_UNLINK do it for us. */
+                MOCOSEL_RESIZE(subnode, 0, sizeof(struct MOCOSEL_LIST));
             }
             if(error != 0) {
                 return error;

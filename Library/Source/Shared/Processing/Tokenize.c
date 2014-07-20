@@ -440,5 +440,4 @@ void MOCOSEL_UNLINK(struct MOCOSEL_LIST* node) {
     if(node->node) {
         MOCOSEL_RESIZE(node->node, 0, sizeof(struct MOCOSEL_LIST));
     }
-    memset(node, 0, sizeof(struct MOCOSEL_LIST));
 }
