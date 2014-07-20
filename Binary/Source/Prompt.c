@@ -18,7 +18,6 @@ MOCOSEL_VALUE* invoke(MOCOSEL_CONTEXT* context, const MOCOSEL_SEGMENT* segment) 
         return NULL;
     }
     printf("Invoking %.*s...", (int) (segment->to - segment->from), (const char*)segment->from);
-    /* Not implemented yet. */
     return NULL;
 }
 
@@ -63,11 +62,11 @@ enum {
 
 MOCOSEL_WORD_DOUBLE prompt(void* context, void (*receiver) (void*, const MOCOSEL_BYTE*)) {
     char* line = readline("local: ");
-    if(line == NULL) {
+    if (line == NULL) {
         return PROMPT_BREAK;
     }
-    if(receiver != NULL) {
-        receiver(context, (const MOCOSEL_BYTE*)line);
+    if (receiver != NULL) {
+        receiver (context, (const MOCOSEL_BYTE*)line);
     }
     free(line);
     return PROMPT_CONTINUE;
