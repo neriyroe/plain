@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 07/20/2014,
+ * Revision 10/05/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -13,7 +13,7 @@
 extern "C" {
 #endif
 
-#define MOCOSEL_API 20143 /* API version. */
+#define MOCOSEL_API 20144 /* API version. */
 
 #include "CL.h"
 #include "Shared/Error.h"
@@ -21,7 +21,6 @@ extern "C" {
 #include "Shared/Processing/List.h"
 #include "Shared/Processing/Value.h"
 #include "Runtime/Context.h"
-#include "Runtime/Lookup.h"
 #include "Runtime/Subroutine.h"
 
 /* Returns argument at <position>. */
@@ -57,7 +56,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* node, struct MOCOSEL_L
 void MOCOSEL_UNLINK(struct MOCOSEL_LIST* node);
 
 /* Evaluates the list given by <node>. Note that both <context> and <value> can be NULL. */
-MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(MOCOSEL_CONTEXT* context, MOCOSEL_LOOKUP function, struct MOCOSEL_LIST* node, struct MOCOSEL_VALUE* value);
+MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(MOCOSEL_CONTEXT* context, MOCOSEL_SUBROUTINE function, struct MOCOSEL_LIST* node, struct MOCOSEL_VALUE* value);
 
 /* C++. */
 #ifdef __cplusplus

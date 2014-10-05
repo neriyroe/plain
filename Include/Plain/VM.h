@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     10/05/2013,
- * Revision 07/17/2014,
+ * Revision 10/05/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -32,7 +32,7 @@ enum {
 void MOCOSEL_FINALIZE(MOCOSEL_OBJECT* object);
 
 /* Compiles and evaluates <segment>. Note that <object> will be modified, <segment> will be copied. */ 
-MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(MOCOSEL_CONTEXT* context, MOCOSEL_ENVIRONMENT* environment, MOCOSEL_WORD_DOUBLE flag, MOCOSEL_LOOKUP function, MOCOSEL_OBJECT* object, const MOCOSEL_BYTE* source);
+MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(MOCOSEL_CONTEXT* context, MOCOSEL_ENVIRONMENT* environment, MOCOSEL_WORD_DOUBLE flag, MOCOSEL_SUBROUTINE function, MOCOSEL_OBJECT* object, const MOCOSEL_BYTE* source);
 
 /* Returns Mocosel version. Other version-specific information will be stored in <environment>. */
 MOCOSEL_WORD_DOUBLE MOCOSEL_VERSION(MOCOSEL_ENVIRONMENT* environment);
