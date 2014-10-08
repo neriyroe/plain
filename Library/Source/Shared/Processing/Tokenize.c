@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 07/20/2014,
+ * Revision 10/08/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -70,7 +70,7 @@ MOCOSEL_INLINE MOCOSEL_WORD_DOUBLE MOCOSEL_JOIN(MOCOSEL_BYTE* data, MOCOSEL_WORD
     return MOCOSEL_EXPORT(data, length, type, (struct MOCOSEL_VALUE*)&node->layout.from[distance]);
 }
 
-MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* node, struct MOCOSEL_LIST* parent, const MOCOSEL_BYTE* pattern, struct MOCOSEL_SEGMENT* segment) {
+MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(MOCOSEL_DELEGATE listener, struct MOCOSEL_LIST* node, struct MOCOSEL_LIST* parent, const MOCOSEL_BYTE* pattern, struct MOCOSEL_SEGMENT* segment) {
     MOCOSEL_ASSERT(node != NULL);
     MOCOSEL_ASSERT(pattern != NULL);
     MOCOSEL_ASSERT(segment != NULL);
@@ -140,6 +140,9 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* node, struct MOCOSEL_L
     node->keyword.to = &segment->from[i];
     /* MOCOSEL_ERROR_SYNTAX_UNKNOWN_TOKEN. */
     if(node->keyword.from == node->keyword.to) {
+        if (listener != NULL) {
+            listener(node->keyword.from, j - i);
+        }
         return MOCOSEL_ERROR_SYNTAX_UNKNOWN_TOKEN;
     }
     MOCOSEL_WORD_DOUBLE k = 0;
@@ -182,6 +185,9 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* node, struct MOCOSEL_L
             }
             /* MOCOSEL_ERROR_SYNTAX_MISSING_QUOTATION_MARK. */
             if(l == j) {
+                if (listener != NULL) {
+                    listener(&segment->from[i - 1], j - i + 1);
+                }
                 return MOCOSEL_ERROR_SYNTAX_MISSING_QUOTATION_MARK;
             }
             /* String. */
@@ -207,8 +213,11 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* node, struct MOCOSEL_L
                             break;
                         }
                     }
-                    /* MOCOSEL_ERROR_SYNTAX_MISSING_QUATATION_MARK. */
+                    /* MOCOSEL_ERROR_SYNTAX_MISSING_QUOTATION_MARK. */
                     if(o == j) {
+                        if (listener != NULL) {
+                            listener(&segment->from[i - 1], j - i + 1);
+                        }
                         return MOCOSEL_ERROR_SYNTAX_MISSING_QUOTATION_MARK;
                     }
                     m = o;
@@ -233,6 +242,9 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* node, struct MOCOSEL_L
             struct MOCOSEL_SEGMENT fragment = {&segment->from[i], &segment->from[m]};
             /* MOCOSEL_ERROR_SYNTAX_MISSING_BRACKET. */
             if(n != 0) {
+                if (listener != NULL) {
+                    listener(&segment->from[i - 1], j - i + 1);
+                }
                 return MOCOSEL_ERROR_SYNTAX_MISSING_BRACKET;
             }
             /* Node. */
@@ -278,6 +290,9 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* node, struct MOCOSEL_L
                 if(segment->from[i] == '.') {
                     /* MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION. */
                     if(isdigit(segment->from[i - 1]) == 0) {
+                        if (listener != NULL) {
+                            listener(&segment->from[k - 1], i - k + 2);
+                        }
                         return MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION;
                     }
                     l++;
@@ -289,14 +304,21 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* node, struct MOCOSEL_L
                             break;
 
                         /* MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION. */
-                        default:
+                        default: {
+                            if (listener != NULL) {
+                                listener(&segment->from[k], i - k + 1);
+                            }
                             return MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION;
+                        }
                     }
                     m++;
                 /* Scientific. */
                 } else if(segment->from[i] == 'e' || segment->from[i] == 'E') {
                     /* MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION. */
                     if(isdigit(segment->from[i - 1]) == 0) {
+                        if (listener != NULL) {
+                            listener(&segment->from[k], i - k + 1);
+                        }
                         return MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION;
                     }
                     n++;
@@ -310,6 +332,9 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* node, struct MOCOSEL_L
             if(k != i - 1 || isdigit(segment->from[k])) {
                /* MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION. */
                 if(l > 1 || m > 1 || n > 1) {
+                    if (listener != NULL) {
+                        listener(&segment->from[k], i - k);
+                    }
                     return MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION;
                 }
                 /* Real. */
@@ -338,6 +363,9 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* node, struct MOCOSEL_L
                 }
                 /* MOCOSEL_ERROR_SYNTAX_UNKOWN_TOKEN. */
                 if(m == k) {
+                    if (listener != NULL) {
+                        listener(&segment->from[k], m - k);
+                    }
                     return MOCOSEL_ERROR_SYNTAX_UNKNOWN_TOKEN;
                 }
                 error = MOCOSEL_JOIN(&segment->from[k], m - i++ + 2, node, MOCOSEL_TYPE_KEYWORD);
@@ -350,6 +378,9 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* node, struct MOCOSEL_L
         } else if(segment->from[i] == ';') {
             /* MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION. */
             if(node->parent != NULL) {
+                if (listener != NULL) {
+                    listener(&segment->from[i], j - i);
+                }
                 return MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION;
             }
             struct MOCOSEL_SEGMENT fragment = {&segment->from[++i], &segment->from[j]};
@@ -385,6 +416,9 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* node, struct MOCOSEL_L
             }
             /* MOCOSEL_ERROR_SYNTAX_UNKOWN_TOKEN. */
             if(i == k) {
+                if (listener != NULL) {
+                    listener(&segment->from[i], k - i);
+                }
                 return MOCOSEL_ERROR_SYNTAX_UNKNOWN_TOKEN;
             }
             --i;
