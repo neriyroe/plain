@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 10/05/2014,
+ * Revision 10/15/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -20,6 +20,7 @@ extern "C" {
 #include "Shared/Processing/Type.h"
 #include "Shared/Processing/List.h"
 #include "Shared/Processing/Value.h"
+#include "Shared/Processing/Delegate.h"
 #include "Runtime/Context.h"
 #include "Runtime/Subroutine.h"
 
@@ -50,7 +51,7 @@ MOCOSEL_INLINE MOCOSEL_WORD_DOUBLE MOCOSEL_MEASURE(const struct MOCOSEL_LIST* no
 }
 
 /* Compiles <segment> to nodes and arguments. Note that only <parent> can be NULL. */
-MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* node, struct MOCOSEL_LIST* parent, const MOCOSEL_BYTE* pattern, struct MOCOSEL_SEGMENT* segment);
+MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(MOCOSEL_DELEGATE listener, struct MOCOSEL_LIST* node, struct MOCOSEL_LIST* parent, const MOCOSEL_BYTE* pattern, struct MOCOSEL_SEGMENT* segment);
 
 /* Frees all memory occupied by <node>. */
 void MOCOSEL_UNLINK(struct MOCOSEL_LIST* node);
