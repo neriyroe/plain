@@ -19,19 +19,10 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_EVALUATE(MOCOSEL_CONTEXT* context, MOCOSEL_ENVIRONME
     if(object.segment.data.from == object.segment.data.to) {
         return 0;
     }
-    /* Compile. */
-    #if 1
     MOCOSEL_WORD_DOUBLE error = MOCOSEL_TOKENIZE(&object.segment.structure, NULL, (MOCOSEL_BYTE*)environment->meta.pattern, &object.segment.data, tracker);
-    #endif
-    /* Execute. */
-    #if 1
     if(error != 0) {
        error = MOCOSEL_WALK(context, function, &object.segment.structure, value);
     }
-    #endif
-    /* Finalize. */
-    #if 1
     MOCOSEL_UNLINK(&object.segment.structure);
-    #endif
     return error;
 }
