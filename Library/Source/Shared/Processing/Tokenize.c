@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 10/15/2014,
+ * Revision 10/26/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -35,6 +35,10 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_EXPORT(MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE lengt
     value->type = type;
     if(length > 0) {
         value->data = (MOCOSEL_BYTE*)MOCOSEL_RESIZE(NULL, length, 0);
+        /* MOCOSEL_ERROR_SYSTEM. */
+        if(value->data == NULL) {
+            return MOCOSEL_ERROR_SYSTEM;
+        }
         /* Keyword, string. */
         if(type == MOCOSEL_TYPE_KEYWORD || type == MOCOSEL_TYPE_STRING) {
             MOCOSEL_WORD_DOUBLE index = 0;
@@ -70,7 +74,7 @@ MOCOSEL_INLINE MOCOSEL_WORD_DOUBLE MOCOSEL_JOIN(MOCOSEL_BYTE* data, MOCOSEL_WORD
     return MOCOSEL_EXPORT(data, length, type, (struct MOCOSEL_VALUE*)&node->layout.from[distance]);
 }
 
-MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(MOCOSEL_DELEGATE listener, struct MOCOSEL_LIST* node, struct MOCOSEL_LIST* parent, const MOCOSEL_BYTE* pattern, struct MOCOSEL_SEGMENT* segment) {
+MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* node, struct MOCOSEL_LIST* parent, const MOCOSEL_BYTE* pattern, struct MOCOSEL_SEGMENT* segment, MOCOSEL_DELEGATE tracker) {
     MOCOSEL_ASSERT(node != NULL);
     MOCOSEL_ASSERT(pattern != NULL);
     MOCOSEL_ASSERT(segment != NULL);
@@ -140,11 +144,10 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(MOCOSEL_DELEGATE listener, struct MOCOSEL_L
     node->keyword.to = &segment->from[i];
     /* MOCOSEL_ERROR_SYNTAX_UNKNOWN_TOKEN. */
     if(node->keyword.from == node->keyword.to) {
-        if(listener == NULL) {
-            return MOCOSEL_ERROR_SYNTAX_UNKNOWN_TOKEN;
-         } else {
-            return listener(node->keyword.from, j - i, MOCOSEL_ERROR_SYNTAX_UNKNOWN_TOKEN);
+        if(tracker != NULL) {
+           tracker(node->keyword.from, j - i, MOCOSEL_ERROR_SYNTAX_UNKNOWN_TOKEN);
         }
+        return MOCOSEL_ERROR_SYNTAX_UNKNOWN_TOKEN;
     }
     MOCOSEL_WORD_DOUBLE k = 0;
     MOCOSEL_WORD_DOUBLE l = 0;
@@ -186,11 +189,10 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(MOCOSEL_DELEGATE listener, struct MOCOSEL_L
             }
             /* MOCOSEL_ERROR_SYNTAX_MISSING_QUOTATION_MARK. */
             if(l == j) {
-                if(listener == NULL) {
-                    return MOCOSEL_ERROR_SYNTAX_MISSING_QUOTATION_MARK;
-                } else {
-                    return listener(&segment->from[i - 1], j - i + 1, MOCOSEL_ERROR_SYNTAX_MISSING_QUOTATION_MARK);
+                if(tracker != NULL) {
+                   tracker(&segment->from[i - 1], j - i + 1, MOCOSEL_ERROR_SYNTAX_MISSING_QUOTATION_MARK);
                 }
+                return MOCOSEL_ERROR_SYNTAX_MISSING_QUOTATION_MARK;
             }
             /* String. */
             MOCOSEL_WORD_DOUBLE error = MOCOSEL_JOIN(&segment->from[i], l - i + 1, node, MOCOSEL_TYPE_STRING);
@@ -217,11 +219,10 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(MOCOSEL_DELEGATE listener, struct MOCOSEL_L
                     }
                     /* MOCOSEL_ERROR_SYNTAX_MISSING_QUOTATION_MARK. */
                     if(o == j) {
-                        if(listener == NULL) {
-                            return MOCOSEL_ERROR_SYNTAX_MISSING_QUOTATION_MARK;
-                        } else {
-                            return listener(&segment->from[i - 1], j - i + 1, MOCOSEL_ERROR_SYNTAX_MISSING_QUOTATION_MARK);
+                        if(tracker) {
+                           tracker(&segment->from[i - 1], j - i + 1, MOCOSEL_ERROR_SYNTAX_MISSING_QUOTATION_MARK);
                         }
+                        return MOCOSEL_ERROR_SYNTAX_MISSING_QUOTATION_MARK;
                     }
                     m = o;
                 /* Bracket. */
@@ -245,11 +246,10 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(MOCOSEL_DELEGATE listener, struct MOCOSEL_L
             struct MOCOSEL_SEGMENT fragment = {&segment->from[i], &segment->from[m]};
             /* MOCOSEL_ERROR_SYNTAX_MISSING_BRACKET. */
             if(n != 0) {
-                if(listener == NULL) {
-                    return MOCOSEL_ERROR_SYNTAX_MISSING_BRACKET;
-                } else {
-                    return listener(&segment->from[i - 1], j - i + 1, MOCOSEL_ERROR_SYNTAX_MISSING_BRACKET);
+                if(tracker != NULL) {
+                   tracker(&segment->from[i - 1], j - i + 1, MOCOSEL_ERROR_SYNTAX_MISSING_BRACKET);
                 }
+                return MOCOSEL_ERROR_SYNTAX_MISSING_BRACKET;
             }
             /* Node. */
             struct MOCOSEL_LIST* child = (struct MOCOSEL_LIST*)MOCOSEL_RESIZE(NULL, sizeof(struct MOCOSEL_LIST), 0);
@@ -260,10 +260,10 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(MOCOSEL_DELEGATE listener, struct MOCOSEL_L
             MOCOSEL_WORD_DOUBLE error = 0;
             /* Node. */
             if(k == '[') {
-                error = MOCOSEL_TOKENIZE(child, node, pattern, &fragment);
+                error = MOCOSEL_TOKENIZE(child, node, pattern, &fragment, tracker);
             /* List. */
             } else {
-                error = MOCOSEL_TOKENIZE(child, NULL, pattern, &fragment);
+                error = MOCOSEL_TOKENIZE(child, NULL, pattern, &fragment, tracker);
             }
             /* Nil. */
             if(child->keyword.from == child->keyword.to || error != 0) {
@@ -294,11 +294,10 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(MOCOSEL_DELEGATE listener, struct MOCOSEL_L
                 if(segment->from[i] == '.') {
                     /* MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION. */
                     if(isdigit(segment->from[i - 1]) == 0) {
-                        if(listener == NULL) {
-                            return MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION;
-                        } else {
-                            return listener(&segment->from[k - 1], i - k + 2, MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION);
+                        if(tracker != NULL) {
+                           tracker(&segment->from[k - 1], i - k + 2, MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION);
                         }
+                        return MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION;
                     }
                     l++;
                 /* Sign. */
@@ -310,12 +309,10 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(MOCOSEL_DELEGATE listener, struct MOCOSEL_L
 
                         /* MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION. */
                         default: {
-                            MOCOSEL_WORD_DOUBLE error = MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION;
-                            if(listener == NULL) {
-                                return MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION;
-                            } else {
-                                return listener(&segment->from[k], i - k + 1, MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION);
+                            if(tracker != NULL) {
+                               tracker(&segment->from[k], i - k + 1, MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION);
                             }
+                            return MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION;
                         }
                     }
                     m++;
@@ -323,11 +320,10 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(MOCOSEL_DELEGATE listener, struct MOCOSEL_L
                 } else if(segment->from[i] == 'e' || segment->from[i] == 'E') {
                     /* MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION. */
                     if(isdigit(segment->from[i - 1]) == 0) {
-                        if(listener == NULL) {
-                            return MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION;
-                        } else {
-                            return listener(&segment->from[k], i - k + 1, MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION);
+                        if(tracker != NULL) {
+                           tracker(&segment->from[k], i - k + 1, MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION);
                         }
+                        return MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION;
                     }
                     n++;
                 /* Digit. */
@@ -335,33 +331,34 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(MOCOSEL_DELEGATE listener, struct MOCOSEL_L
                     break;
                 }
             }
-            MOCOSEL_WORD_DOUBLE error = 0;
             /* Integer, real. */
             if(k != i - 1 || isdigit(segment->from[k])) {
                /* MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION. */
                 if(l > 1 || m > 1 || n > 1) {
-                    if(listener == NULL) {
-                        return MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION;
-                    } else {
-                        return listener(&segment->from[k], i - k, MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION);
+                    if(tracker != NULL) {
+                       tracker(&segment->from[k], i - k, MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION);
                     }
+                    return MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION;
                 }
                 /* Real. */
                 if(l > 0 || n > 0) {
                     double number = atof((const char*)&segment->from[k]);
                     /* MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION. */
                     if(number == HUGE_VAL) {
-                        error = MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION;
-                    } else {
-                        MOCOSEL_REAL real = (MOCOSEL_REAL)number;
-                        /* MOCOSEL_REAL ensures common ABI. */
-                        error = MOCOSEL_JOIN((MOCOSEL_BYTE*)&real, sizeof(MOCOSEL_REAL), node, MOCOSEL_TYPE_REAL);
+                        return MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION;
+                    }
+                    MOCOSEL_REAL real = (MOCOSEL_REAL)number;
+                    /* MOCOSEL_ERROR_SYSTEM. */
+                    if(MOCOSEL_JOIN((MOCOSEL_BYTE*)&real, sizeof(MOCOSEL_REAL), node, MOCOSEL_TYPE_REAL) != 0) {
+                        return MOCOSEL_ERROR_SYSTEM;
                     }
                 /* Integer. */
                 } else {
                     MOCOSEL_WORD_DOUBLE integer = (MOCOSEL_WORD_DOUBLE)atoi((const char*)&segment->from[k]);
-                    /* MOCOSEL_WORD_DOUBLE ensures common ABI. */
-                    error = MOCOSEL_JOIN((MOCOSEL_BYTE*)&integer, sizeof(MOCOSEL_WORD_DOUBLE), node, MOCOSEL_TYPE_INTEGER);
+                    /* MOCOSEL_ERROR_SYSTEM. */
+                    if(MOCOSEL_JOIN((MOCOSEL_BYTE*)&integer, sizeof(MOCOSEL_WORD_DOUBLE), node, MOCOSEL_TYPE_INTEGER) != 0) {
+                        return MOCOSEL_ERROR_SYSTEM;
+                    }
                 }
             /* Keyword. */
             } else {
@@ -372,27 +369,25 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(MOCOSEL_DELEGATE listener, struct MOCOSEL_L
                 }
                 /* MOCOSEL_ERROR_SYNTAX_UNKOWN_TOKEN. */
                 if(m == k) {
-                    if(listener == NULL) {
-                        return MOCOSEL_ERROR_SYNTAX_UNKNOWN_TOKEN;
-                    } else {
-                        return listener(&segment->from[k], m - k, MOCOSEL_ERROR_SYNTAX_UNKNOWN_TOKEN);
+                    if(tracker != NULL) {
+                       tracker(&segment->from[k], m - k, MOCOSEL_ERROR_SYNTAX_UNKNOWN_TOKEN);
                     }
+                    return MOCOSEL_ERROR_SYNTAX_UNKNOWN_TOKEN;
                 }
-                error = MOCOSEL_JOIN(&segment->from[k], m - i++ + 2, node, MOCOSEL_TYPE_KEYWORD);
-            }
-            if (error != 0) {
-                return error;
+                MOCOSEL_WORD_DOUBLE signature = MOCOSEL_JOIN(&segment->from[k], m - i++ + 2, node, MOCOSEL_TYPE_KEYWORD);
+                if(signature != 0) {
+                    return signature;
+                }
             }
             i--;
         /* Node. */
         } else if(segment->from[i] == ';') {
             /* MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION. */
             if(node->parent != NULL) {
-                if(listener == NULL) {
-                    return MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION;
-                } else {
-                    return listener(&segment->from[i], j - i, MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION);
+                if(tracker != NULL) {
+                   tracker(&segment->from[i], j - i, MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION);
                 }
+                return MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION;
             }
             struct MOCOSEL_SEGMENT fragment = {&segment->from[++i], &segment->from[j]};
             if(fragment.from == fragment.to) {
@@ -404,7 +399,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(MOCOSEL_DELEGATE listener, struct MOCOSEL_L
             if(next == NULL) {
                 return MOCOSEL_ERROR_SYSTEM;
             }
-            MOCOSEL_WORD_DOUBLE error = MOCOSEL_TOKENIZE(next, NULL, pattern, &fragment);
+            MOCOSEL_WORD_DOUBLE error = MOCOSEL_TOKENIZE(next, NULL, pattern, &fragment, tracker);
             if(next->keyword.from == next->keyword.to || error != 0) {
                 MOCOSEL_RESIZE(next, 0, sizeof(struct MOCOSEL_LIST));
                 if(error != 0) {
@@ -427,11 +422,10 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(MOCOSEL_DELEGATE listener, struct MOCOSEL_L
             }
             /* MOCOSEL_ERROR_SYNTAX_UNKOWN_TOKEN. */
             if(i == k) {
-                if(listener == NULL) {
-                    return MOCOSEL_ERROR_SYNTAX_UNKNOWN_TOKEN;
-                } else {
-                    return listener(&segment->from[i], k - i, MOCOSEL_ERROR_SYNTAX_UNKNOWN_TOKEN);
+                if(tracker != NULL) {
+                   tracker(&segment->from[i], k - i, MOCOSEL_ERROR_SYNTAX_UNKNOWN_TOKEN);
                 }
+                return MOCOSEL_ERROR_SYNTAX_UNKNOWN_TOKEN;
             }
             --i;
             /* Boolean. */

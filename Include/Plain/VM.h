@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     10/05/2013,
- * Revision 10/15/2014,
+ * Revision 10/26/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -23,16 +23,8 @@ typedef struct MOCOSEL_OBJECT       MOCOSEL_OBJECT;
 typedef struct MOCOSEL_SEGMENT      MOCOSEL_SEGMENT;
 typedef struct MOCOSEL_VALUE        MOCOSEL_VALUE;
 
-enum {
-    MOCOSEL_SEGMENT_COMPILE = 0x01,
-    MOCOSEL_SEGMENT_EXECUTE = 0x02
-};
-
-/* Frees all memory occupied by <object>. */
-void MOCOSEL_FINALIZE(MOCOSEL_OBJECT* object);
-
-/* Compiles and evaluates <segment>. Note that <object> will be modified, <segment> will be copied. */ 
-MOCOSEL_WORD_DOUBLE MOCOSEL_RUN(MOCOSEL_CONTEXT* context, MOCOSEL_ENVIRONMENT* environment, MOCOSEL_WORD_DOUBLE flag, MOCOSEL_SUBROUTINE function, MOCOSEL_DELEGATE listener, MOCOSEL_OBJECT* object, const MOCOSEL_BYTE* source);
+/* Compiles and evaluates <source>. */
+MOCOSEL_WORD_DOUBLE MOCOSEL_EVALUATE(MOCOSEL_CONTEXT* context, MOCOSEL_ENVIRONMENT* environment, MOCOSEL_SUBROUTINE function, const MOCOSEL_BYTE* source, MOCOSEL_DELEGATE tracker, MOCOSEL_VALUE* value);
 
 /* Returns Mocosel version. Other version-specific information will be stored in <environment>. */
 MOCOSEL_WORD_DOUBLE MOCOSEL_VERSION(MOCOSEL_ENVIRONMENT* environment);

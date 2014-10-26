@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/09/2013,
- * Revision 10/05/2014,
+ * Revision 10/26/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -52,8 +52,8 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(MOCOSEL_CONTEXT* context, MOCOSEL_SUBROUTINE fu
             }
         }
     }
-    if (value == NULL) {
-        value = (struct MOCOSEL_VALUE*)MOCOSEL_AUTO(sizeof(struct MOCOSEL_VALUE));
+    if(value == NULL) {
+       value = (struct MOCOSEL_VALUE*)MOCOSEL_AUTO(sizeof(struct MOCOSEL_VALUE));
     }
     MOCOSEL_WORD_DOUBLE error = function(context, &node->keyword, MOCOSEL_TYPE_KEYWORD, value);
     if(error != 0) {
