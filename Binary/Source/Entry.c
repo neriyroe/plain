@@ -6,8 +6,8 @@
  * Copyright 2014 Nerijus Ramanauskas.
  */
 
-#include "Application.h"
-#include "Binding.h"
+#include "Environment.h"
+#include "Plain.h"
 
 int main() {
     MOCOSEL_ENVIRONMENT environment;
