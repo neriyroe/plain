@@ -1,6 +1,6 @@
 # Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
 # Date     12/30/2013,
-# Revision 06/22/2014,
+# Revision 10/31/2014,
 #
 # Copyright 2014 Nerijus Ramanauskas.
 #
@@ -13,7 +13,7 @@ ELSE()
     SET(CMAKE_BUILD_TYPE Release)
 ENDIF()
 SET(SOURCE
-    ${CMAKE_CURRENT_LIST_DIR}/Source/Framework/Run.c
+    ${CMAKE_CURRENT_LIST_DIR}/Source/Framework/Evaluate.c
     ${CMAKE_CURRENT_LIST_DIR}/Source/Framework/Host/Version.c
     ${CMAKE_CURRENT_LIST_DIR}/Source/Runtime/Walk.c 
     ${CMAKE_CURRENT_LIST_DIR}/Source/Shared/Concat.c

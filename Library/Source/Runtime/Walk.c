@@ -1,14 +1,14 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/09/2013,
- * Revision 10/26/2014,
+ * Revision 11/01/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
 
 #include <Plain/Mocosel.h>
 
-MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(MOCOSEL_CONTEXT* context, MOCOSEL_SUBROUTINE function, struct MOCOSEL_LIST* node, struct MOCOSEL_VALUE* value) {
+MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(void* context, MOCOSEL_SUBROUTINE function, struct MOCOSEL_LIST* node, struct MOCOSEL_VALUE* value) {
     MOCOSEL_ASSERT(function != NULL);
     MOCOSEL_ASSERT(node != NULL);
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */

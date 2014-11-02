@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/14/2013,
- * Revision 07/20/2014,
+ * Revision 11/01/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -16,7 +16,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_CONCAT(struct MOCOSEL_SEGMENT* destination, MOCOSEL_
         return MOCOSEL_ERROR_SYSTEM_WRONG_DATA;
     }
     if(length == 0) {
-        return;
+        return 0;
     }
     MOCOSEL_WORD_DOUBLE distance = destination->to - destination->from;
     MOCOSEL_WORD_DOUBLE error = MOCOSEL_RESERVE(length, destination);

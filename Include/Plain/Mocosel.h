@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 10/26/2014,
+ * Revision 10/31/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -21,7 +21,6 @@ extern "C" {
 #include "Shared/Processing/List.h"
 #include "Shared/Processing/Value.h"
 #include "Shared/Processing/Delegate.h"
-#include "Runtime/Context.h"
 #include "Runtime/Subroutine.h"
 
 /* Returns argument at <position>. */
@@ -51,13 +50,13 @@ MOCOSEL_INLINE MOCOSEL_WORD_DOUBLE MOCOSEL_MEASURE(const struct MOCOSEL_LIST* no
 }
 
 /* Compiles <segment> to nodes and arguments. Note that only <parent> can be NULL. */
-MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(struct MOCOSEL_LIST* node, struct MOCOSEL_LIST* parent, const MOCOSEL_BYTE* pattern, struct MOCOSEL_SEGMENT* segment, MOCOSEL_DELEGATE tracker);
+MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(void* context, struct MOCOSEL_LIST* node, struct MOCOSEL_LIST* parent, const MOCOSEL_BYTE* pattern, struct MOCOSEL_SEGMENT* segment, MOCOSEL_DELEGATE tracker);
 
 /* Frees all memory occupied by <node>. */
 void MOCOSEL_UNLINK(struct MOCOSEL_LIST* node);
 
 /* Evaluates the list given by <node>. Note that both <context> and <value> can be NULL. */
-MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(MOCOSEL_CONTEXT* context, MOCOSEL_SUBROUTINE function, struct MOCOSEL_LIST* node, struct MOCOSEL_VALUE* value);
+MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(void* context, MOCOSEL_SUBROUTINE function, struct MOCOSEL_LIST* node, struct MOCOSEL_VALUE* value);
 
 /* C++. */
 #ifdef __cplusplus
