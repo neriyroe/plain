@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/09/2013,
- * Revision 11/01/2014,
+ * Revision 11/03/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -38,7 +38,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_EVALUATE(void* context, MOCOSEL_ENVIRONMENT* environ
                                                  &object.segment.data,
                                                  tracker);
     /* Only system failures, no runtime dependencies. */
-    if(error != 0) {
+    if(error == 0) {
        error = MOCOSEL_WALK(context, function, &object.segment.structure, value);
     }
     /* The object might be dummy. */

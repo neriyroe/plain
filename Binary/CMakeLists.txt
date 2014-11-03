@@ -1,12 +1,12 @@
 # Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
 # Date     11/01/2014,
-# Revision 11/01/2014,
+# Revision 11/03/2014,
 #
 # Copyright 2014 Nerijus Ramanauskas.
 #
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.3)
-PROJECT(Plain)
+PROJECT(Dit)
 IF(MOCOSEL_DEBUGGING)
     SET(CMAKE_BUILD_TYPE Debug)
 ELSE()
@@ -22,5 +22,6 @@ IF(MOCOSEL_DEBUGGING)
     ADD_DEFINITIONS(-DMOCOSEL_DEBUGGING)
 ENDIF()
 INCLUDE_DIRECTORIES(../Include)
-ADD_EXECUTABLE(plain ${SOURCE})
-TARGET_LINK_LIBRARIES(plain plain)
+ADD_EXECUTABLE(dit ${SOURCE})
+TARGET_LINK_LIBRARIES(dit readline) 
+TARGET_LINK_LIBRARIES(dit plain)

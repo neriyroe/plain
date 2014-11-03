@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/01/2014,
- * Revision 11/01/2014,
+ * Revision 11/03/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -10,6 +10,7 @@
 
 #include <Plain/Mocosel.h>
 #include <Plain/VM.h>
+#include "Environment.h"
 #include "Mocosel/Log.h"
 #include "Mocosel/Unit.h"
 
