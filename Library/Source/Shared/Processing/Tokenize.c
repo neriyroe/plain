@@ -1,13 +1,13 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 11/03/2014,
+ * Revision 11/04/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
 
 #include <Plain/Mocosel.h>
-#include <stdio.h>
+
 MOCOSEL_WORD_DOUBLE MOCOSEL_EXPORT(MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE length, MOCOSEL_WORD_DOUBLE type, struct MOCOSEL_VALUE* value) {
     MOCOSEL_ASSERT(value != NULL);
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */
