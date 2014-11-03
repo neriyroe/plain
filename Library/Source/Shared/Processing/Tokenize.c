@@ -7,7 +7,7 @@
  */
 
 #include <Plain/Mocosel.h>
-
+#include <stdio.h>
 MOCOSEL_WORD_DOUBLE MOCOSEL_EXPORT(MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE length, MOCOSEL_WORD_DOUBLE type, struct MOCOSEL_VALUE* value) {
     MOCOSEL_ASSERT(value != NULL);
     /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */
@@ -41,17 +41,18 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_EXPORT(MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE lengt
         }
         /* Keyword, string. */
         if(type == MOCOSEL_TYPE_KEYWORD || type == MOCOSEL_TYPE_STRING) {
-            MOCOSEL_WORD_DOUBLE index = 0;
-            for(--length; index < length; index++) {
-                if(value->data[index] == '\\') {
-                    if(++index == length) {
+            MOCOSEL_WORD_DOUBLE i = 0;
+            MOCOSEL_WORD_DOUBLE j = 0;
+            MOCOSEL_WORD_DOUBLE k = length;
+            for(--k; i < k; i++) {
+                if(data[i] == '\\') {
+                    if(++i == k) {
                         break;
                     }
-                } else {
-                    value->data[index] = data[index];
                 }
+                value->data[j++] = data[i];
             }
-            value->data[length] = 0;
+            value->data[j] = 0;
         /* MOCOSEL_ERROR_SYSTEM. */
         } else if(memcpy(value->data, data, length) == NULL) {
             return MOCOSEL_ERROR_SYSTEM;
