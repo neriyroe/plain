@@ -13,8 +13,8 @@ ELSE()
     SET(CMAKE_BUILD_TYPE Release)
 ENDIF()
 SET(SOURCE
-    ${CMAKE_CURRENT_LIST_DIR}/Source/Mocosel/Environment/Layer/Resolve.c
-    ${CMAKE_CURRENT_LIST_DIR}/Source/Mocosel/Environment/Report.c
+    ${CMAKE_CURRENT_LIST_DIR}/Source/Mocosel/Plain/Layer/Resolve.c
+    ${CMAKE_CURRENT_LIST_DIR}/Source/Mocosel/Plain/Report.c
     ${CMAKE_CURRENT_LIST_DIR}/Source/Mocosel/Run.c
     ${CMAKE_CURRENT_LIST_DIR}/Source/POSIX/Prompt.c
     ${CMAKE_CURRENT_LIST_DIR}/Source/Entry.c)
