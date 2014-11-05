@@ -3,4 +3,6 @@
 Thumbs.db
 .swp
 Binary/Linux
+Binary/Darwin
 Library/Linux
+Library/Darwin
