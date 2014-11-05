@@ -1,12 +1,14 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/01/2014,
- * Revision 11/04/2014,
+ * Revision 11/05/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
 
-#include "../../../Plain.h"
+#include <stdio.h>
+#include <Plain/VM.h>
+
 
 MOCOSEL_WORD_DOUBLE resolve(void* context, void* data, MOCOSEL_WORD_DOUBLE type, struct MOCOSEL_VALUE* value) {
     if(type == MOCOSEL_TYPE_LIST) {
@@ -28,10 +30,17 @@ MOCOSEL_WORD_DOUBLE resolve(void* context, void* data, MOCOSEL_WORD_DOUBLE type,
                     printf("+ Resolving string %s.\n", (const char*)argument->data);
                 }
             }
-            printf("@ Resolving node %.*s.\n", (int)(node->keyword.to - node->keyword.from), (const char*)node->keyword.from);               
+            // Shall not be substituted.
+            if(node->parent == NULL) {
+                printf("@ @ Resolving statement %.*s.\n", (int)(node->keyword.to - node->keyword.from), (const char*)node->keyword.from);
+            // Shall store a substitution in <value>. Note that all memory occupied by <value> will be freed if <length> > 0.
+            } else {
+                printf("+ @ Resolving expression %.*s.\n", (int)(node->keyword.to - node->keyword.from), (const char*)node->keyword.from);
+            }
         }
+    // Shall store a substitution in <value>. Note that all memory occupied by <value> will be freed if <length> > 0.
     } else if(type == MOCOSEL_TYPE_KEYWORD) {
-        printf("+ Resolving keyword %s.\n", (const char*)data);
+        printf("+ Resolving variable %s.\n", (const char*)data);
     }
     return 0;
 }

@@ -1,6 +1,6 @@
 # Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
 # Date     11/01/2014,
-# Revision 11/03/2014,
+# Revision 11/05/2014,
 #
 # Copyright 2014 Nerijus Ramanauskas.
 #
@@ -13,10 +13,10 @@ ELSE()
     SET(CMAKE_BUILD_TYPE Release)
 ENDIF()
 SET(SOURCE
-    ${CMAKE_CURRENT_LIST_DIR}/Source/Mocosel/Plain/Layer/Resolve.c
-    ${CMAKE_CURRENT_LIST_DIR}/Source/Mocosel/Plain/Report.c
-    ${CMAKE_CURRENT_LIST_DIR}/Source/Mocosel/Run.c
-    ${CMAKE_CURRENT_LIST_DIR}/Source/POSIX/Prompt.c
+    ${CMAKE_CURRENT_LIST_DIR}/Source/Plain/Runtime/Resolve.c
+    ${CMAKE_CURRENT_LIST_DIR}/Source/Plain/Runtime/Report.c
+    ${CMAKE_CURRENT_LIST_DIR}/Source/Plain/Run.c
+    ${CMAKE_CURRENT_LIST_DIR}/Source/GNU/Prompt.c
     ${CMAKE_CURRENT_LIST_DIR}/Source/Entry.c)
 IF(MOCOSEL_DEBUGGING)
     ADD_DEFINITIONS(-DMOCOSEL_DEBUGGING)
