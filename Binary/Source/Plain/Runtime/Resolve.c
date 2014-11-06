@@ -1,14 +1,13 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/01/2014,
- * Revision 11/05/2014,
+ * Revision 11/06/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
 
 #include <stdio.h>
 #include <Plain/VM.h>
-
 
 MOCOSEL_WORD_DOUBLE resolve(void* context, void* data, MOCOSEL_WORD_DOUBLE type, struct MOCOSEL_VALUE* value) {
     if(type == MOCOSEL_TYPE_LIST) {
