@@ -34,5 +34,5 @@ distribution: clean
 
 	cd $(home)/$(target) && \
 	cmake `dirname $(home)` -DCMAKE_C_FLAGS="-L/usr/local/lib -m64" && \
-	make &&
+	make && \
 	rm -rf CMakeCache.txt CMakeFiles cmake_install.cmake Makefile
