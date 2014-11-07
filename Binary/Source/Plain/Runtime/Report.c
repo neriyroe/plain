@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/01/2014,
- * Revision 11/05/2014,
+ * Revision 11/07/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -17,7 +17,7 @@ void report(void* context, const MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE length,
     } else if(type == MOCOSEL_ERROR_SYNTAX_MISSING_BRACKET) {
         description = "Missing bracket";
     } else if(type == MOCOSEL_ERROR_SYNTAX_MISSING_QUOTATION_MARK) {
-        description = "Missing quatation mark";
+        description = "Missing quotation mark";
     } else if(type == MOCOSEL_ERROR_SYNTAX_UNKNOWN_TOKEN) {
         description = "Unknown token";
     }
