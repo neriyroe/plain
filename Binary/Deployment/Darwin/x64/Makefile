@@ -1,7 +1,7 @@
 #
 # Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
 # Date     11/05/2014,
-# Revision 11/05/2014,
+# Revision 11/07/2014,
 #
 # Copyright 2014 Nerijus Ramanauskas.
 #
@@ -25,3 +25,14 @@ development:
 	cd $(home)/$(target) && \
 	cmake `dirname $(home)` -DCMAKE_C_FLAGS="-L/usr/local/lib -m64" -DMOCOSEL_DEBUGGING=1 && \
 	make
+
+.PHONY: distribution
+distribution: clean
+	if [ ! -d $(home)/$(target) ]; then \
+		mkdir -p $(home)/$(target); \
+	fi
+
+	cd $(home)/$(target) && \
+	cmake `dirname $(home)` -DCMAKE_C_FLAGS="-L/usr/local/lib -m64" && \
+	make &&
+	rm -rf CMakeCache.txt CMakeFiles cmake_install.cmake Makefile
