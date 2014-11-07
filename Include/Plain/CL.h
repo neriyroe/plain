@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     05/25/2014,
- * Revision 07/20/2014,
+ * Revision 11/07/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -12,11 +12,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define MOCOSEL_CONSTRUCT(CLASS, OBJECT) CLASS OBJECT; memset(&OBJECT, 0, sizeof(CLASS))
-#define MOCOSEL_MAXIMUM(LEFT, RIGHT) ((LEFT) > (RIGHT)? (LEFT): (RIGHT))
-#define MOCOSEL_MINIMUM(LEFT, RIGHT) ((LEFT) < (RIGHT)? (LEFT): (RIGHT))
-#define MOCOSEL_PAIR(LEFT, RIGHT, TYPE) struct TYPE {LEFT first; RIGHT second;}
 
 #include "System/Platform.h"
 #include "Shared/Segment.h"
