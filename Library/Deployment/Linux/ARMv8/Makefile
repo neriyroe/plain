@@ -1,13 +1,13 @@
 #
 # Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
-# Date     11/05/2014,
-# Revision 11/07/2014,
+# Date     11/08/2014,
+# Revision 11/08/2014,
 #
 # Copyright 2014 Nerijus Ramanauskas.
 #
 
 home = ../../..
-target = Linux/ARM
+target = Linux/ARMv8
 
 .PHONY: all
 all: clean development
@@ -23,7 +23,7 @@ development:
 	fi
 
 	cd $(home)/$(target) && \
-	cmake `dirname $(home)` -DCMAKE_C_COMPILER=/usr/bin/arm-linux-gnueabi-gcc -DCMAKE_C_FLAGS="-march=armv6" -DMOCOSEL_DEBUGGING=1 -DMOCOSEL_EMBEDDED=1 && \
+	cmake `dirname $(home)` -DCMAKE_C_COMPILER=/usr/bin/aarch64-linux-gnu-gcc -DMOCOSEL_DEBUGGING=1 -DMOCOSEL_EMBEDDED=1 && \
 	make
 
 .PHONY: distribution
@@ -33,6 +33,6 @@ distribution: clean
 	fi
 
 	cd $(home)/$(target) && \
-	cmake `dirname $(home)` -DCMAKE_C_COMPILER=/usr/bin/arm-linux-gnueabi-gcc -DCMAKE_C_FLAGS="-march=armv6" -DMOCOSEL_EMBEDDED=1 && \
+	cmake `dirname $(home)` -DCMAKE_C_COMPILER=/usr/bin/aarch64-linux-gnu-gcc -DMOCOSEL_EMBEDDED=1 && \
 	make && \
 	rm -rf CMakeCache.txt CMakeFiles cmake_install.cmake Makefile
