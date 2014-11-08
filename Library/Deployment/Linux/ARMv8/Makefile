@@ -23,7 +23,7 @@ development:
 	fi
 
 	cd $(home)/$(target) && \
-	cmake `dirname $(home)` -DCMAKE_C_COMPILER=/usr/bin/aarch64-linux-gnu-gcc -DMOCOSEL_DEBUGGING=1 -DMOCOSEL_EMBEDDED=1 && \
+	cmake `dirname $(home)` -DCMAKE_C_COMPILER=/usr/bin/aarch64-linux-gnu-gcc -DCMAKE_C_FLAGS=-static -DMOCOSEL_DEBUGGING=1 -DMOCOSEL_EMBEDDED=1 && \
 	make
 
 .PHONY: distribution
@@ -33,6 +33,6 @@ distribution: clean
 	fi
 
 	cd $(home)/$(target) && \
-	cmake `dirname $(home)` -DCMAKE_C_COMPILER=/usr/bin/aarch64-linux-gnu-gcc -DMOCOSEL_EMBEDDED=1 && \
+	cmake `dirname $(home)` -DCMAKE_C_COMPILER=/usr/bin/aarch64-linux-gnu-gcc -DCMAKE_C_FLAGS=-static -DMOCOSEL_EMBEDDED=1 && \
 	make && \
 	rm -rf CMakeCache.txt CMakeFiles cmake_install.cmake Makefile
