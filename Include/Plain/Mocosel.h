@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     02/23/2013,
- * Revision 11/08/2014,
+ * Revision 11/14/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -13,7 +13,7 @@
 extern "C" {
 #endif
 
-#define MOCOSEL_API 20144 /* API version. */
+#define MOCOSEL_API 20151 /* API version. */
 
 #include "CL.h"
 #include "Shared/Error.h"

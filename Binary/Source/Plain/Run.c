@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus.ramanauskas@mocosel.org>,
  * Date     11/01/2014,
- * Revision 11/05/2014,
+ * Revision 11/14/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -17,7 +17,7 @@ MOCOSEL_WORD_DOUBLE resolve(void* context, void* data, MOCOSEL_WORD_DOUBLE type,
 
 // Evaluate <source>, passing <context> to <report> and <resolve>.
 int run(void* context, const char* source) {
-    MOCOSEL_WORD_DOUBLE error = MOCOSEL_EVALUATE(context, (MOCOSEL_ENVIRONMENT*)context, &resolve, (const MOCOSEL_BYTE*)source, &report, NULL);
+    MOCOSEL_WORD_DOUBLE error = MOCOSEL_EVALUATE((MOCOSEL_ENVIRONMENT*)context, &resolve, (const MOCOSEL_BYTE*)source, &report, NULL);
     if(error == MOCOSEL_ERROR_SYNTAX) {
         printf("The evaluation failed due to a syntax error.\n");
     } else if(error != 0) {
