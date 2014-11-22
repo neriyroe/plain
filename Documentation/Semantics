@@ -25,7 +25,7 @@ Semantics
             substitution".
 
             In fact, variables can contain any values. So far, there are only
-            only two additional data types: subroutines and arbitrary pointers.
+            two additional data types: subroutines and arbitrary pointers.
 
         String
 
