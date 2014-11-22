@@ -1,4 +1,4 @@
-As of 11/14/2014, 2014 Q4 (20144).
+As of 11/22/2014, 2014 Q4 (20144).
 
 Semantics
 
@@ -24,11 +24,11 @@ Semantics
             <Keyword>, or simply a "keyword that contains a value" or "keyword
             substitution".
 
-            In fact, a variable can contain any value. So far, there are only
-            only two additional data types: subroutines and pointers.
+            In fact, variables can contain any values. So far, there are only
+            only two additional data types: subroutines and arbitrary pointers.
 
         String
 
             As in <String> (see <Syntax>). Insert a backslash (0x5C) before a
             character to escape from the normal way characters are interpreted,
-            for example, quotation marks.
+            for example, a quotation mark.
