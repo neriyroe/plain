@@ -1,4 +1,4 @@
-As of 11/14/2014, 2014 Q4 (20144).
+As of 11/22/2014, 2014 Q4 (20144).
 
 Syntax
 
@@ -47,7 +47,7 @@ Syntax
 
         Nil
 
-            Only `none`.
+            `none` or `[]`.
 
         String
 
