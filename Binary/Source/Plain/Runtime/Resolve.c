@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nr@mocosel.com>,
  * Date     11/01/2014,
- * Revision 11/14/2014,
+ * Revision 12/10/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -29,15 +29,15 @@ MOCOSEL_WORD_DOUBLE resolve(void* context, void* data, MOCOSEL_WORD_DOUBLE type,
                     printf("+ Resolving string %s.\n", (const char*)argument->data);
                 }
             }
-            // Shall not be substituted.
+            /* Shall not be substituted. */
             if(node->parent == NULL) {
                 printf("@ @ Resolving statement %.*s.\n", (int)(node->keyword.to - node->keyword.from), (const char*)node->keyword.from);
-            // Shall store a substitution in <value>. Note that all memory occupied by <value> will be freed if <length> > 0.
+            /* Shall store a substitution in <value>. Note that all memory occupied by <value> will be freed if <length> > 0. */
             } else {
                 printf("+ @ Resolving expression %.*s.\n", (int)(node->keyword.to - node->keyword.from), (const char*)node->keyword.from);
             }
         }
-    // Shall store a substitution in <value>. Note that all memory occupied by <value> will be freed if <length> > 0.
+    /* Shall store a substitution in <value>. Note that all memory occupied by <value> will be freed if <length> > 0. */
     } else if(type == MOCOSEL_TYPE_KEYWORD) {
         printf("+ Resolving variable %s.\n", (const char*)data);
     }

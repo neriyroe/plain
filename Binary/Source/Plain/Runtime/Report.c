@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nr@mocosel.com>,
  * Date     11/01/2014,
- * Revision 11/14/2014,
+ * Revision 12/10/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <Plain/Mocosel.h>
 
-// Printing to the global stream.
+/* Printing to the global stream. */
 void report(void* context, const MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE length, MOCOSEL_WORD_DOUBLE type) {
     const char* description = "Unknown error";
     if(type == MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION) {

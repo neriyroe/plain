@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nr@mocosel.com>,
  * Date     11/01/2014,
- * Revision 11/14/2014,
+ * Revision 12/10/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -10,10 +10,10 @@
 #include <stdio.h>
 #include <Plain/VM.h>
 
-// Prompt will return a proper value.
+/* Prompt will return a proper value. */
 int prompt(void* context, const char* identifier, int (*listener) (void*, const char*));
 
-// Run will return a proper value, the application will be terminated.
+/* Run will return a proper value, the application will be terminated. */
 int run(void* context, const char* source);
 
 int main() {

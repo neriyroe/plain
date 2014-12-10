@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nr@mocosel.com>,
  * Date     11/01/2014,
- * Revision 11/14/2014,
+ * Revision 12/10/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -9,13 +9,13 @@
 #include <stdio.h>
 #include <Plain/VM.h>
 
-// Report syntax errors to the stream, passed by <context>.
+/* Report syntax errors to the stream, passed by <context>. */
 void report(void* context, const MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE length, MOCOSEL_WORD_DOUBLE type);
 
-// Resolve <data>, using <value> for optional substitution.
+/* Resolve <data>, using <value> for optional substitution. */
 MOCOSEL_WORD_DOUBLE resolve(void* context, void* data, MOCOSEL_WORD_DOUBLE type, struct MOCOSEL_VALUE* value);
 
-// Evaluate <source>, passing <context> to <report> and <resolve>.
+/* Evaluate <source>, passing <context> to <report> and <resolve>. */
 int run(void* context, const char* source) {
     MOCOSEL_WORD_DOUBLE error = MOCOSEL_EVALUATE((MOCOSEL_ENVIRONMENT*)context, &resolve, (const MOCOSEL_BYTE*)source, &report, NULL);
     if(error == MOCOSEL_ERROR_SYNTAX) {
