@@ -1,6 +1,6 @@
 # Author   Nerijus Ramanauskas <nr@mocosel.com>,
 # Date     11/01/2014,
-# Revision 11/14/2014,
+# Revision 12/12/2014,
 #
 # Copyright 2014 Nerijus Ramanauskas.
 #
@@ -17,7 +17,7 @@ SET(SOURCE
     ${CMAKE_CURRENT_LIST_DIR}/Source/Plain/Runtime/Report.c
     ${CMAKE_CURRENT_LIST_DIR}/Source/Plain/Run.c
     ${CMAKE_CURRENT_LIST_DIR}/Source/GNU/Prompt.c
-    ${CMAKE_CURRENT_LIST_DIR}/Source/Entry.c)
+    ${CMAKE_CURRENT_LIST_DIR}/Source/Application.c)
 IF(MOCOSEL_DEBUGGING)
     ADD_DEFINITIONS(-DMOCOSEL_DEBUGGING)
 ENDIF()
