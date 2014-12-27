@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nr@mocosel.com>,
  * Date     10/05/2013,
- * Revision 11/14/2014,
+ * Revision 12/27/2014,
  *
  * Copyright 2014 Nerijus Ramanauskas.
  */
@@ -26,7 +26,7 @@ typedef struct MOCOSEL_VALUE        MOCOSEL_VALUE;
 /* Compiles and evaluates <source>. */
 MOCOSEL_WORD_DOUBLE MOCOSEL_EVALUATE(MOCOSEL_ENVIRONMENT* environment, MOCOSEL_SUBROUTINE function, const MOCOSEL_BYTE* source, MOCOSEL_DELEGATE tracker, MOCOSEL_VALUE* value);
 
-/* Returns Mocosel version. Other version-specific information will be stored in <environment>. */
+/* Returns library version. Other version-specific information will be stored in <environment>. */
 MOCOSEL_WORD_DOUBLE MOCOSEL_VERSION(MOCOSEL_ENVIRONMENT* environment);
 
 /* C++. */
