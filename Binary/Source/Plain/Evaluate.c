@@ -1,9 +1,9 @@
 /*
  * Author   Nerijus Ramanauskas <nr@mocosel.com>,
  * Date     11/01/2014,
- * Revision 12/10/2014,
+ * Revision 03/10/2015,
  *
- * Copyright 2014 Nerijus Ramanauskas.
+ * Copyright 2015 Nerijus Ramanauskas.
  */
 
 #include <stdio.h>
@@ -16,7 +16,7 @@ void report(void* context, const MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE length,
 MOCOSEL_WORD_DOUBLE resolve(void* context, void* data, MOCOSEL_WORD_DOUBLE type, struct MOCOSEL_VALUE* value);
 
 /* Evaluate <source>, passing <context> to <report> and <resolve>. */
-int run(void* context, const char* source) {
+int evaluate(void* context, const char* source) {
     MOCOSEL_WORD_DOUBLE error = MOCOSEL_EVALUATE((MOCOSEL_ENVIRONMENT*)context, &resolve, (const MOCOSEL_BYTE*)source, &report, NULL);
     if(error == MOCOSEL_ERROR_SYNTAX) {
         printf("The evaluation failed due to a syntax error.\n");

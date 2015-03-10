@@ -10,16 +10,16 @@
 #include <stdio.h>
 #include <Plain/VM.h>
 
+/* Evaluate will return a proper value, the application will be terminated. */
+int evaluate(void* context, const char* source);
+
 /* Prompt will return a proper value. */
 int prompt(void* context, const char* identifier, int (*listener) (void*, const char*));
-
-/* Run will return a proper value, the application will be terminated. */
-int run(void* context, const char* source);
 
 int main() {
     MOCOSEL_ENVIRONMENT environment;
     if(MOCOSEL_VERSION(&environment) == 0) {
         printf("Warning! Your platform is not supported, some functionality might be unavailable.");
     }
-    return prompt(&environment, "do: ", &run);
+    return prompt(&environment, "do: ", &evaluate);
 }
