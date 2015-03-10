@@ -368,31 +368,8 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(void* context, struct MOCOSEL_LIST* node, s
                 }
             }
             i--;
-        /* Node. */
         } else if(segment->from[i] == ';') {
-            /* MOCOSEL_ERROR_SYNTAX. */
-            if(node->parent != NULL) {
-                if(tracker != NULL) {
-                   tracker(context, &segment->from[i], j - i, MOCOSEL_ERROR_SYNTAX_ERRONEOUS_EXPRESSION);
-                }
-                return MOCOSEL_ERROR_SYNTAX;
-            }
-            struct MOCOSEL_SEGMENT subsegment = {&segment->from[++i], &segment->from[j]};
-            if(subsegment.from == subsegment.to) {
-                break;
-            }
-            /* Node. */
-            node->node = (struct MOCOSEL_LIST*)MOCOSEL_RESIZE(NULL, sizeof(struct MOCOSEL_LIST), 0);
-            /* MOCOSEL_ERROR_SYSTEM. */
-            if(node->node == NULL) {
-                return MOCOSEL_ERROR_SYSTEM;
-            }
-            MOCOSEL_WORD_DOUBLE error = MOCOSEL_TOKENIZE(context, node->node, NULL, pattern, &subsegment, tracker);
-            if(error == 0) {
-                break;
-            } else {
-                return error;
-            }
+            break;
         /* Keyword. */
         } else {
             MOCOSEL_WORD_DOUBLE identifier = 2166136261U;
@@ -439,7 +416,20 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(void* context, struct MOCOSEL_LIST* node, s
             }
         }
     }
-    return 0;
+    if(i == j || parent != NULL) {
+        return 0;
+    }
+    struct MOCOSEL_SEGMENT subsegment = {&segment->from[++i], &segment->from[j]};
+    if(subsegment.from == subsegment.to) {
+        return 0;
+    }
+    /* Node. */
+    node->node = (struct MOCOSEL_LIST*)MOCOSEL_RESIZE(NULL, sizeof(struct MOCOSEL_LIST), 0);
+    /* MOCOSEL_ERROR_SYSTEM. */
+    if(node->node == NULL) {
+        return MOCOSEL_ERROR_SYSTEM;
+    }
+    return MOCOSEL_TOKENIZE(context, node->node, NULL, pattern, &subsegment, tracker);
 }
 
 void MOCOSEL_UNLINK(struct MOCOSEL_LIST* node) {
