@@ -1,9 +1,9 @@
 /*
  * Author   Nerijus Ramanauskas <nr@mocosel.com>,
  * Date     02/23/2013,
- * Revision 11/14/2014,
+ * Revision 03/10/2015,
  *
- * Copyright 2014 Nerijus Ramanauskas.
+ * Copyright 2015 Nerijus Ramanauskas.
  */
 
 #include <Plain/Mocosel.h>
@@ -253,33 +253,20 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(void* context, struct MOCOSEL_LIST* node, s
                 return MOCOSEL_ERROR_SYNTAX;
             }
             /* Node. */
-            struct MOCOSEL_LIST* child = (struct MOCOSEL_LIST*)MOCOSEL_RESIZE(NULL, sizeof(struct MOCOSEL_LIST), 0);
+            struct MOCOSEL_LIST* subnode = (struct MOCOSEL_LIST*)MOCOSEL_AUTO(sizeof(struct MOCOSEL_LIST));
             /* MOCOSEL_ERROR_SYSTEM. */
-            if(child == NULL) {
+            if(subnode == NULL) {
                 return MOCOSEL_ERROR_SYSTEM;
             }
             MOCOSEL_WORD_DOUBLE error = 0;
             /* Node. */
             if(k == '[') {
-                error = MOCOSEL_TOKENIZE(context, child, node, pattern, &subsegment, tracker);
+                error = MOCOSEL_TOKENIZE(context, subnode, node, pattern, &subsegment, tracker);
             /* List. */
             } else {
-                error = MOCOSEL_TOKENIZE(context, child, NULL, pattern, &subsegment, tracker);
+                error = MOCOSEL_TOKENIZE(context, subnode, NULL, pattern, &subsegment, tracker);
             }
-            /* Nil. */
-            if(child->keyword.from == child->keyword.to || error != 0) {
-                MOCOSEL_RESIZE(child, 0, sizeof(struct MOCOSEL_LIST));
-                if(error != 0) {
-                    return error;
-                }
-            }
-            /* Nil. */
-            if(child->keyword.from == child->keyword.to) {
-                error = MOCOSEL_JOIN(NULL, 0, node, MOCOSEL_TYPE_NIL);
-            /* List. */
-            } else {
-                error = MOCOSEL_JOIN((MOCOSEL_BYTE*)child, sizeof(struct MOCOSEL_LIST), node, MOCOSEL_TYPE_LIST);
-            }
+            MOCOSEL_JOIN((MOCOSEL_BYTE*)subnode, sizeof(struct MOCOSEL_LIST), node, MOCOSEL_TYPE_LIST);
             if(error != 0) {
                 return error;
             }
@@ -375,9 +362,9 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(void* context, struct MOCOSEL_LIST* node, s
                     }
                     return MOCOSEL_ERROR_SYNTAX;
                 }
-                MOCOSEL_WORD_DOUBLE signature = MOCOSEL_JOIN(&segment->from[k], m - i++ + 2, node, MOCOSEL_TYPE_KEYWORD);
-                if(signature != 0) {
-                    return signature;
+                /* MOCOSEL_ERROR_SYSTEM. */
+                if(MOCOSEL_JOIN(&segment->from[k], m - i++ + 2, node, MOCOSEL_TYPE_KEYWORD)) {
+                    return MOCOSEL_ERROR_SYSTEM;
                 }
             }
             i--;
@@ -395,21 +382,17 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(void* context, struct MOCOSEL_LIST* node, s
                 break;
             }
             /* Node. */
-            struct MOCOSEL_LIST* next = (struct MOCOSEL_LIST*)MOCOSEL_RESIZE(NULL, sizeof(struct MOCOSEL_LIST), 0);
+            node->node = (struct MOCOSEL_LIST*)MOCOSEL_RESIZE(NULL, sizeof(struct MOCOSEL_LIST), 0);
             /* MOCOSEL_ERROR_SYSTEM. */
-            if(next == NULL) {
+            if(node->node == NULL) {
                 return MOCOSEL_ERROR_SYSTEM;
             }
-            MOCOSEL_WORD_DOUBLE error = MOCOSEL_TOKENIZE(context, next, NULL, pattern, &subsegment, tracker);
-            if(next->keyword.from == next->keyword.to || error != 0) {
-                MOCOSEL_RESIZE(next, 0, sizeof(struct MOCOSEL_LIST));
-                if(error != 0) {
-                    return error;
-                }
+            MOCOSEL_WORD_DOUBLE error = MOCOSEL_TOKENIZE(context, node->node, NULL, pattern, &subsegment, tracker);
+            if(error == 0) {
+                break;
             } else {
-                node->node = next;
+                return error;
             }
-            break;
         /* Keyword. */
         } else {
             MOCOSEL_WORD_DOUBLE identifier = 2166136261U;

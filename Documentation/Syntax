@@ -1,4 +1,4 @@
-As of 11/27/2014, 2014 Q4 (20144), Nerijus Ramanauskas <nr@mocosel.com>.
+As of 03/10/2015, 2015 Q1 (20151), Nerijus Ramanauskas <nr@mocosel.com>.
 
 Syntax
 
@@ -21,8 +21,8 @@ Syntax
 
     Node
 
-        <Keyword> (with or without <Data>) and links, used for statements and
-        expressions (see <Semantics>).
+        <Keyword> (with or without <Data>), used for statements and expressions
+        (see <Semantics>).
 
         Use whitespaces or commas (0x2C) to separate data.
 
@@ -47,7 +47,7 @@ Syntax
 
         Nil
 
-            `none` or `[]`.
+            `none`.
 
         String
 
