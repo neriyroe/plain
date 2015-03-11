@@ -1,9 +1,9 @@
 /*
  * Author   Nerijus Ramanauskas <nr@mocosel.com>,
  * Date     05/09/2013,
- * Revision 11/14/2014,
+ * Revision 03/11/2015,
  *
- * Copyright 2014 Nerijus Ramanauskas.
+ * Copyright 2015 Nerijus Ramanauskas.
  */
 
 #include <Plain/Mocosel.h>
@@ -52,16 +52,13 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(void* context, MOCOSEL_SUBROUTINE function, str
             }
         }
     }
-    if(value == NULL) {
-       value = (struct MOCOSEL_VALUE*)MOCOSEL_AUTO(sizeof(struct MOCOSEL_VALUE));
-    }
     MOCOSEL_WORD_DOUBLE error = function(context, node, MOCOSEL_TYPE_LIST, value);
     if(error != 0) {
         return error;
     }
-    if(value->data != NULL) {
-        /* Subroutine. */
-        if(value->type == MOCOSEL_TYPE_SUBROUTINE) {
+    /* Expression. */
+    if(node->parent != NULL) {
+        if(value->type == MOCOSEL_TYPE_SUBROUTINE) { /* Subroutine. */
             error = ((MOCOSEL_SUBROUTINE)value->data)(context, node, MOCOSEL_TYPE_LIST, value);
             if(error != 0) {
                 return error;

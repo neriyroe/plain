@@ -21,8 +21,8 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_EXPORT(MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE lengt
         case MOCOSEL_TYPE_POINTER:
         case MOCOSEL_TYPE_REAL:
         case MOCOSEL_TYPE_STRING:
+        case MOCOSEL_TYPE_SUBROUTINE:
             MOCOSEL_ASSERT(data != NULL);
-            MOCOSEL_ASSERT(length > 0);
         case MOCOSEL_TYPE_BOOLEAN:
         case MOCOSEL_TYPE_NIL:
             break;
