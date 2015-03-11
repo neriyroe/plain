@@ -1,4 +1,4 @@
-As of 11/27/2014, 2014 Q4 (20144), Nerijus Ramanauskas <nr@mocosel.com>.
+As of 03/11/2015, 2015 Q1 (20151), Nerijus Ramanauskas <nr@mocosel.com>.
 
 Semantics
 
@@ -26,9 +26,3 @@ Semantics
 
             In fact, variables can contain any values. So far, there are only
             two additional data types: subroutines and arbitrary pointers.
-
-        String
-
-            As in <String> (see <Syntax>). Insert a backslash (0x5C) before a
-            character to escape from the normal way characters are interpreted,
-            for example, a quotation mark.

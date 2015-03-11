@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nr@mocosel.com>,
  * Date     02/23/2013,
- * Revision 03/10/2015,
+ * Revision 03/11/2015,
  *
  * Copyright 2015 Nerijus Ramanauskas.
  */
@@ -363,7 +363,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(void* context, struct MOCOSEL_LIST* node, s
                     return MOCOSEL_ERROR_SYNTAX;
                 }
                 /* MOCOSEL_ERROR_SYSTEM. */
-                if(MOCOSEL_JOIN(&segment->from[k], m - i++ + 2, node, MOCOSEL_TYPE_KEYWORD)) {
+                if(MOCOSEL_JOIN(&segment->from[k], m - i++ + 2, node, MOCOSEL_TYPE_KEYWORD) != 0) {
                     return MOCOSEL_ERROR_SYSTEM;
                 }
             }
