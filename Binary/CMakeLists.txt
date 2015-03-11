@@ -1,12 +1,12 @@
 # Author   Nerijus Ramanauskas <nr@mocosel.com>,
 # Date     11/01/2014,
-# Revision 03/10/2015,
+# Revision 03/11/2015,
 #
 # Copyright 2015 Nerijus Ramanauskas.
 #
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.3)
-PROJECT(Mocosel_Prompt_GNU)
+PROJECT(Sample_x86)
 IF(MOCOSEL_DEBUGGING)
     SET(CMAKE_BUILD_TYPE Debug)
 ELSE()
@@ -22,6 +22,6 @@ IF(MOCOSEL_DEBUGGING)
     ADD_DEFINITIONS(-DMOCOSEL_DEBUGGING)
 ENDIF()
 INCLUDE_DIRECTORIES(../Include)
-ADD_EXECUTABLE(mocosel_prompt_gnu ${SOURCE})
-TARGET_LINK_LIBRARIES(mocosel_prompt_gnu readline) 
-TARGET_LINK_LIBRARIES(mocosel_prompt_gnu plain)
+ADD_EXECUTABLE(Sample_x86 ${SOURCE})
+TARGET_LINK_LIBRARIES(Sample_x86 readline) 
+TARGET_LINK_LIBRARIES(Sample_x86 plain)
