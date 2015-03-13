@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nr@mocosel.com>,
  * Date     02/23/2013,
- * Revision 03/11/2015,
+ * Revision 03/13/2015,
  *
  * Copyright 2015 Nerijus Ramanauskas.
  */
@@ -207,7 +207,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(void* context, struct MOCOSEL_LIST* node, s
             l = segment->from[i] + 2;
             m = ++i;
             n = 1;
-            /* Arguments. */
+            /* Keyword and arguments. */
             for(; m < j; m++) {
                 /* String. */
                 if(segment->from[m] == '"' || segment->from[m] == '\'') {
