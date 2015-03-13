@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nr@mocosel.com>,
  * Date     11/01/2014,
- * Revision 03/11/2015,
+ * Revision 03/13/2015,
  *
  * Copyright 2015 Nerijus Ramanauskas.
  */
@@ -16,10 +16,9 @@ MOCOSEL_WORD_DOUBLE resolve(void* context, void* data, MOCOSEL_WORD_DOUBLE type,
         if(node->keyword.from != node->keyword.to) {
             MOCOSEL_WORD_DOUBLE index = 0;
             MOCOSEL_WORD_DOUBLE length = MOCOSEL_MEASURE(node);
-            /* Arguments. */
+            /* Arguments after substitution. */
             for(; index < length; index++) {
                 MOCOSEL_VALUE* argument = MOCOSEL_ARGUMENT(node, index);
-                /* After substitution. */
                 if(argument->type == MOCOSEL_TYPE_BOOLEAN) { /* Boolean. */
                     printf("Resolving boolean %d.\n", argument->data != NULL);
                 } else if(argument->type == MOCOSEL_TYPE_NIL) { /* Nil. */
