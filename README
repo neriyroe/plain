@@ -1,4 +1,4 @@
-Mocosel is one of the most elegant programming languages, which is closer to the natural grammar than you could possibly expect;
+Mocosel is one of the most elegant programming languages and is closer to the natural grammar than you could possibly expect;
 
 hint: this whole text will be perfectly compilable; the first word starts a new statement, a semicolon ends, the rest of the words and expressions are just arguments beloning to the statement; the colon symbol also starts a new statement that isn't, however, evaluated before returning to the former statement, i.e. remains "untouched"; a comma is silently ignored being treated as a whitespace;
 
