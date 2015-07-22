@@ -11,4 +11,4 @@ so I guess that is it, we have just wrote a script that will be perfectly compil
 July 22, 2015;
 Nerijus Ramanauskas <nr@mocosel.com>;
 
-P.S. the interpreter works just fine, check the Binary folder; however, there is no "standard library", so for now it only prints your operations; however, you can already make a good use of it – just implement your own library; and of course, expect some additions to the lexer any time soon
+P.S. the interpreter works just fine, check the Binary folder; however, there is no "standard library", so for now it only prints your operations; nevertheless, you can already make a good use of it – just implement your own library; and of course, expect some additions to the lexer any time soon
