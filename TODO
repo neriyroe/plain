@@ -1,5 +1,5 @@
-* Syntax: the colon character.
-* General: a basic struct. for callbacks; rename MOCOSEL_MEASURE to a less confusing name.
+* Syntax: the purpose and the behaviour of the colon character.
+* General: a basic struct. for callbacks, review existing structures and uses; rename MOCOSEL_MEASURE to a less confusing name.
 
 As of July 23, 2015
 Nerijus Ramanauskas <nr@mocosel.com>
