@@ -64,9 +64,9 @@
 
 /* MOCOSEL_AUTO. */
 #if MOCOSEL_TARGET & MOCOSEL_TARGET_WINDOWS
-    #define MOCOSEL_AUTO(NUMBER) _alloca(NUMBER)
+    #define MOCOSEL_AUTO(number) _alloca(number)
 #else
-    #define MOCOSEL_AUTO(NUMBER) alloca(NUMBER)
+    #define MOCOSEL_AUTO(number) alloca(number)
 #endif
 
  /* Standard. */
