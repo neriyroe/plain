@@ -1,6 +1,7 @@
 * Syntax: the purpose and the behaviour of the colon character.
 * General: a basic struct. for callbacks, review existing structures and uses;
 rename MOCOSEL_MEASURE to a less confusing name.
+* Target: Microsoft Windows x64.
 
-As of July 23, 2015
+As of July 24, 2015
 Nerijus Ramanauskas <nr@mocosel.com>
