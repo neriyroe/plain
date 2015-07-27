@@ -3,7 +3,7 @@
 # Date     12/30/2013,
 # Revision 07/27/2015,
 #
-# Copyright 2014 Nerijus Ramanauskas.
+# Copyright 2015 Nerijus Ramanauskas.
 #
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.3)
