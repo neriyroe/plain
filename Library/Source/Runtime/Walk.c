@@ -1,7 +1,7 @@
 /*
- * Author   Nerijus Ramanauskas <nr@mocosel.com>,
+ * Author   Neriy Roe <nr@mocosel.com>,
  * Date     05/09/2013,
- * Revision 03/11/2015,
+ * Revision 08/22/2015,
  *
  * Copyright 2015 Nerijus Ramanauskas.
  */
@@ -20,7 +20,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(void* context, MOCOSEL_SUBROUTINE function, str
     }
     /* Arguments. */
     MOCOSEL_WORD_DOUBLE index = 0;
-    MOCOSEL_WORD_DOUBLE length = MOCOSEL_MEASURE(node);
+    MOCOSEL_WORD_DOUBLE length = MOCOSEL_ARITY(node);
     for(; index < length; index++) {
         struct MOCOSEL_VALUE* argument = (struct MOCOSEL_VALUE*)MOCOSEL_ARGUMENT(node, index);
         if(argument->type == MOCOSEL_TYPE_KEYWORD) { /* Variable. */
@@ -65,7 +65,6 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_WALK(void* context, MOCOSEL_SUBROUTINE function, str
             }
         }
     }
-    /* Node. */
     if(node->node != NULL) {
         MOCOSEL_WORD_DOUBLE error = MOCOSEL_WALK(context, function, node->node, NULL);
         if(error != 0) {

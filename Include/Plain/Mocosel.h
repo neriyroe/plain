@@ -1,9 +1,9 @@
 /*
- * Author   Nerijus Ramanauskas <nr@mocosel.com>,
+ * Author   Neriy Roe <nr@mocosel.com>,
  * Date     02/23/2013,
- * Revision 12/05/2014,
+ * Revision 08/22/2015,
  *
- * Copyright 2014 Nerijus Ramanauskas.
+ * Copyright 2015 Nerijus Ramanauskas.
  */
 
 #pragma once
@@ -13,7 +13,7 @@
 extern "C" {
 #endif
 
-#define MOCOSEL_API 20144 /* API version. */
+#define MOCOSEL_API 20153 /* API version. */
 
 #include "CL.h"
 #include "Shared/Error.h"
@@ -37,17 +37,17 @@ MOCOSEL_INLINE struct MOCOSEL_VALUE* MOCOSEL_ARGUMENT(struct MOCOSEL_LIST* node,
     return (struct MOCOSEL_VALUE*)&node->layout.from[offset];
 }
 
-/* Stores <data> in <value>. Note that <data> will be copied if <length> > 0. */
-MOCOSEL_WORD_DOUBLE MOCOSEL_EXPORT(MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE length, MOCOSEL_WORD_DOUBLE type, struct MOCOSEL_VALUE* value);
-
 /* Returns number of arguments. */
-MOCOSEL_INLINE MOCOSEL_WORD_DOUBLE MOCOSEL_MEASURE(const struct MOCOSEL_LIST* node) {
+MOCOSEL_INLINE MOCOSEL_WORD_DOUBLE MOCOSEL_ARITY(const struct MOCOSEL_LIST* node) {
     MOCOSEL_ASSERT(node != NULL);
     if(node == NULL) {
         return 0;
     }
     return (node->layout.to - node->layout.from) / sizeof(struct MOCOSEL_VALUE);
 }
+
+/* Stores <data> in <value>. Note that <data> will be copied if <length> > 0. */
+MOCOSEL_WORD_DOUBLE MOCOSEL_EXPORT(MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE length, MOCOSEL_WORD_DOUBLE type, struct MOCOSEL_VALUE* value);
 
 /* Compiles <segment> to nodes and arguments. Note that only <parent> can be NULL. */
 MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(void* context, struct MOCOSEL_LIST* node, struct MOCOSEL_LIST* parent, const MOCOSEL_BYTE* pattern, struct MOCOSEL_SEGMENT* segment, MOCOSEL_DELEGATE tracker);
