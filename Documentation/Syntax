@@ -1,4 +1,4 @@
-As of 03/11/2015, 2015 Q1 (20151), Nerijus Ramanauskas <nr@mocosel.com>.
+As of 08/22/2015, 2015 Q3 (20153), Neriy Roe <nr@mocosel.com>.
 
 Syntax
 
@@ -67,4 +67,4 @@ Syntax
         List
 
             As above, used for blocks (see <Semantics>). Starts with `{` (0x7B)
-            and ends with `}` (0x7D).
+            and ends with `}` (0x7D) or `:` (0x3A) to end with `;` (0x3B).
