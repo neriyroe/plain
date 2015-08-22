@@ -1,7 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nr@mocosel.com>,
  * Date     02/23/2013,
- * Revision 03/13/2015,
+ * Revision 08/22/2015,
  *
  * Copyright 2015 Nerijus Ramanauskas.
  */
@@ -120,7 +120,6 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(void* context, struct MOCOSEL_LIST* node, s
         }
         break;
     }
-    /* Node. */
     node->keyword.from = NULL;
     node->keyword.to = NULL;
     node->layout.from = NULL;
@@ -140,7 +139,6 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(void* context, struct MOCOSEL_LIST* node, s
             break;
         }
     }
-    /* Keyword. */
     node->keyword.from = node->segment.from;
     node->keyword.to = &segment->from[i];
     /* MOCOSEL_ERROR_SYNTAX. */
@@ -202,12 +200,60 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(void* context, struct MOCOSEL_LIST* node, s
             }
             i = l;
         /* List. */
+        } else if(segment->from[i] == ':') {
+            /* Keyword and data. */
+            for(k = ++i; i < j; i++) {
+                /* String. */
+                if(segment->from[m] == '"' || segment->from[m] == '\'') {
+                    for(l = i + 1; l < j; l++) {
+                        if(segment->from[l] == '\\') {
+                            l++;
+                        } else if(segment->from[l] == segment->from[i]) {
+                            break;
+                        }
+                    }
+                    /* MOCOSEL_ERROR_SYNTAX. */
+                    if(l == j) {
+                        if(tracker != NULL) {
+                           tracker(context, &segment->from[k - 1], j - k + 1, MOCOSEL_ERROR_SYNTAX_MISSING_QUOTATION_MARK);
+                        }
+                        return MOCOSEL_ERROR_SYNTAX;
+                    }
+                    i = l;
+                /* Break. */
+                } else if(segment->from[i] == ';') {
+                    break;
+                /* Comment. */
+                } else if(segment->from[i] == '`') {
+                    for(i++; i < j; i++) {
+                        if(segment->from[i] == '\r' || segment->from[i] == '\n') {
+                            break;
+                        }
+                    }
+                }
+            }
+            struct MOCOSEL_SEGMENT subsegment = {&segment->from[k], &segment->from[i]};
+            struct MOCOSEL_LIST* subnode = (struct MOCOSEL_LIST*)MOCOSEL_AUTO(sizeof(struct MOCOSEL_LIST));
+            /* MOCOSEL_ERROR_SYSTEM. */
+            if(subnode == NULL) {
+                return MOCOSEL_ERROR_SYSTEM;
+            }
+            MOCOSEL_WORD_DOUBLE error = MOCOSEL_TOKENIZE(context, subnode, NULL, pattern, &subsegment, tracker);
+            if(error != 0) {
+                return error;
+            }
+            /* MOCOSEL_ERROR_SYSTEM. */
+            if(MOCOSEL_JOIN((MOCOSEL_BYTE*)subnode, sizeof(struct MOCOSEL_LIST), node, MOCOSEL_TYPE_LIST) != 0) {
+                return MOCOSEL_ERROR_SYSTEM;
+            }
+            break;
+        /* List. */
         } else if(segment->from[i] == '[' || segment->from[i] == '{') {
             k = segment->from[i] + 0;
             l = segment->from[i] + 2;
             m = ++i;
             n = 1;
-            /* Keyword and arguments. */
+            /* Keyword and data. */
             for(; m < j; m++) {
                 /* String. */
                 if(segment->from[m] == '"' || segment->from[m] == '\'') {
@@ -220,7 +266,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(void* context, struct MOCOSEL_LIST* node, s
                     }
                     /* MOCOSEL_ERROR_SYNTAX. */
                     if(o == j) {
-                        if(tracker) {
+                        if(tracker != NULL) {
                            tracker(context, &segment->from[i - 1], j - i + 1, MOCOSEL_ERROR_SYNTAX_MISSING_QUOTATION_MARK);
                         }
                         return MOCOSEL_ERROR_SYNTAX;
@@ -252,7 +298,6 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(void* context, struct MOCOSEL_LIST* node, s
                 }
                 return MOCOSEL_ERROR_SYNTAX;
             }
-            /* Node. */
             struct MOCOSEL_LIST* subnode = (struct MOCOSEL_LIST*)MOCOSEL_AUTO(sizeof(struct MOCOSEL_LIST));
             /* MOCOSEL_ERROR_SYSTEM. */
             if(subnode == NULL) {
@@ -423,7 +468,6 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_TOKENIZE(void* context, struct MOCOSEL_LIST* node, s
     if(subsegment.from == subsegment.to) {
         return 0;
     }
-    /* Node. */
     node->node = (struct MOCOSEL_LIST*)MOCOSEL_RESIZE(NULL, sizeof(struct MOCOSEL_LIST), 0);
     /* MOCOSEL_ERROR_SYSTEM. */
     if(node->node == NULL) {
