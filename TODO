@@ -1,5 +1,5 @@
-* General: a basic struct. for callbacks, review existing structures and uses.
+* API: data conversion, generic communication interface.
 * Target: Microsoft Windows x64.
 
-As of August 22, 2015
+As of August 23, 2015
 Neriy Roe <nr@mocosel.com>
