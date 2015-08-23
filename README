@@ -1,37 +1,13 @@
-Author's Note
+This file is being updated.
 
-Mocosel is one of the most elegant programming languages and is closer to the
-natural grammar than you could possibly expect;
+In the meantime, check Documentation for Syntax and Semantics. You'll need
+CMake to build the library and the binary. Check Library/Deployment for the
+availability of your target platform. Expand the tree to type 'make' and let it
+do the rest of the job. Call the ambulance should it fail.
 
-hint: even this text will be perfectly compilable; the first word starts a new
-statement, a semicolon ends, the rest of the words and expressions are just
-arguments belonging to the statement; the colon symbol also starts a new
-statement that isn't, however, evaluated before returning to the former
-statement, i.e. remains "untouched"; a comma is silently ignored being treated
-as a whitespace;
+Check Binary/Deployment for the availability of your host. Expand the tree,
+type 'make' and let it do the rest of the job. Check Binary for the tree.
+Execute Sample_x86.
 
-the main difference is, however, the way you express things: we are using the
-famous C style floating point expressions; count in functional expressions too:
-they are solitary statements within the square brackets and they always
-evaluate to a single primitive value before returning to the statement that
-expects a primitive argument; yet another difference is the way you group
-statements: a list is like a distinct program within the curly brackets –
-despite the brackets, all the same as above;
-
-oh, and one more thing: the famous C style string literals too and a few
-reserved immutable keywords and symbols – you can in fact use any symbol you
-want, be it unicode or whatever, we just have a super tiny list of reserved
-printable ASCII characters;
-
-if you want to see it in action, the interpreter works just fine, check the
-Binary folder; however, there is no "standard library", so for now it only
-prints your operations; nevertheless, you can already make a good use of it –
-just implement your own library; and of course, expect some additions to the
-lexer any time soon;
-
-so I guess that is it, we have just wrote a script that will be perfectly
-compilable, just try compiling this whole text and see what you get and do not
-forget to check the Documentation folder for Syntax and Sematics;
-
-July 23, 2015;
-Nerijus Ramanauskas <nr@mocosel.com>
+August 23, 2015;
+Neriy Roe <nr@mocosel.com>
