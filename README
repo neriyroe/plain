@@ -9,5 +9,5 @@ Check Binary/Deployment for the availability of your host. Expand the tree,
 type 'make' and let it do the rest of the job. Check Binary for the tree.
 Execute Sample_x86.
 
-August 23, 2015;
+August 23, 2015
 Neriy Roe <nr@mocosel.com>
