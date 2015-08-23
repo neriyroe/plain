@@ -25,7 +25,7 @@ MOCOSEL_WORD_DOUBLE MOCOSEL_HASH(const MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE l
 /* Reserves <number> bytes of memory in <segment>. */
 MOCOSEL_WORD_DOUBLE MOCOSEL_RESERVE(MOCOSEL_WORD_DOUBLE number, struct MOCOSEL_SEGMENT* segment);
 
-/* Allocates <destination> bytes of memory. Note that <data> will be reallocated if <source> > 0, released if destination = 0. */
+/* Allocates <destination> bytes of memory. Note that <data> will be reallocated if <source> > 0, released if <destination> = 0. */
 void* MOCOSEL_RESIZE(void* data, MOCOSEL_WORD_DOUBLE destination, MOCOSEL_WORD_DOUBLE source);
 
 /* C++. */
