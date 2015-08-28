@@ -1,0 +1,15 @@
+- Make it reactive. Sandboxed. Functions are unexceptionally immutable.
+Procedures DO NOT return values or alter anything other than arguments or
+variables inside the scope. I have a crazy idea to make it failsafe delegating
+all erroneous data and/or information to a reactive mechanism.
+
+- There should be no "oh, where did that variable come from?" Think of
+something. Maybe we could have something like root and relative paths? Or
+links? Per scope? `.` for itself, `..` for parents, `...` for root.
+
+- Apparently, Mocosel has so much to do with Tcl! I had no idea when I designed
+the language. Anyway, this is my own implementation, based on my own philosophy
+and ideology, a strange sense of art, style and minimalism.
+
+August 28, 2015
+Neriy Roe <nr@mocosel.com>
