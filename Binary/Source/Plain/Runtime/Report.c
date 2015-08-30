@@ -1,9 +1,9 @@
 /*
- * Author   Nerijus Ramanauskas <nr@mocosel.com>,
- * Date     11/01/2014,
- * Revision 12/10/2014,
+ * Author   Neriy Roe <nr@mocosel.com>.
+ * Date     11/01/2014.
+ * Revision 08/30/2015.
  *
- * Copyright 2014 Nerijus Ramanauskas.
+ * Copyright 2015 Nerijus Ramanauskas.
  */
 
 #include <stdio.h>
