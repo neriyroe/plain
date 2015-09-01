@@ -1,9 +1,9 @@
 /*
- * Author   Nerijus Ramanauskas <nr@mocosel.com>,
- * Date     10/05/2013,
- * Revision 12/27/2014,
+ * Author   Neriy Roe <nr@mocosel.com>.
+ * Date     10/05/2013.
+ * Revision 09/01/2015.
  *
- * Copyright 2014 Nerijus Ramanauskas.
+ * Copyright 2015 Nerijus Ramanauskas.
  */
 
 #pragma once

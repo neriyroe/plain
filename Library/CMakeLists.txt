@@ -1,7 +1,7 @@
 #
-# Author   Nerijus Ramanauskas <nr@mocosel.com>,
-# Date     12/30/2013,
-# Revision 07/27/2015,
+# Author   Neriy Roe <nr@mocosel.com>.
+# Date     12/30/2013.
+# Revision 09/01/2015.
 #
 # Copyright 2015 Nerijus Ramanauskas.
 #
