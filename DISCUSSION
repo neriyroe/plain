@@ -1,7 +1,7 @@
 - Make it reactive. Sandboxed. Functions are unexceptionally immutable.
 Procedures DO NOT return values or alter anything other than arguments or
-variables inside the scope. I have a crazy idea to make it failsafe delegating
-all erroneous data and/or information to a reactive mechanism.
+variables inside the scope. I have a crazy idea to make it failsafe by
+delegating all erroneous data and/or information to a reactive mechanism.
 
 - There should be no "oh, where did that variable come from?" Think of
 something. Maybe we could have something like root and relative paths? Or
