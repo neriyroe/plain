@@ -1,9 +1,9 @@
 /*
  * Author   Neriy Roe <nr@mocosel.com>.
  * Date     10/15/2014.
- * Revision 09/01/2015.
+ * Revision 02/09/2016.
  *
- * Copyright 2015 Nerijus Ramanauskas.
+ * Copyright 2016 Nerijus Ramanauskas.
  */
 
 /* Syntax delegate to analyse corresponding errors. */
