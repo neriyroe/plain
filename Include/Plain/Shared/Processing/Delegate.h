@@ -6,5 +6,4 @@
  * Copyright 2016 Nerijus Ramanauskas.
  */
 
-/* Syntax delegate to analyse corresponding errors. */
 typedef void (*MOCOSEL_DELEGATE) (void* context, const MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE length, MOCOSEL_WORD_DOUBLE type);
