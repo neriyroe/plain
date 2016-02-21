@@ -1,13 +1,13 @@
 #
 # Author   Neriy Roe <nr@mocosel.com>.
 # Date     11/01/2014.
-# Revision 08/30/2015.
+# Revision 02/21/2016.
 #
-# Copyright 2015 Nerijus Ramanauskas.
+# Copyright 2016 Nerijus Ramanauskas.
 #
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.3)
-PROJECT(Sample_x86)
+PROJECT(Inspector)
 IF(MOCOSEL_DEBUGGING)
     SET(CMAKE_BUILD_TYPE Debug)
 ELSE()
@@ -23,6 +23,6 @@ IF(MOCOSEL_DEBUGGING)
     ADD_DEFINITIONS(-DMOCOSEL_DEBUGGING)
 ENDIF()
 INCLUDE_DIRECTORIES(../Include)
-ADD_EXECUTABLE(Sample_x86 ${SOURCE})
-TARGET_LINK_LIBRARIES(Sample_x86 readline) 
-TARGET_LINK_LIBRARIES(Sample_x86 plain)
+ADD_EXECUTABLE(Inspector ${SOURCE})
+TARGET_LINK_LIBRARIES(Inspector readline) 
+TARGET_LINK_LIBRARIES(Inspector plain)
