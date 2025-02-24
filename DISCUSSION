@@ -7,9 +7,9 @@ delegating all erroneous data and/or information to a reactive mechanism.
 something. Maybe we could have something like root and relative paths? Or
 links? Per scope? `.` for itself, `..` for parents, `...` for root.
 
-- Apparently, Mocosel has so much to do with Tcl! I had no idea when I designed
+- Apparently, Plain has so much to do with Tcl! I had no idea when I designed
 the language. Anyway, this is my own implementation, based on my own philosophy
 and ideology, a strange sense of art, style and minimalism.
 
 January 05, 2016,
-Neriy Roe <nr@mocosel.com>.
+Nerijus Ramanauskas <nerijus@signaintermedia.com>.

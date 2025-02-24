@@ -1,5 +1,5 @@
 /*
- * Author   Neriy Roe <nr@mocosel.com>.
+ * Author   Nerijus Ramanauskas <nerijus@signaintermedia.com>.
  * Date     05/25/2014.
  * Revision 09/01/2015.
  *
@@ -17,16 +17,16 @@ extern "C" {
 #include "Shared/Segment.h"
 
 /* Appends <source> to <destination>. Note that <destination> will be reallocated. */
-MOCOSEL_WORD_DOUBLE MOCOSEL_CONCAT(struct MOCOSEL_SEGMENT* destination, MOCOSEL_WORD_DOUBLE length, const MOCOSEL_BYTE* source);
+PLAIN_WORD_DOUBLE PLAIN_CONCAT(struct PLAIN_SEGMENT* destination, PLAIN_WORD_DOUBLE length, const PLAIN_BYTE* source);
 
 /* Returns 32-bit hash of <data>. */
-MOCOSEL_WORD_DOUBLE MOCOSEL_HASH(const MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE length);
+PLAIN_WORD_DOUBLE PLAIN_HASH(const PLAIN_BYTE* data, PLAIN_WORD_DOUBLE length);
 
 /* Reserves <number> bytes of memory in <segment>. */
-MOCOSEL_WORD_DOUBLE MOCOSEL_RESERVE(MOCOSEL_WORD_DOUBLE number, struct MOCOSEL_SEGMENT* segment);
+PLAIN_WORD_DOUBLE PLAIN_RESERVE(PLAIN_WORD_DOUBLE number, struct PLAIN_SEGMENT* segment);
 
 /* Allocates <destination> bytes of memory. Note that <data> will be reallocated if <source> > 0, released if <destination> = 0. */
-void* MOCOSEL_RESIZE(void* data, MOCOSEL_WORD_DOUBLE destination, MOCOSEL_WORD_DOUBLE source);
+void* PLAIN_RESIZE(void* data, PLAIN_WORD_DOUBLE destination, PLAIN_WORD_DOUBLE source);
 
 /* C++. */
 #ifdef __cplusplus

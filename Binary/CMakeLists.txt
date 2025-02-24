@@ -1,5 +1,5 @@
 #
-# Author   Neriy Roe <nr@mocosel.com>.
+# Author   Nerijus Ramanauskas <nerijus@signaintermedia.com>.
 # Date     11/01/2014.
 # Revision 02/21/2016.
 #
@@ -8,7 +8,7 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.3)
 PROJECT(Inspector)
-IF(MOCOSEL_DEBUGGING)
+IF(PLAIN_DEBUGGING)
     SET(CMAKE_BUILD_TYPE Debug)
 ELSE()
     SET(CMAKE_BUILD_TYPE Release)
@@ -19,8 +19,8 @@ SET(SOURCE
     ${CMAKE_CURRENT_LIST_DIR}/Source/Plain/Evaluate.c
     ${CMAKE_CURRENT_LIST_DIR}/Source/GNU/Prompt.c
     ${CMAKE_CURRENT_LIST_DIR}/Source/Application.c)
-IF(MOCOSEL_DEBUGGING)
-    ADD_DEFINITIONS(-DMOCOSEL_DEBUGGING)
+IF(PLAIN_DEBUGGING)
+    ADD_DEFINITIONS(-DPLAIN_DEBUGGING)
 ENDIF()
 INCLUDE_DIRECTORIES(../Include)
 ADD_EXECUTABLE(Inspector ${SOURCE})

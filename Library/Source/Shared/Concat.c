@@ -1,49 +1,49 @@
 /*
- * Author   Neriy Roe <nr@mocosel.com>.
+ * Author   Nerijus Ramanauskas <nerijus@signaintermedia.com>.
  * Date     05/14/2013.
  * Revision 09/02/2015.
  *
  * Copyright 2015 Nerijus Ramanauskas.
  */
 
-#include <Plain/Mocosel.h>
+#include <Plain/Plain.h>
 
-MOCOSEL_WORD_DOUBLE MOCOSEL_CONCAT(struct MOCOSEL_SEGMENT* destination, MOCOSEL_WORD_DOUBLE length, const MOCOSEL_BYTE* source) {
-    MOCOSEL_ASSERT(destination != NULL);
-    MOCOSEL_ASSERT(source != NULL);
-    /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */
+PLAIN_WORD_DOUBLE PLAIN_CONCAT(struct PLAIN_SEGMENT* destination, PLAIN_WORD_DOUBLE length, const PLAIN_BYTE* source) {
+    PLAIN_ASSERT(destination != NULL);
+    PLAIN_ASSERT(source != NULL);
+    /* PLAIN_ERROR_SYSTEM_WRONG_DATA. */
     if(destination == NULL || source == NULL) {
-        return MOCOSEL_ERROR_SYSTEM_WRONG_DATA;
+        return PLAIN_ERROR_SYSTEM_WRONG_DATA;
     }
     if(length == 0) {
         return 0;
     }
-    MOCOSEL_WORD_DOUBLE distance = destination->to - destination->from;
-    MOCOSEL_WORD_DOUBLE error = MOCOSEL_RESERVE(length, destination);
+    PLAIN_WORD_DOUBLE distance = destination->to - destination->from;
+    PLAIN_WORD_DOUBLE error = PLAIN_RESERVE(length, destination);
     if(error != 0) {
         return error;
     }
-    /* MOCOSEL_ERROR_SYSTEM. */
+    /* PLAIN_ERROR_SYSTEM. */
     if(memcpy(destination->from + distance, source, length) == NULL) {
-        return MOCOSEL_ERROR_SYSTEM;
+        return PLAIN_ERROR_SYSTEM;
     }
     return 0;
 }
 
-MOCOSEL_WORD_DOUBLE MOCOSEL_RESERVE(MOCOSEL_WORD_DOUBLE number, struct MOCOSEL_SEGMENT* segment) {
-    MOCOSEL_ASSERT(segment != NULL);
-    /* MOCOSEL_ERROR_SYSTEM_WRONG_DATA. */
+PLAIN_WORD_DOUBLE PLAIN_RESERVE(PLAIN_WORD_DOUBLE number, struct PLAIN_SEGMENT* segment) {
+    PLAIN_ASSERT(segment != NULL);
+    /* PLAIN_ERROR_SYSTEM_WRONG_DATA. */
     if(segment == NULL) {
-        return MOCOSEL_ERROR_SYSTEM_WRONG_DATA;
+        return PLAIN_ERROR_SYSTEM_WRONG_DATA;
     }
     if(number == 0) {
         return 0;
     }
-    MOCOSEL_WORD_DOUBLE length = segment->to - segment->from + number;
-    MOCOSEL_BYTE* pointer = (MOCOSEL_BYTE*)MOCOSEL_RESIZE(segment->from, length, length - number);
-    /* MOCOSEL_ERROR_SYSTEM. */
+    PLAIN_WORD_DOUBLE length = segment->to - segment->from + number;
+    PLAIN_BYTE* pointer = (PLAIN_BYTE*)PLAIN_RESIZE(segment->from, length, length - number);
+    /* PLAIN_ERROR_SYSTEM. */
     if(pointer == NULL) {
-        return MOCOSEL_ERROR_SYSTEM;
+        return PLAIN_ERROR_SYSTEM;
     }
     segment->from = pointer;
     segment->to = pointer + length;

@@ -1,76 +1,76 @@
 /*
- * Author   Neriy Roe <nr@mocosel.com>.
+ * Author   Nerijus Ramanauskas <nerijus@signaintermedia.com>.
  * Date     02/23/2013.
  * Revision 09/02/2015.
  *
  * Copyright 2015 Nerijus Ramanauskas.
  */
 
-#define MOCOSEL_TARGET_STANDARD     0x00
-#define MOCOSEL_TARGET_POSIX        0x01
-#define MOCOSEL_TARGET_WINDOWS      0x02
+#define PLAIN_TARGET_STANDARD     0x00
+#define PLAIN_TARGET_POSIX        0x01
+#define PLAIN_TARGET_WINDOWS      0x02
 
 /* GNU/Linux. */
 #if defined(__linux) || defined(__linux__) || defined(linux)
-    #define MOCOSEL_TARGET MOCOSEL_TARGET_POSIX
+    #define PLAIN_TARGET PLAIN_TARGET_POSIX
 /* Darwin. */
 #elif defined(__APPLE__)
-    #define MOCOSEL_TARGET MOCOSEL_TARGET_POSIX
+    #define PLAIN_TARGET PLAIN_TARGET_POSIX
 /* Microsoft Windows. */
 #elif defined(_MSC_VER) || defined(_WIN32)
-    #define MOCOSEL_TARGET MOCOSEL_TARGET_WINDOWS
+    #define PLAIN_TARGET PLAIN_TARGET_WINDOWS
 /* Standard. */
 #else
-    #define MOCOSEL_TARGET MOCOSEL_TARGET_STANDARD
+    #define PLAIN_TARGET PLAIN_TARGET_STANDARD
 #endif
 
-/* MOCOSEL_ALIGN. */
-#if MOCOSEL_TARGET & MOCOSEL_TARGET_POSIX
-    #define MOCOSEL_ALIGN(number) __attribute__((aligned(number)))
-#elif MOCOSEL_TARGET & MOCOSEL_TARGET_WINDOWS
-    #define MOCOSEL_ALIGN(number) __declspec(align(number))
+/* PLAIN_ALIGN. */
+#if PLAIN_TARGET & PLAIN_TARGET_POSIX
+    #define PLAIN_ALIGN(number) __attribute__((aligned(number)))
+#elif PLAIN_TARGET & PLAIN_TARGET_WINDOWS
+    #define PLAIN_ALIGN(number) __declspec(align(number))
 #else
-    #define MOCOSEL_ALIGN(number)
+    #define PLAIN_ALIGN(number)
 #endif
 
-/* MOCOSEL_ASSERT. */
-#ifdef MOCOSEL_DEBUGGING
-    #define MOCOSEL_ASSERT(condition) assert(condition)
+/* PLAIN_ASSERT. */
+#ifdef PLAIN_DEBUGGING
+    #define PLAIN_ASSERT(condition) assert(condition)
 #else
-    #define MOCOSEL_ASSERT(condition)
+    #define PLAIN_ASSERT(condition)
 #endif
 
-/* MOCOSEL_INLINE. */
-#if MOCOSEL_TARGET & MOCOSEL_TARGET_POSIX
+/* PLAIN_INLINE. */
+#if PLAIN_TARGET & PLAIN_TARGET_POSIX
     #if defined(__cplusplus)
-        #define MOCOSEL_INLINE static inline __attribute__((always_inline))
+        #define PLAIN_INLINE static inline __attribute__((always_inline))
     #else
-        #define MOCOSEL_INLINE static __inline__ __attribute__((always_inline))
+        #define PLAIN_INLINE static __inline__ __attribute__((always_inline))
     #endif
-#elif MOCOSEL_TARGET & MOCOSEL_TARGET_WINDOWS
-    #define MOCOSEL_INLINE static __forceinline
+#elif PLAIN_TARGET & PLAIN_TARGET_WINDOWS
+    #define PLAIN_INLINE static __forceinline
 #else
-    #define MOCOSEL_INLINE static inline
+    #define PLAIN_INLINE static inline
 #endif
 
-/* MOCOSEL_RESTRICT. */
-#if MOCOSEL_TARGET & MOCOSEL_TARGET_POSIX
-    #define MOCOSEL_RESTRICT __restrict__
-#elif MOCOSEL_TARGET & MOCOSEL_TARGET_WINDOWS
-    #define MOCOSEL_RESTRICT __restrict
+/* PLAIN_RESTRICT. */
+#if PLAIN_TARGET & PLAIN_TARGET_POSIX
+    #define PLAIN_RESTRICT __restrict__
+#elif PLAIN_TARGET & PLAIN_TARGET_WINDOWS
+    #define PLAIN_RESTRICT __restrict
 #else
-    #define MOCOSEL_RESTRICT restrict
+    #define PLAIN_RESTRICT restrict
 #endif
 
-/* MOCOSEL_AUTO. */
-#if MOCOSEL_TARGET & MOCOSEL_TARGET_WINDOWS
-    #define MOCOSEL_AUTO(number) _alloca(number)
+/* PLAIN_AUTO. */
+#if PLAIN_TARGET & PLAIN_TARGET_WINDOWS
+    #define PLAIN_AUTO(number) _alloca(number)
 #else
-    #define MOCOSEL_AUTO(number) alloca(number)
+    #define PLAIN_AUTO(number) alloca(number)
 #endif
 
  /* Standard. */
-#ifdef MOCOSEL_DEBUGGING
+#ifdef PLAIN_DEBUGGING
     #include <assert.h>
 #endif
 
@@ -80,9 +80,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MOCOSEL_BYTE                unsigned char
-#define MOCOSEL_REAL                float
-#define MOCOSEL_REAL_DOUBLE         double
-#define MOCOSEL_WORD                unsigned short int
-#define MOCOSEL_WORD_DOUBLE         unsigned int
-#define MOCOSEL_WORD_QUADRUPLE      unsigned long long int
+#define PLAIN_BYTE                unsigned char
+#define PLAIN_REAL                float
+#define PLAIN_REAL_DOUBLE         double
+#define PLAIN_WORD                unsigned short int
+#define PLAIN_WORD_DOUBLE         unsigned int
+#define PLAIN_WORD_QUADRUPLE      unsigned long long int

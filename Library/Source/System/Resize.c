@@ -1,14 +1,14 @@
 /*
- * Author   Neriy Roe <nr@mocosel.com>.
+ * Author   Nerijus Ramanauskas <nerijus@signaintermedia.com>.
  * Date     05/07/2013.
  * Revision 09/02/2015.
  *
  * Copyright 2015 Nerijus Ramanauskas.
  */
 
-#include <Plain/Mocosel.h>
+#include <Plain/Plain.h>
 
-void* MOCOSEL_RESIZE(void* data, MOCOSEL_WORD_DOUBLE destination, MOCOSEL_WORD_DOUBLE source) {
+void* PLAIN_RESIZE(void* data, PLAIN_WORD_DOUBLE destination, PLAIN_WORD_DOUBLE source) {
     if(destination == source) {
         return data;
     }

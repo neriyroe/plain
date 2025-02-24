@@ -1,5 +1,5 @@
 #
-# Author   Neriy Roe <nr@mocosel.com>.
+# Author   Nerijus Ramanauskas <nerijus@signaintermedia.com>.
 # Date     11/05/2014.
 # Revision 09/01/2015.
 #
@@ -24,7 +24,7 @@ development:
 	fi
 
 	cd $(home)/$(target) && \
-	cmake `dirname $(home)` -DCMAKE_C_COMPILER=/usr/bin/arm-linux-gnueabi-gcc -DCMAKE_C_FLAGS="-march=armv6 -static" -DMOCOSEL_DEBUGGING=1 -DMOCOSEL_EMBEDDED=1 && \
+	cmake `dirname $(home)` -DCMAKE_C_COMPILER=/usr/bin/arm-linux-gnueabi-gcc -DCMAKE_C_FLAGS="-march=armv6 -static" -DPLAIN_DEBUGGING=1 -DPLAIN_EMBEDDED=1 && \
 	make
 
 .PHONY: distribution
@@ -34,6 +34,6 @@ distribution: clean
 	fi
 
 	cd $(home)/$(target) && \
-	cmake `dirname $(home)` -DCMAKE_C_COMPILER=/usr/bin/arm-linux-gnueabi-gcc -DCMAKE_C_FLAGS="-march=armv6 -static" -DMOCOSEL_EMBEDDED=1 && \
+	cmake `dirname $(home)` -DCMAKE_C_COMPILER=/usr/bin/arm-linux-gnueabi-gcc -DCMAKE_C_FLAGS="-march=armv6 -static" -DPLAIN_EMBEDDED=1 && \
 	make && \
 	rm -rf CMakeCache.txt CMakeFiles cmake_install.cmake Makefile

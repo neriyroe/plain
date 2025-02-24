@@ -1,5 +1,5 @@
 /*
- * Author   Neriy Roe <nr@mocosel.com>.
+ * Author   Nerijus Ramanauskas <nerijus@signaintermedia.com>.
  * Date     11/01/2014.
  * Revision 08/30/2015.
  *

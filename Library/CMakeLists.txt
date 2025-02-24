@@ -1,5 +1,5 @@
 #
-# Author   Neriy Roe <nr@mocosel.com>.
+# Author   Nerijus Ramanauskas <nerijus@signaintermedia.com>.
 # Date     12/30/2013.
 # Revision 09/01/2015.
 #
@@ -8,7 +8,7 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.3)
 PROJECT(Plain)
-IF(MOCOSEL_DEBUGGING)
+IF(PLAIN_DEBUGGING)
     SET(CMAKE_BUILD_TYPE Debug)
 ELSE()
     SET(CMAKE_BUILD_TYPE Release)
@@ -21,11 +21,11 @@ SET(SOURCE
     ${CMAKE_CURRENT_LIST_DIR}/Source/Shared/Algorithm/Hash.c
     ${CMAKE_CURRENT_LIST_DIR}/Source/Shared/Processing/Tokenize.c
     ${CMAKE_CURRENT_LIST_DIR}/Source/System/Resize.c)
-IF(MOCOSEL_DEBUGGING)
-    ADD_DEFINITIONS(-DMOCOSEL_DEBUGGING)
+IF(PLAIN_DEBUGGING)
+    ADD_DEFINITIONS(-DPLAIN_DEBUGGING)
 ENDIF()
 INCLUDE_DIRECTORIES(../Include)
-IF(MOCOSEL_EMBEDDED)
+IF(PLAIN_EMBEDDED)
     ADD_LIBRARY(plain STATIC ${SOURCE})
 ELSE()
     ADD_LIBRARY(plain SHARED ${SOURCE})

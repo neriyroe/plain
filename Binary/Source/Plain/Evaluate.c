@@ -1,5 +1,5 @@
 /*
- * Author   Neriy Roe <nr@mocosel.com>.
+ * Author   Nerijus Ramanauskas <nerijus@signaintermedia.com>.
  * Date     11/01/2014.
  * Revision 08/30/2015.
  *
@@ -10,15 +10,15 @@
 #include <Plain/VM.h>
 
 /* Report syntax errors to the stream, passed by <context>. */
-void report(void* context, const MOCOSEL_BYTE* data, MOCOSEL_WORD_DOUBLE length, MOCOSEL_WORD_DOUBLE type);
+void report(void* context, const PLAIN_BYTE* data, PLAIN_WORD_DOUBLE length, PLAIN_WORD_DOUBLE type);
 
 /* Resolve <data>, using <value> for optional substitution. */
-MOCOSEL_WORD_DOUBLE resolve(void* context, void* data, MOCOSEL_WORD_DOUBLE type, struct MOCOSEL_VALUE* value);
+PLAIN_WORD_DOUBLE resolve(void* context, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value);
 
 /* Evaluate <source>, passing <context> to <report> and <resolve>. */
 int evaluate(void* context, const char* source) {
-    MOCOSEL_WORD_DOUBLE error = MOCOSEL_EVALUATE((MOCOSEL_ENVIRONMENT*)context, &resolve, (const MOCOSEL_BYTE*)source, &report, NULL);
-    if(error == MOCOSEL_ERROR_SYNTAX) {
+    PLAIN_WORD_DOUBLE error = PLAIN_EVALUATE((PLAIN_ENVIRONMENT*)context, &resolve, (const PLAIN_BYTE*)source, &report, NULL);
+    if(error == PLAIN_ERROR_SYNTAX) {
         printf("The evaluation failed due to a syntax error.\n");
     } else if(error != 0) {
         printf("The evaluation failed due to an unidentified error (0x%X).\n", error);
