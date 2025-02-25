@@ -30,7 +30,7 @@ PLAIN_WORD_DOUBLE PLAIN_EVALUATE(PLAIN_ENVIRONMENT* environment, PLAIN_SUBROUTIN
     if(object.segment.data.from == object.segment.data.to) {
         return 0;
     }
-    /* System failures and syntax errors, <tracker> shall be able to print a nice syntax report. */
+    /* System failures and syntax errors, <tracker> shall be able to print a nice report. */
     PLAIN_WORD_DOUBLE error = PLAIN_TOKENIZE(environment,
                                              &object.segment.structure,
                                              NULL,
