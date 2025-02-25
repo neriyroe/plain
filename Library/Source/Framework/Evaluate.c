@@ -32,11 +32,11 @@ PLAIN_WORD_DOUBLE PLAIN_EVALUATE(PLAIN_ENVIRONMENT* environment, PLAIN_SUBROUTIN
     }
     /* System failures and syntax errors, <tracker> shall be able to print a nice syntax report. */
     PLAIN_WORD_DOUBLE error = PLAIN_TOKENIZE(environment,
-                                                 &object.segment.structure,
-                                                 NULL,
-                                                 (const PLAIN_BYTE*)environment->meta.pattern,
-                                                 &object.segment.data,
-                                                 tracker);
+                                             &object.segment.structure,
+                                             NULL,
+                                             (const PLAIN_BYTE*)environment->meta.pattern,
+                                             &object.segment.data,
+                                             tracker);
     /* Only system failures, no runtime dependencies. */
     if(error == 0) {
        error = PLAIN_WALK(environment, function, &object.segment.structure, value);
