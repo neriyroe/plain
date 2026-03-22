@@ -82,7 +82,7 @@ BLOCK (LIST)
 
     Colon shorthand — opens a block inline, closed by the next semicolon:
 
-        if condition: print "yes" ;
+        if condition: print "yes";
 
 
 PROGRAM (LIST)

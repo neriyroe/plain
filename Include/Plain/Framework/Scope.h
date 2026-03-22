@@ -15,8 +15,11 @@
 #include <Plain/Framework/Host/Environment.h>
 
 /* Control-flow signals, returned instead of error codes. */
-#define PLAIN_SIGNAL_BREAK  0x300
-#define PLAIN_SIGNAL_RETURN 0x301
+enum {
+    PLAIN_SIGNAL_BREAK    = 0x300,
+    PLAIN_SIGNAL_RETURN   = 0x301,
+    PLAIN_SIGNAL_CONTINUE = 0x302
+};
 
 /* Flags for PLAIN_CALLABLE. */
 enum {
@@ -34,10 +37,11 @@ enum {
  * For built-in commands, body and parameters are NULL and native is set.
  */
 struct PLAIN_CALLABLE {
-    PLAIN_BYTE* parameters; /* Source text of the parameter list. NULL for native callables. */
-    PLAIN_BYTE* body;       /* Source text of the body to evaluate on each call. NULL for native callables. */
-    PLAIN_SUBROUTINE native; /* C implementation. NULL for user-defined callables. */
-    PLAIN_WORD_DOUBLE flags; /* PLAIN_CALLABLE_IMMUTABLE etc. */
+    PLAIN_BYTE* parameters;       /* Source text of the parameter list. NULL for native callables. */
+    PLAIN_BYTE* body;             /* Source text of the body to evaluate on each call. NULL for native callables. */
+    PLAIN_SUBROUTINE native;      /* C implementation. NULL for user-defined callables. */
+    struct PLAIN_FRAME* closure;  /* Frame captured at definition time (closure). NULL for native callables. */
+    PLAIN_WORD_DOUBLE flags;      /* PLAIN_CALLABLE_IMMUTABLE etc. */
 };
 
 /*
@@ -58,10 +62,15 @@ struct PLAIN_BINDING {
  * single call level: the global program, or one function/procedure call.
  * Frames chain upward via <parent>; variable lookup walks the chain.
  * <bindings> is the uthash table head (NULL when the frame is empty).
+ * <references> is a reference count: when a callable captures this frame
+ * as its closure, the count is incremented; when the callable is freed,
+ * the count is decremented. PLAIN_FRAME_RELEASE frees the frame only
+ * when the count reaches zero.
  */
 struct PLAIN_FRAME {
     struct PLAIN_FRAME* parent;
-    struct PLAIN_BINDING* bindings;  /* uthash table head; NULL = empty */
+    struct PLAIN_BINDING* bindings;    /* uthash table head; NULL = empty */
+    PLAIN_WORD_DOUBLE references;      /* reference count; 0 = owned by call stack */
 };
 
 /*
@@ -76,10 +85,17 @@ struct PLAIN_CONTEXT {
     PLAIN_SUBROUTINE handler;    /* Host-provided extension: called for unrecognised commands. */
 };
 
-/* Allocates a new frame. Only <parent> can be NULL (root frame). */
+/* Allocates a new frame with reference count 0. Only <parent> can be NULL (root frame). */
 struct PLAIN_FRAME* PLAIN_FRAME_CREATE(struct PLAIN_FRAME* parent);
 
-/* Frees all memory owned by <frame>. */
+/* Increments the reference count on <frame>. */
+void PLAIN_FRAME_RETAIN(struct PLAIN_FRAME* frame);
+
+/* Decrements the reference count and frees the frame when it reaches zero.
+ * Use instead of PLAIN_FRAME_DESTROY when the frame may be shared by closures. */
+void PLAIN_FRAME_RELEASE(struct PLAIN_FRAME* frame);
+
+/* Frees all memory owned by <frame> unconditionally (ignores reference count). */
 void PLAIN_FRAME_DESTROY(struct PLAIN_FRAME* frame);
 
 /* Returns the binding for <name>, searching <frame> and all parent frames. */
@@ -88,6 +104,11 @@ struct PLAIN_BINDING* PLAIN_FRAME_FIND(struct PLAIN_FRAME* frame, const PLAIN_BY
 /* Creates or updates a binding in <frame> (never in a parent). Returns
  * PLAIN_ERROR_SYSTEM_WRONG_DATA if the existing binding is immutable. */
 PLAIN_WORD_DOUBLE PLAIN_FRAME_BIND(struct PLAIN_FRAME* frame, const PLAIN_BYTE* name, struct PLAIN_VALUE* value, struct PLAIN_CALLABLE* callable, PLAIN_WORD_DOUBLE flags);
+
+/* Like PLAIN_FRAME_BIND, but first searches the entire chain for an existing
+ * binding. If found, updates it in place; otherwise creates a new local binding.
+ * This is what variable assignment (x = value) uses to support closures. */
+PLAIN_WORD_DOUBLE PLAIN_FRAME_SET(struct PLAIN_FRAME* frame, const PLAIN_BYTE* name, struct PLAIN_VALUE* value, struct PLAIN_CALLABLE* callable, PLAIN_WORD_DOUBLE flags);
 
 /* Frees data owned by <value> and resets it to nil. */
 void PLAIN_VALUE_CLEAR(struct PLAIN_VALUE* value);

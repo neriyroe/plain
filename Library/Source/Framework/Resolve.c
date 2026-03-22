@@ -243,8 +243,9 @@ static PLAIN_WORD_DOUBLE PLAIN_CALL(struct PLAIN_CONTEXT* context, struct PLAIN_
     if(callable->native != NULL) {
         return callable->native((void*)context, (void*)node, PLAIN_TYPE_LIST, value);
     }
-    /* User-defined callable — bind parameters and evaluate body. */
-    struct PLAIN_FRAME* frame = PLAIN_FRAME_CREATE(context->frame);
+    /* User-defined callable — bind parameters and evaluate body.
+     * The child frame parents the closure frame (lexical scope). */
+    struct PLAIN_FRAME* frame = PLAIN_FRAME_CREATE(callable->closure != NULL ? callable->closure : context->frame);
     if(frame == NULL) return PLAIN_ERROR_SYSTEM;
     const PLAIN_BYTE* pointer = callable->parameters;
     PLAIN_WORD_DOUBLE index = 0;
@@ -267,7 +268,7 @@ static PLAIN_WORD_DOUBLE PLAIN_CALL(struct PLAIN_CONTEXT* context, struct PLAIN_
     struct PLAIN_VALUE body = {NULL, 0, PLAIN_TYPE_NIL};
     PLAIN_WORD_DOUBLE error = PLAIN_EVALUATE(&context->environment, &PLAIN_RESOLVE, callable->body, context->tracker, &body);
     context->frame = saved;
-    PLAIN_FRAME_DESTROY(frame);
+    PLAIN_FRAME_RELEASE(frame);
     if(error == PLAIN_SIGNAL_RETURN) {
         if(value != NULL) { *value = context->result; context->result = (struct PLAIN_VALUE){NULL, 0, PLAIN_TYPE_NIL}; }
         else { PLAIN_VALUE_CLEAR(&context->result); }
@@ -288,8 +289,10 @@ static struct PLAIN_CALLABLE* PLAIN_CALLABLE_DUPLICATE(struct PLAIN_CALLABLE* so
     struct PLAIN_CALLABLE* copy = (struct PLAIN_CALLABLE*)PLAIN_RESIZE(NULL, sizeof(struct PLAIN_CALLABLE), 0);
     if(copy == NULL) return NULL;
     memset(copy, 0, sizeof(struct PLAIN_CALLABLE));
-    copy->native = source->native;
-    copy->flags  = source->flags;
+    copy->native  = source->native;
+    copy->closure = source->closure;
+    copy->flags   = source->flags;
+    if(copy->closure != NULL) PLAIN_FRAME_RETAIN(copy->closure);
     if(source->parameters != NULL) {
         PLAIN_WORD_DOUBLE length = strlen((const char*)source->parameters) + 1;
         copy->parameters = (PLAIN_BYTE*)PLAIN_RESIZE(NULL, length, 0);
@@ -315,10 +318,10 @@ static PLAIN_WORD_DOUBLE PLAIN_BUILTIN_ASSIGN(struct PLAIN_CONTEXT* context, str
         struct PLAIN_CALLABLE* copy = PLAIN_CALLABLE_DUPLICATE(source);
         if(copy == NULL) return PLAIN_ERROR_SYSTEM;
         PLAIN_WORD_DOUBLE flags = (source->flags & PLAIN_CALLABLE_IMMUTABLE) ? PLAIN_BINDING_IMMUTABLE : 0;
-        return PLAIN_FRAME_BIND(context->frame, name, NULL, copy, flags);
+        return PLAIN_FRAME_SET(context->frame, name, NULL, copy, flags);
     }
     /* x = value */
-    PLAIN_FRAME_BIND(context->frame, name, second, NULL, 0);
+    PLAIN_FRAME_SET(context->frame, name, second, NULL, 0);
     if(value != NULL) PLAIN_VALUE_COPY(value, second);
     return 0;
 }
@@ -436,6 +439,7 @@ static PLAIN_WORD_DOUBLE PLAIN_NATIVE_REPEAT(void* raw, void* data, PLAIN_WORD_D
             PLAIN_WORD_DOUBLE error = PLAIN_EVALUATE_BLOCK(context, body, &result);
             PLAIN_VALUE_CLEAR(&result);
             if(error == PLAIN_SIGNAL_BREAK) break;
+            if(error == PLAIN_SIGNAL_CONTINUE) continue;
             if(error != 0) return error;
         }
         return 0;
@@ -452,6 +456,7 @@ static PLAIN_WORD_DOUBLE PLAIN_NATIVE_REPEAT(void* raw, void* data, PLAIN_WORD_D
             PLAIN_WORD_DOUBLE error = PLAIN_EVALUATE_BLOCK(context, body, &result);
             PLAIN_VALUE_CLEAR(&result);
             if(error == PLAIN_SIGNAL_BREAK) break;
+            if(error == PLAIN_SIGNAL_CONTINUE) continue;
             if(error != 0) return error;
         }
         return 0;
@@ -470,6 +475,7 @@ static PLAIN_WORD_DOUBLE PLAIN_NATIVE_REPEAT(void* raw, void* data, PLAIN_WORD_D
             error = PLAIN_EVALUATE_BLOCK(context, body, &result);
             PLAIN_VALUE_CLEAR(&result);
             if(error == PLAIN_SIGNAL_BREAK) break;
+            if(error == PLAIN_SIGNAL_CONTINUE) continue;
             if(error != 0) return error;
         }
         return 0;
@@ -489,6 +495,31 @@ static PLAIN_WORD_DOUBLE PLAIN_NATIVE_BREAK(void* raw, void* data, PLAIN_WORD_DO
     return PLAIN_SIGNAL_BREAK;
 }
 
+static PLAIN_WORD_DOUBLE PLAIN_NATIVE_CONTINUE(void* raw, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
+    return PLAIN_SIGNAL_CONTINUE;
+}
+
+static PLAIN_WORD_DOUBLE PLAIN_NATIVE_TYPE(void* raw, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
+    struct PLAIN_LIST* node = (struct PLAIN_LIST*)data;
+    struct PLAIN_VALUE* argument = PLAIN_ARGUMENT(node, 0);
+    const char* name = "none";
+    if(argument != NULL) {
+        switch(argument->type) {
+            case PLAIN_TYPE_BOOLEAN:  name = "boolean";  break;
+            case PLAIN_TYPE_INTEGER:  name = "integer";  break;
+            case PLAIN_TYPE_REAL:     name = "real";     break;
+            case PLAIN_TYPE_STRING:   name = "string";   break;
+            case PLAIN_TYPE_KEYWORD:  name = "keyword";  break;
+            case PLAIN_TYPE_LIST:     name = "list";     break;
+            case PLAIN_TYPE_CALLABLE: name = "callable"; break;
+            case PLAIN_TYPE_NIL:      name = "none";     break;
+            default:                  name = "unknown";  break;
+        }
+    }
+    if(value != NULL) return PLAIN_EXPORT((PLAIN_BYTE*)name, strlen(name) + 1, PLAIN_TYPE_STRING, value);
+    return 0;
+}
+
 static PLAIN_WORD_DOUBLE PLAIN_NATIVE_FUNCTION(void* raw, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
     struct PLAIN_CONTEXT* context = (struct PLAIN_CONTEXT*)raw;
     struct PLAIN_LIST* node = (struct PLAIN_LIST*)data;
@@ -504,7 +535,9 @@ static PLAIN_WORD_DOUBLE PLAIN_NATIVE_FUNCTION(void* raw, void* data, PLAIN_WORD
         memset(callable, 0, sizeof(struct PLAIN_CALLABLE));
         callable->parameters = PLAIN_SEGMENT_COPY(parameters);
         callable->body       = PLAIN_SEGMENT_COPY(body);
+        callable->closure    = context->frame;
         callable->flags      = PLAIN_CALLABLE_IMMUTABLE;
+        PLAIN_FRAME_RETAIN(context->frame);
         return PLAIN_FRAME_BIND(context->frame, first->data, NULL, callable, PLAIN_BINDING_IMMUTABLE);
     }
     /* Anonymous form: [function {parameters} {body}] — returns a callable value */
@@ -516,7 +549,9 @@ static PLAIN_WORD_DOUBLE PLAIN_NATIVE_FUNCTION(void* raw, void* data, PLAIN_WORD
         memset(callable, 0, sizeof(struct PLAIN_CALLABLE));
         callable->parameters = PLAIN_SEGMENT_COPY(parameters);
         callable->body       = PLAIN_SEGMENT_COPY(body);
+        callable->closure    = context->frame;
         callable->flags      = PLAIN_CALLABLE_IMMUTABLE;
+        PLAIN_FRAME_RETAIN(context->frame);
         if(value != NULL) { value->type = PLAIN_TYPE_CALLABLE; value->data = (PLAIN_BYTE*)callable; value->length = 0; }
         return 0;
     }
@@ -538,6 +573,8 @@ static PLAIN_WORD_DOUBLE PLAIN_NATIVE_PROCEDURE(void* raw, void* data, PLAIN_WOR
         memset(callable, 0, sizeof(struct PLAIN_CALLABLE));
         callable->parameters = PLAIN_SEGMENT_COPY(parameters);
         callable->body       = PLAIN_SEGMENT_COPY(body);
+        callable->closure    = context->frame;
+        PLAIN_FRAME_RETAIN(context->frame);
         return PLAIN_FRAME_BIND(context->frame, first->data, NULL, callable, 0);
     }
     /* Anonymous form: [procedure {parameters} {body}] — returns a callable value */
@@ -549,6 +586,8 @@ static PLAIN_WORD_DOUBLE PLAIN_NATIVE_PROCEDURE(void* raw, void* data, PLAIN_WOR
         memset(callable, 0, sizeof(struct PLAIN_CALLABLE));
         callable->parameters = PLAIN_SEGMENT_COPY(parameters);
         callable->body       = PLAIN_SEGMENT_COPY(body);
+        callable->closure    = context->frame;
+        PLAIN_FRAME_RETAIN(context->frame);
         if(value != NULL) { value->type = PLAIN_TYPE_CALLABLE; value->data = (PLAIN_BYTE*)callable; value->length = 0; }
         return 0;
     }
@@ -709,6 +748,8 @@ PLAIN_WORD_DOUBLE PLAIN_CONTEXT_INIT(struct PLAIN_CONTEXT* context) {
     PLAIN_REGISTER("repeat",    PLAIN_NATIVE_REPEAT)
     PLAIN_REGISTER("return",    PLAIN_NATIVE_RETURN)
     PLAIN_REGISTER("break",     PLAIN_NATIVE_BREAK)
+    PLAIN_REGISTER("continue",  PLAIN_NATIVE_CONTINUE)
+    PLAIN_REGISTER("type",      PLAIN_NATIVE_TYPE)
     PLAIN_REGISTER("function",  PLAIN_NATIVE_FUNCTION)
     PLAIN_REGISTER("procedure", PLAIN_NATIVE_PROCEDURE)
     PLAIN_REGISTER("not",       PLAIN_NATIVE_NOT)

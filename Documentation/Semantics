@@ -129,12 +129,33 @@ INFIX OPERATORS
         print [and [x > 0] [x < 10]]
 
 
-RETURN AND BREAK
+CLOSURES
+
+    Every function and procedure captures the frame in which it was
+    defined. When invoked, the callable's own frame is created as a
+    child of the captured frame, not the caller's frame. This means
+    outer variables stay accessible and mutable — enabling counter
+    factories, partial application, and all other closure patterns.
+
+    Assignment (x = value) updates an existing variable wherever it
+    lives in the frame chain; a new local is created only if the name
+    does not already exist.
+
+
+RETURN, BREAK, CONTINUE
 
     return [value]   exits the current callable and yields a value.
     break            exits the nearest repeat loop.
+    continue         skips to the next iteration of the nearest repeat.
 
-    Both propagate as special signals through the evaluator.
+    All three propagate as special signals through the evaluator.
+
+
+TYPE INTROSPECTION
+
+    type value       returns the type name as a string:
+                     "boolean", "integer", "real", "string", "keyword",
+                     "list", "callable", or "none".
 
 
 HOST EXTENSION

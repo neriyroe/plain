@@ -15,12 +15,25 @@ struct PLAIN_FRAME* PLAIN_FRAME_CREATE(struct PLAIN_FRAME* parent) {
     return frame;
 }
 
+void PLAIN_FRAME_RETAIN(struct PLAIN_FRAME* frame) {
+    if(frame != NULL) frame->references++;
+}
+
+void PLAIN_FRAME_RELEASE(struct PLAIN_FRAME* frame) {
+    if(frame == NULL) return;
+    if(frame->references > 0) { frame->references--; return; }
+    PLAIN_FRAME_DESTROY(frame);
+}
+
 static void PLAIN_BINDING_FREE(struct PLAIN_BINDING* binding) {
     if(binding->name != NULL) {
         PLAIN_RESIZE(binding->name, 0, strlen((const char*)binding->name) + 1);
     }
     PLAIN_VALUE_CLEAR(&binding->value);
     if(binding->callable != NULL) {
+        if(binding->callable->closure != NULL) {
+            PLAIN_FRAME_RELEASE(binding->callable->closure);
+        }
         if(binding->callable->parameters != NULL) {
             PLAIN_RESIZE(binding->callable->parameters, 0, strlen((const char*)binding->callable->parameters) + 1);
         }
@@ -89,6 +102,21 @@ PLAIN_WORD_DOUBLE PLAIN_FRAME_BIND(struct PLAIN_FRAME* frame, const PLAIN_BYTE* 
     binding->callable = callable;
     binding->flags = flags;
     return 0;
+}
+
+PLAIN_WORD_DOUBLE PLAIN_FRAME_SET(struct PLAIN_FRAME* frame, const PLAIN_BYTE* name, struct PLAIN_VALUE* value, struct PLAIN_CALLABLE* callable, PLAIN_WORD_DOUBLE flags) {
+    struct PLAIN_BINDING* existing = PLAIN_FRAME_FIND(frame, name);
+    if(existing != NULL) {
+        struct PLAIN_FRAME* target = frame;
+        PLAIN_WORD_DOUBLE length = strlen((const char*)name);
+        while(target != NULL) {
+            struct PLAIN_BINDING* local = NULL;
+            HASH_FIND(hh, target->bindings, name, length, local);
+            if(local == existing) return PLAIN_FRAME_BIND(target, name, value, callable, flags);
+            target = target->parent;
+        }
+    }
+    return PLAIN_FRAME_BIND(frame, name, value, callable, flags);
 }
 
 void PLAIN_VALUE_CLEAR(struct PLAIN_VALUE* value) {

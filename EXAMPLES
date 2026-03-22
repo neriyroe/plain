@@ -128,7 +128,7 @@ BLOCKS
     { print "I run when called" }
 
     ` Colon shorthand: opens a block, semicolon closes it
-    : print "same thing" ;
+    : print "same thing";
 
 
 IF
@@ -152,7 +152,7 @@ IF
     if [x > 10] { print "big" } else [x > 5] { print "medium" } else [x > 0] { print "small" } else { print "none" }
 
     ` Colon shorthand (no else)
-    if [x = 10]: print "exactly ten" ;
+    if [x = 10]: print "exactly ten";
 
 
 REPEAT
@@ -161,7 +161,7 @@ REPEAT
     x = 0;
     repeat {
         x = [x + 1];
-        if [x = 3]: break ;
+        if [x = 3]: break;
     };
     print x    ` 3
 
@@ -178,16 +178,25 @@ REPEAT
     }
 
 
-BREAK
+BREAK AND CONTINUE
 
-    ` Break exits the nearest repeat
+    ` break exits the nearest repeat
     i = 0;
     repeat {
-        if [i = 3]: break ;
+        if [i = 3]: break;
         print i;
         i = [i + 1]
     }
     ` Prints: 0, 1, 2
+
+    ` continue skips to the next iteration
+    i = 0;
+    repeat { i < 6 } {
+        i = [i + 1];
+        if [equal [i % 2] 0]: continue;
+        print i
+    }
+    ` Prints: 1, 3, 5
 
 
 FUNCTIONS (immutable)
@@ -223,8 +232,8 @@ PROCEDURES (mutable)
 RETURN
 
     function clamp {value, minimum, maximum} {
-        if [value < minimum]: return minimum ;
-        if [value > maximum]: return maximum ;
+        if [value < minimum]: return minimum;
+        if [value > maximum]: return maximum;
         return value
     };
 
@@ -242,11 +251,50 @@ NESTED EXPRESSIONS
 
     ` Fibonacci
     function fibonacci {n} {
-        if [n < 2]: return n ;
+        if [n < 2]: return n;
         return [add [fibonacci [n - 1]] [fibonacci [n - 2]]]
     };
 
     print [fibonacci 10]    ` 55
+
+
+CLOSURES
+
+    ` Functions and procedures capture their definition frame. Outer
+    ` variables remain accessible and mutable even after the outer
+    ` call returns.
+
+    ` Counter factory — each counter has its own private state
+    function make_counter {} {
+        n = 0;
+        return [procedure {} { n = [n + 1]; return n }]
+    };
+
+    counter = [make_counter];
+    print [counter];    ` 1
+    print [counter];    ` 2
+    print [counter]     ` 3
+
+    ` Partial application — capture a parameter as a closed-over variable
+    function adder {n} {
+        return [function {x} { return [x + n] }]
+    };
+
+    add5 = [adder 5];
+    print [add5 3];     ` 8
+    print [add5 10]     ` 15
+
+
+TYPE INTROSPECTION
+
+    print [type 42];       ` integer
+    print [type 3.14];     ` real
+    print [type "hello"];  ` string
+    print [type yes];      ` boolean
+    print [type none];     ` none
+
+    fn = [function {x} { return x }];
+    print [type fn]        ` callable
 
 
 MULTIPLE STATEMENTS
@@ -341,9 +389,6 @@ KNOWN LIMITATIONS
     ` Compound conditions with infix and/or do not work as expected.
     ` [x > 0 and x < 10] only evaluates x > 0. Use prefix form:
     `   [and [x > 0] [x < 10]]
-
-    ` There is no else keyword. The second block after if is the else branch:
-    `   if condition { then } { else }
 
     ` function/procedure name {params} {body} only works when the name is
     ` not already bound as a non-operator variable. For rebinding a normal
