@@ -237,7 +237,7 @@ static PLAIN_WORD_DOUBLE PLAIN_APPLY_COMPARISON(struct PLAIN_VALUE* a, struct PL
 /*  Callable dispatch                                                 */
 /* ------------------------------------------------------------------ */
 
-static PLAIN_WORD_DOUBLE PLAIN_CALL(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* node, struct PLAIN_CALLABLE* callable, struct PLAIN_VALUE* value) {
+PLAIN_WORD_DOUBLE PLAIN_CALL(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* node, struct PLAIN_CALLABLE* callable, struct PLAIN_VALUE* value) {
     /* Native callable — call it directly. The node arrives with arguments
      * already resolved (expressions substituted, blocks left unevaluated). */
     if(callable->native != NULL) {
@@ -534,6 +534,7 @@ static PLAIN_WORD_DOUBLE PLAIN_NATIVE_TYPE(void* raw, void* data, PLAIN_WORD_DOU
             case PLAIN_TYPE_LIST:     name = "list";     break;
             case PLAIN_TYPE_CALLABLE: name = "callable"; break;
             case PLAIN_TYPE_NIL:      name = "none";     break;
+            case PLAIN_TYPE_OBJECT:   name = "object";   break;
             default:                  name = "unknown";  break;
         }
     }
@@ -843,6 +844,11 @@ PLAIN_WORD_DOUBLE PLAIN_RESOLVE(void* raw, void* data, PLAIN_WORD_DOUBLE type, s
         }
         if(binding->value.type == PLAIN_TYPE_CALLABLE && binding->value.data != NULL) {
             return PLAIN_CALL(context, node, (struct PLAIN_CALLABLE*)binding->value.data, value);
+        }
+        /* C++ object value — dispatch via context->handler with PLAIN_TYPE_OBJECT type
+         * so the host can distinguish object method calls from unknown-keyword fallbacks. */
+        if(binding->value.type == PLAIN_TYPE_OBJECT && context->handler != NULL) {
+            return context->handler(raw, data, PLAIN_TYPE_OBJECT, value);
         }
     }
 

@@ -80,9 +80,10 @@ struct PLAIN_FRAME {
 struct PLAIN_CONTEXT {
     struct PLAIN_ENVIRONMENT environment; /* Must be first member. */
     struct PLAIN_FRAME* frame;
-    struct PLAIN_VALUE result;   /* Return value written by the last `return` command. */
+    struct PLAIN_VALUE result;   /* Return value written by the last `return` statement. */
     PLAIN_DELEGATE tracker;      /* Receives syntax errors and diagnostics. */
-    PLAIN_SUBROUTINE handler;    /* Host-provided extension: called for unrecognised commands. */
+    PLAIN_SUBROUTINE handler;    /* Host fallback: called for keywords not found in the frame. */
+    void* user_data;             /* Arbitrary host pointer; not touched by the library. */
 };
 
 /* Allocates a new frame with reference count 0. Only <parent> can be NULL (root frame). */
@@ -133,3 +134,9 @@ PLAIN_WORD_DOUBLE PLAIN_CONTEXT_INIT(struct PLAIN_CONTEXT* context);
  * mutable callable. Use this to extend Plain from the host application.
  * The binding is mutable, so Plain code can override it at any time. */
 PLAIN_WORD_DOUBLE PLAIN_CONTEXT_REGISTER(struct PLAIN_CONTEXT* context, const PLAIN_BYTE* name, PLAIN_SUBROUTINE native);
+
+/* Calls <callable> with arguments from <node>, writing the result into <value>.
+ * Handles both native callables (via the native pointer) and user-defined ones
+ * (by evaluating callable->body with parameters bound from node arguments).
+ * This is the core dispatch used by PLAIN_RESOLVE and callable from C++. */
+PLAIN_WORD_DOUBLE PLAIN_CALL(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* node, struct PLAIN_CALLABLE* callable, struct PLAIN_VALUE* value);

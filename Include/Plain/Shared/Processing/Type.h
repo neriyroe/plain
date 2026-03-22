@@ -7,7 +7,7 @@
  */
 
 enum {
-    PLAIN_TYPE_CALLABLE, /* User-defined or native callable value. */
+    PLAIN_TYPE_CALLABLE,  /* User-defined or native callable value.                      */
     PLAIN_TYPE_BOOLEAN,
     PLAIN_TYPE_INTEGER,
     PLAIN_TYPE_KEYWORD,
@@ -16,5 +16,6 @@ enum {
     PLAIN_TYPE_POINTER,
     PLAIN_TYPE_REAL,
     PLAIN_TYPE_STRING,
-    PLAIN_TYPE_SUBROUTINE 
- };
+    PLAIN_TYPE_SUBROUTINE,
+    PLAIN_TYPE_OBJECT     /* Opaque C++ object managed by the host; data = pointer. */
+};
