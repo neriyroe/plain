@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <uthash.h>
 #include <Plain/Plain.h>
 #include <Plain/Framework/Host/Environment.h>
 
@@ -42,24 +43,25 @@ struct PLAIN_CALLABLE {
 /*
  * PLAIN_BINDING — a single name-to-value association inside a PLAIN_FRAME.
  * May hold either a plain value or a callable (never both simultaneously).
+ * The UT_hash_handle field is required by uthash and must not be touched directly.
  */
 struct PLAIN_BINDING {
-    PLAIN_BYTE* name;
+    PLAIN_BYTE* name;            /* hash key (heap-allocated, null-terminated) */
     struct PLAIN_VALUE value;
     struct PLAIN_CALLABLE* callable;
-    PLAIN_WORD_DOUBLE flags; /* PLAIN_BINDING_IMMUTABLE etc. */
+    PLAIN_WORD_DOUBLE flags;     /* PLAIN_BINDING_IMMUTABLE etc. */
+    UT_hash_handle hh;           /* uthash intrusive handle */
 };
 
 /*
  * PLAIN_FRAME — one level of the variable namespace, corresponding to a
  * single call level: the global program, or one function/procedure call.
  * Frames chain upward via <parent>; variable lookup walks the chain.
+ * <bindings> is the uthash table head (NULL when the frame is empty).
  */
 struct PLAIN_FRAME {
     struct PLAIN_FRAME* parent;
-    struct PLAIN_BINDING* bindings;
-    PLAIN_WORD_DOUBLE count;
-    PLAIN_WORD_DOUBLE capacity;
+    struct PLAIN_BINDING* bindings;  /* uthash table head; NULL = empty */
 };
 
 /*

@@ -8,6 +8,7 @@
 
 #include <Plain/VM.h>
 #include <Plain/Framework/Scope.h>
+#include <uthash.h>
 #include <stdio.h>   /* sprintf — string formatting only, no output */
 
 /* ------------------------------------------------------------------ */
@@ -67,42 +68,78 @@ static PLAIN_WORD_DOUBLE PLAIN_KEYWORD_AS_VALUE(struct PLAIN_CONTEXT* context, s
     return 0;
 }
 
-/* Returns nonzero if <name> is a reserved infix operator symbol.
- * These are never resolved from the frame by the walker; overrides are
- * looked up explicitly inside PLAIN_BUILTIN_INFIX at dispatch time. */
+/* ------------------------------------------------------------------ */
+/*  Operator dispatch table                                           */
+/* ------------------------------------------------------------------ */
+
+/* Integer tag for each operator — used in the dispatch switch. */
+enum PLAIN_OPERATOR {
+    PLAIN_OP_ADD,
+    PLAIN_OP_SUBTRACT,
+    PLAIN_OP_MULTIPLY,
+    PLAIN_OP_DIVIDE,
+    PLAIN_OP_MODULO,
+    PLAIN_OP_EQUAL,
+    PLAIN_OP_NOT_EQUAL,
+    PLAIN_OP_LESS,
+    PLAIN_OP_GREATER,
+    PLAIN_OP_LESS_EQUAL,
+    PLAIN_OP_GREATER_EQUAL,
+    PLAIN_OP_AND,
+    PLAIN_OP_OR
+};
+
+struct PLAIN_OPERATOR_ENTRY {
+    const char* name;
+    enum PLAIN_OPERATOR operation;
+    UT_hash_handle hh;
+};
+
+static struct PLAIN_OPERATOR_ENTRY* PLAIN_OPERATOR_TABLE = NULL;
+
+/* Populates the global operator table once. Called lazily on first use. */
+static void PLAIN_OPERATOR_TABLE_INIT(void) {
+    static const struct { const char* name; enum PLAIN_OPERATOR operation; } source[] = {
+        { "+",   PLAIN_OP_ADD           },
+        { "-",   PLAIN_OP_SUBTRACT      },
+        { "*",   PLAIN_OP_MULTIPLY      },
+        { "/",   PLAIN_OP_DIVIDE        },
+        { "%",   PLAIN_OP_MODULO        },
+        { "=",   PLAIN_OP_EQUAL         },
+        { "!=",  PLAIN_OP_NOT_EQUAL     },
+        { "<",   PLAIN_OP_LESS          },
+        { ">",   PLAIN_OP_GREATER       },
+        { "<=",  PLAIN_OP_LESS_EQUAL    },
+        { ">=",  PLAIN_OP_GREATER_EQUAL },
+        { "and", PLAIN_OP_AND           },
+        { "or",  PLAIN_OP_OR            },
+    };
+    PLAIN_WORD_DOUBLE i;
+    for(i = 0; i < 13; i++) {
+        struct PLAIN_OPERATOR_ENTRY* entry = (struct PLAIN_OPERATOR_ENTRY*)PLAIN_RESIZE(NULL, sizeof(struct PLAIN_OPERATOR_ENTRY), 0);
+        entry->name      = source[i].name;
+        entry->operation = source[i].operation;
+        HASH_ADD_KEYPTR(hh, PLAIN_OPERATOR_TABLE, entry->name, strlen(entry->name), entry);
+    }
+}
+
+/* Returns the operator entry for <name>, or NULL if it is not an operator symbol. */
+PLAIN_INLINE struct PLAIN_OPERATOR_ENTRY* PLAIN_OPERATOR_FIND(const PLAIN_BYTE* name) {
+    if(PLAIN_OPERATOR_TABLE == NULL) PLAIN_OPERATOR_TABLE_INIT();
+    struct PLAIN_OPERATOR_ENTRY* entry = NULL;
+    HASH_FIND_STR(PLAIN_OPERATOR_TABLE, (const char*)name, entry);
+    return entry;
+}
+
+/* Returns nonzero if <name> is a known infix operator symbol. */
 PLAIN_INLINE PLAIN_WORD_DOUBLE PLAIN_IS_OPERATOR_SYMBOL(const PLAIN_BYTE* name) {
-    return strcmp((const char*)name, "+")   == 0 ||
-           strcmp((const char*)name, "-")   == 0 ||
-           strcmp((const char*)name, "*")   == 0 ||
-           strcmp((const char*)name, "/")   == 0 ||
-           strcmp((const char*)name, "%")   == 0 ||
-           strcmp((const char*)name, "=")   == 0 ||
-           strcmp((const char*)name, "!=")  == 0 ||
-           strcmp((const char*)name, "<")   == 0 ||
-           strcmp((const char*)name, ">")   == 0 ||
-           strcmp((const char*)name, "<=")  == 0 ||
-           strcmp((const char*)name, ">=")  == 0 ||
-           strcmp((const char*)name, "and") == 0 ||
-           strcmp((const char*)name, "or")  == 0;
+    return PLAIN_OPERATOR_FIND(name) != NULL;
 }
 
 /* Returns nonzero if <argument> is a keyword whose text is a known infix operator. */
 PLAIN_INLINE PLAIN_WORD_DOUBLE PLAIN_IS_INFIX_OPERATOR(struct PLAIN_VALUE* argument) {
     if(argument == NULL || argument->type != PLAIN_TYPE_KEYWORD) return 0;
-    const PLAIN_BYTE* op = argument->data;
-    return strcmp((const char*)op, "+")   == 0 ||
-           strcmp((const char*)op, "-")   == 0 ||
-           strcmp((const char*)op, "*")   == 0 ||
-           strcmp((const char*)op, "/")   == 0 ||
-           strcmp((const char*)op, "%")   == 0 ||
-           strcmp((const char*)op, "=")   == 0 ||
-           strcmp((const char*)op, "!=")  == 0 ||
-           strcmp((const char*)op, "<")   == 0 ||
-           strcmp((const char*)op, ">")   == 0 ||
-           strcmp((const char*)op, "<=")  == 0 ||
-           strcmp((const char*)op, ">=")  == 0 ||
-           strcmp((const char*)op, "and") == 0 ||
-           strcmp((const char*)op, "or")  == 0;
+    return PLAIN_IS_OPERATOR_SYMBOL(argument->data);
 }
 
 static PLAIN_WORD_DOUBLE PLAIN_EVALUATE_BLOCK(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* block, struct PLAIN_VALUE* value) {
@@ -296,7 +333,8 @@ static PLAIN_WORD_DOUBLE PLAIN_BUILTIN_INFIX(struct PLAIN_CONTEXT* context, stru
     const PLAIN_BYTE* op = arg0->data;
 
     /* Assignment: name = value (statement context only, never overridable). */
-    if(strcmp((const char*)op, "=") == 0 && node->parent == NULL) {
+    struct PLAIN_OPERATOR_ENTRY* entry = PLAIN_OPERATOR_FIND(op);
+    if(entry != NULL && entry->operation == PLAIN_OP_EQUAL && node->parent == NULL) {
         return PLAIN_BUILTIN_ASSIGN(context, node, value);
     }
 
@@ -307,45 +345,49 @@ static PLAIN_WORD_DOUBLE PLAIN_BUILTIN_INFIX(struct PLAIN_CONTEXT* context, stru
         struct PLAIN_VALUE left = {NULL, 0, PLAIN_TYPE_NIL};
         PLAIN_WORD_DOUBLE error = PLAIN_KEYWORD_AS_VALUE(context, node, &left);
         if(error != 0) return error;
-        *arg0 = left; /* Inject left operand; callable receives (left, right). */
+        *arg0 = left;
         return PLAIN_CALL(context, node, override->callable, value);
     }
 
-    /* Built-in operator logic. */
+    /* Built-in operator logic — dispatch via the operator table entry. */
     struct PLAIN_VALUE left = {NULL, 0, PLAIN_TYPE_NIL};
     PLAIN_WORD_DOUBLE error = PLAIN_KEYWORD_AS_VALUE(context, node, &left);
     if(error != 0) return error;
-    /* Arithmetic. */
-    if(strcmp((const char*)op, "+") == 0) error = PLAIN_APPLY_ARITHMETIC(&left, right, '+', value);
-    else if(strcmp((const char*)op, "-") == 0) error = PLAIN_APPLY_ARITHMETIC(&left, right, '-', value);
-    else if(strcmp((const char*)op, "*") == 0) error = PLAIN_APPLY_ARITHMETIC(&left, right, '*', value);
-    else if(strcmp((const char*)op, "/") == 0) error = PLAIN_APPLY_ARITHMETIC(&left, right, '/', value);
-    else if(strcmp((const char*)op, "%") == 0) error = PLAIN_APPLY_ARITHMETIC(&left, right, '%', value);
-    /* Comparison. */
-    else if(strcmp((const char*)op, "=") == 0)  error = PLAIN_APPLY_COMPARISON(&left, right, '=', value);
-    else if(strcmp((const char*)op, "<") == 0)  error = PLAIN_APPLY_COMPARISON(&left, right, '<', value);
-    else if(strcmp((const char*)op, ">") == 0)  error = PLAIN_APPLY_COMPARISON(&left, right, '>', value);
-    else if(strcmp((const char*)op, "!=") == 0) {
-        struct PLAIN_VALUE temp = {NULL, 0, PLAIN_TYPE_NIL};
-        error = PLAIN_APPLY_COMPARISON(&left, right, '=', &temp);
-        if(error == 0) error = PLAIN_SET_BOOLEAN(value, !PLAIN_IS_TRUE(&temp));
-        PLAIN_VALUE_CLEAR(&temp);
+    if(entry != NULL) {
+        switch(entry->operation) {
+            case PLAIN_OP_ADD:      error = PLAIN_APPLY_ARITHMETIC(&left, right, '+', value); break;
+            case PLAIN_OP_SUBTRACT: error = PLAIN_APPLY_ARITHMETIC(&left, right, '-', value); break;
+            case PLAIN_OP_MULTIPLY: error = PLAIN_APPLY_ARITHMETIC(&left, right, '*', value); break;
+            case PLAIN_OP_DIVIDE:   error = PLAIN_APPLY_ARITHMETIC(&left, right, '/', value); break;
+            case PLAIN_OP_MODULO:   error = PLAIN_APPLY_ARITHMETIC(&left, right, '%', value); break;
+            case PLAIN_OP_EQUAL:    error = PLAIN_APPLY_COMPARISON(&left, right, '=', value); break;
+            case PLAIN_OP_LESS:     error = PLAIN_APPLY_COMPARISON(&left, right, '<', value); break;
+            case PLAIN_OP_GREATER:  error = PLAIN_APPLY_COMPARISON(&left, right, '>', value); break;
+            case PLAIN_OP_NOT_EQUAL: {
+                struct PLAIN_VALUE temp = {NULL, 0, PLAIN_TYPE_NIL};
+                error = PLAIN_APPLY_COMPARISON(&left, right, '=', &temp);
+                if(error == 0) error = PLAIN_SET_BOOLEAN(value, !PLAIN_IS_TRUE(&temp));
+                PLAIN_VALUE_CLEAR(&temp);
+                break;
+            }
+            case PLAIN_OP_LESS_EQUAL: {
+                struct PLAIN_VALUE temp = {NULL, 0, PLAIN_TYPE_NIL};
+                error = PLAIN_APPLY_COMPARISON(&left, right, '>', &temp);
+                if(error == 0) error = PLAIN_SET_BOOLEAN(value, !PLAIN_IS_TRUE(&temp));
+                PLAIN_VALUE_CLEAR(&temp);
+                break;
+            }
+            case PLAIN_OP_GREATER_EQUAL: {
+                struct PLAIN_VALUE temp = {NULL, 0, PLAIN_TYPE_NIL};
+                error = PLAIN_APPLY_COMPARISON(&left, right, '<', &temp);
+                if(error == 0) error = PLAIN_SET_BOOLEAN(value, !PLAIN_IS_TRUE(&temp));
+                PLAIN_VALUE_CLEAR(&temp);
+                break;
+            }
+            case PLAIN_OP_AND: error = PLAIN_SET_BOOLEAN(value, PLAIN_IS_TRUE(&left) && PLAIN_IS_TRUE(right)); break;
+            case PLAIN_OP_OR:  error = PLAIN_SET_BOOLEAN(value, PLAIN_IS_TRUE(&left) || PLAIN_IS_TRUE(right)); break;
+        }
     }
-    else if(strcmp((const char*)op, "<=") == 0) {
-        struct PLAIN_VALUE temp = {NULL, 0, PLAIN_TYPE_NIL};
-        error = PLAIN_APPLY_COMPARISON(&left, right, '>', &temp);
-        if(error == 0) error = PLAIN_SET_BOOLEAN(value, !PLAIN_IS_TRUE(&temp));
-        PLAIN_VALUE_CLEAR(&temp);
-    }
-    else if(strcmp((const char*)op, ">=") == 0) {
-        struct PLAIN_VALUE temp = {NULL, 0, PLAIN_TYPE_NIL};
-        error = PLAIN_APPLY_COMPARISON(&left, right, '<', &temp);
-        if(error == 0) error = PLAIN_SET_BOOLEAN(value, !PLAIN_IS_TRUE(&temp));
-        PLAIN_VALUE_CLEAR(&temp);
-    }
-    /* Logic. */
-    else if(strcmp((const char*)op, "and") == 0) error = PLAIN_SET_BOOLEAN(value, PLAIN_IS_TRUE(&left) && PLAIN_IS_TRUE(right));
-    else if(strcmp((const char*)op, "or")  == 0) error = PLAIN_SET_BOOLEAN(value, PLAIN_IS_TRUE(&left) || PLAIN_IS_TRUE(right));
     PLAIN_VALUE_CLEAR(&left);
     return error;
 }
@@ -358,11 +400,25 @@ static PLAIN_WORD_DOUBLE PLAIN_NATIVE_IF(void* raw, void* data, PLAIN_WORD_DOUBL
     struct PLAIN_CONTEXT* context = (struct PLAIN_CONTEXT*)raw;
     struct PLAIN_LIST* node = (struct PLAIN_LIST*)data;
     PLAIN_WORD_DOUBLE arity = PLAIN_ARITY(node);
-    if(arity < 2) return 0;
-    if(PLAIN_IS_TRUE(PLAIN_ARGUMENT(node, 0)))
-        return PLAIN_EVALUATE_BLOCK(context, (struct PLAIN_LIST*)PLAIN_ARGUMENT(node, 1)->data, value);
-    if(arity >= 3)
-        return PLAIN_EVALUATE_BLOCK(context, (struct PLAIN_LIST*)PLAIN_ARGUMENT(node, 2)->data, value);
+    PLAIN_WORD_DOUBLE i = 0;
+    /* Walk condition+block pairs, optionally chained with "else".
+     * "else {block}"           — final else branch.
+     * "else condition {block}" — elseif: any non-block value is the condition. */
+    while(i + 1 < arity) {
+        struct PLAIN_VALUE* condition  = PLAIN_ARGUMENT(node, i);
+        struct PLAIN_VALUE* next = PLAIN_ARGUMENT(node, i + 1);
+        if(PLAIN_IS_TRUE(condition))
+            return PLAIN_EVALUATE_BLOCK(context, (struct PLAIN_LIST*)next->data, value);
+        i += 2;
+        if(i >= arity) break;
+        if(!PLAIN_KEYWORD_EQ(PLAIN_ARGUMENT(node, i), (const PLAIN_BYTE*)"else")) break;
+        i++;
+        if(i >= arity) break;
+        /* "else {block}" — final else. */
+        if(PLAIN_ARGUMENT(node, i)->type == PLAIN_TYPE_LIST)
+            return PLAIN_EVALUATE_BLOCK(context, (struct PLAIN_LIST*)PLAIN_ARGUMENT(node, i)->data, value);
+        /* "else condition {block}" — elseif: loop with the new condition. */
+    }
     return 0;
 }
 

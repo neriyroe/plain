@@ -21,6 +21,7 @@ target("plain")
     end
     add_files("Library/Source/**.c")
     add_includedirs("Include", { public = true })
+    add_includedirs("Vendor",  { public = true })
     if has_config("debugging") then
         add_defines("PLAIN_DEBUGGING")
         set_symbols("debug")

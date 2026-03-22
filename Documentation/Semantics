@@ -90,6 +90,15 @@ BUILT-IN PROCEDURES
 
         add = [procedure {a, b} { return [a + b + 1] }]
 
+    if — condition chains
+
+        if condition {then}
+        if condition {then} else {else}
+        if condition {then} else condition {then} else condition {then} else {else}
+
+    "else" followed by a block is the final fallback. "else" followed by
+    any non-block value is an elseif condition; the chain continues.
+
 
 INFIX OPERATORS
 
