@@ -1,70 +1,108 @@
-As of 08/22/2015, 2015 Q3 (20153), Nerijus Ramanauskas <nerijus@signaintermedia.com>.
+Plain — Syntax
+Nerijus Ramanauskas <nerijus@signaintermedia.com>
 
-Syntax
 
-    Keyword
+KEYWORD
 
-        Any sequence of bytes. See Source/Framework/Host/Version.c for reserved
-        characters. Keywords "yes", "no" and "none" are immutable.
+    Any sequence of bytes that is not a reserved character.
+    Reserved characters (see Library/Source/Framework/Host/Version.c):
 
-    Whitespace
-        
-        Space (0x20), line feed (0x0A), horizontal tab (0x09),
-        carriage return (0x0D).
+        ` " ' [ { ] } , ; : space tab CR LF
 
-        Can be used, basically, anywhere.
+    The literals "yes", "no", and "none" are reserved keyword values.
 
-    Comment
 
-        Starts with a grave accent (0x60) and ends with a line feed (0x0A) or a
-        carriage return (0x0D).
+WHITESPACE
 
-    Node
+    Space (0x20), horizontal tab (0x09), line feed (0x0A), carriage
+    return (0x0D).
 
-        <Keyword> (with or without <Data>), used for statements and expressions
-        (see <Semantics>).
+    Whitespace is allowed anywhere between tokens.
 
-        Use whitespaces or commas (0x2C) to separate data.
 
-    List
+COMMENT
 
-        Or simply a sequence of nodes. Use semicolons (0x3B) to separate
-        two or more nodes.
+    Starts with a grave accent ` (0x60), ends at end of line.
 
-    Data
+        x = 42    ` this is a comment
 
-        Boolean
 
-            `yes` or `no`.
+STATEMENT (NODE)
 
-        Integer
+    A node is a keyword optionally followed by arguments:
 
-            C style.
+        keyword arg1 arg2 arg3 ...
 
-        Real
+    When evaluated, the keyword is looked up in the frame; the bound
+    procedure or function is invoked with the resolved arguments.
+    Arguments are separated by whitespace or commas (both are equivalent).
 
-            C style.
+        print "hello", "world"
+        print "hello" "world"
 
-        Nil
 
-            `none`.
+EXPRESSION (NODE)
 
-        String
+    A statement wrapped in [...] whose result is used as a value:
 
-            `''` (0x27) or `""` (0x22). Insert a backslash (0x5C) before a
-            character to escape from the normal way characters are interpreted,
-            for example, a quotation mark.
+        [add 1, 2]
+        [x + 3]
 
-        Keyword
+    Expressions can be nested freely.
 
-            As above, used for variables (see <Semantics>).
 
-        Node
+INFIX EXPRESSION
 
-            As above, used for expressions (see <Semantics>). Starts with `[`
-            (0x5B) and ends with `]` (0x5D).
+    A special two-argument expression form using an operator symbol
+    as the first argument:
 
-        List
+        [name op value]
 
-            As above, used for blocks (see <Semantics>). Starts with `{` (0x7B)
-            and ends with `}` (0x7D) or `:` (0x3A) to end with `;` (0x3B).
+    The left operand must be a named variable (a keyword), not a literal.
+    Operator symbols: +  -  *  /  %  =  !=  <  >  <=  >=  and  or
+
+    When used as a top-level statement with =, it means assignment:
+
+        x = 42
+        name = "Plain"
+
+    When used inside [...], = means equality comparison:
+
+        [x = 42]    ` yes or no
+
+
+BLOCK (LIST)
+
+    A deferred sequence of statements enclosed in { }:
+
+        { print "hello"; print "world" }
+
+    Blocks are not evaluated until explicitly needed (by if, repeat,
+    procedure bodies, etc.).
+
+    Colon shorthand — opens a block inline, closed by the next semicolon:
+
+        if condition: print "yes" ;
+
+
+PROGRAM (LIST)
+
+    A sequence of statements separated by semicolons:
+
+        a = 1; b = 2; print [add a, b]
+
+    The last statement does not require a semicolon.
+    Newlines are whitespace — statements on separate lines still need
+    semicolons if there are multiple per logical unit.
+
+
+LITERALS
+
+    Boolean       yes   no
+    Nil           none
+    Integer       42   -7   (C style)
+    Real          3.14   1.5e10   (C style)
+    String        "hello"   'it\'s fine'   (backslash escapes)
+    Keyword       used for variable references (see Semantics)
+    Node          [keyword args]   used for expressions
+    Block         { statements }   used for deferred bodies

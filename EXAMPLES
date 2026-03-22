@@ -8,8 +8,8 @@ COMMENTS AND WHITESPACE
 
     Whitespace and commas are interchangeable separators. These are the same:
 
-        add 1 2
         add 1, 2
+        add 1 2
 
 
 LITERALS
@@ -37,85 +37,89 @@ LITERALS
 VARIABLES
 
     ` Assign with =
-    x = 42
+    x = 42;
     name = "Plain"
 
     ` Read a variable by using its name as an argument
-    print x
+    print x;
     print name
 
 
 EXPRESSIONS
 
     ` Wrap any statement in [...] to use its result as a value
-    print [add 1 2]
-    print [concat "Hello, " name "!"]
-    x = [multiply 6 7]
+    print [add 1, 2];
+    print [join "Hello, ", name, "!"];
+    x = [multiply 6, 7]
 
 
 ARITHMETIC
 
     ` Prefix form
-    print [add 10 3]         ` 13
-    print [subtract 10 3]    ` 7
-    print [multiply 10 3]    ` 30
-    print [divide 10 3]      ` 3
-    print [modulo 10 3]      ` 1
+    print [add 10, 3];         ` 13
+    print [subtract 10, 3];    ` 7
+    print [multiply 10, 3];    ` 30
+    print [divide 10, 3];      ` 3
+    print [modulo 10, 3]       ` 1
 
-    ` Infix form
-    x = 10
-    print [x + 3]            ` 13
-    print [x - 3]            ` 7
-    print [x * 3]            ` 30
-    print [x / 3]            ` 3
-    print [x % 3]            ` 1
+    ` Infix form — left side must be a named variable, not a literal
+    x = 10;
+    print [x + 3];             ` 13
+    print [x - 3];             ` 7
+    print [x * 3];             ` 30
+    print [x / 3];             ` 3
+    print [x % 3]              ` 1
 
     ` Reals promote automatically
-    print [add 1 0.5]        ` 1.5
-    print [x + 0.5]          ` 10.5
+    print [add 1, 0.5];        ` 1.5
+    print [x + 0.5]            ` 10.5
+
+    ` Infix is binary — chain via nesting for more than two operands
+    print [add [x + 3] 2]      ` 15
 
 
 COMPARISON
 
-    ` Prefix form
-    print [equal 1 1]        ` yes
-    print [less 1 2]         ` yes
-    print [greater 3 2]      ` yes
+    x = 5;
+    print [x = 5];               ` yes   (= means equality inside [...])
+    print [x != 4];              ` yes
+    print [x < 10];              ` yes
+    print [x > 3];               ` yes
+    print [x <= 5];              ` yes
+    print [x >= 5]               ` yes
 
-    ` Infix form — all six operators
-    x = 5
-    print [x = 5]            ` yes   (= means equality inside [...])
-    print [x != 4]           ` yes
-    print [x < 10]           ` yes
-    print [x > 3]            ` yes
-    print [x <= 5]           ` yes
-    print [x >= 5]           ` yes
-
-    ` Works on strings too
-    print [equal "a" "a"]    ` yes
-    print ["a" < "b"]        ` yes
+    ` The left operand must always be a named variable.
+    ` To compare two literals, assign one to a variable first:
+    `   a = "hello";
+    `   print [a < "world"]    ` yes
 
 
 LOGIC
 
     print [not yes]              ` no
 
-    ` Prefix form
-    print [and yes yes]          ` yes
-    print [or no yes]            ` yes
+    ` Prefix form — and/or accept multiple arguments
+    print [and yes, yes];        ` yes
+    print [or no, yes]           ` yes
 
-    ` Infix form
-    x = 5
-    print [x > 0 and x < 10]    ` yes
-    print [x < 0 or x > 3]      ` yes
+    ` Infix and/or: left side must be a named variable
+    a = yes;
+    b = no;
+    print [a and b];             ` no
+    print [a or b]               ` yes
+
+    ` Compound comparisons: nest expressions in prefix and/or
+    x = 5;
+    print [and [x > 0] [x < 10]];    ` yes
+    print [or [x < 0] [x > 3]]       ` yes
 
 
 STRINGS
 
-    print [concat "Hello, " "world" "!"]    ` Hello, world!
+    print [join "Hello, ", "world", "!"]    ` Hello, world!
 
-    ` Numbers are coerced to strings
-    print [concat "Result: " [add 1 2]]     ` Result: 3
+    ` Numbers coerce to strings automatically
+    print [join "Result: ", [add 1, 2]]     ` Result: 3
 
 
 BLOCKS
@@ -127,19 +131,19 @@ BLOCKS
     : print "same thing" ;
 
 
-IF / ELSE
+IF
 
-    x = 10
+    x = 10;
 
     if [x > 5] {
         print "big"
     }
 
-    ` With else
-    if [x < 0] {
-        print "negative"
+    ` With else — the second block is the else branch
+    if [x > 5] {
+        print "positive"
     } {
-        print "non-negative"
+        print "not positive"
     }
 
     ` Colon shorthand (no else)
@@ -149,11 +153,11 @@ IF / ELSE
 REPEAT
 
     ` Infinite loop — use break to exit
-    x = 0
+    x = 0;
     repeat {
-        x = [x + 1]
+        x = [x + 1];
         if [x = 3]: break ;
-    }
+    };
     print x    ` 3
 
     ` Counted loop
@@ -161,10 +165,10 @@ REPEAT
         print "hello"
     }
 
-    ` Conditional loop (like while)
-    i = 0
-    repeat { [i < 5] } {
-        print i
+    ` Conditional loop — condition block is re-evaluated each iteration
+    i = 0;
+    repeat { i < 5 } {
+        print i;
         i = [i + 1]
     }
 
@@ -172,74 +176,70 @@ REPEAT
 BREAK
 
     ` Break exits the nearest repeat
-    i = 0
+    i = 0;
     repeat {
         if [i = 3]: break ;
-        print i
+        print i;
         i = [i + 1]
     }
     ` Prints: 0, 1, 2
 
 
-FUNCTIONS (immutable, named)
+FUNCTIONS (immutable)
 
-    ` Declare with function keyword: name {parameters} {body}
-    function double {n} {
-        return [multiply n 2]
-    }
+    ` Named form
+    function square {n} {
+        return [n * n]
+    };
 
-    print [double 7]    ` 14
+    print [square 5]    ` 25
 
-    ` Inline assignment form — identical result 
-    double = function {n} { return [multiply n 2] }
+    ` Expression form — [function {parameters} {body}] returns a callable value
+    double = [function {n} { return [n * 2] }];
+    print [double 5]    ` 10
 
-    ` Functions cannot be reassigned (immutable binding)
+    ` Functions cannot be reassigned after definition (immutable binding)
 
 
-PROCEDURES (mutable, named)
+PROCEDURES (mutable)
 
-    ` Declare with procedure: name {parameters} {body}
-    ` Procedures are reassignable; typically used for side effects.
+    ` Named form
     procedure greet {name} {
-        print [concat "Hello, " name "!"]
-    }
+        print [join "Hello, ", name, "!"]
+    };
 
     greet "world"    ` Hello, world!
 
-    ` Inline assignment form
-    greet = procedure {name} { print [concat "Hi, " name "!"] }
-
-    ` Can be reassigned later
-    greet = procedure {name} { print [concat "Hey, " name "."] }
+    ` Expression form — [procedure ...] returns a mutable, reassignable callable
+    greet = [procedure {name} { print [join "Hey, ", name, "."] }];
     greet "Plain"    ` Hey, Plain.
 
 
 RETURN
 
-    function clamp {value minimum maximum} {
+    function clamp {value, minimum, maximum} {
         if [value < minimum]: return minimum ;
         if [value > maximum]: return maximum ;
         return value
-    }
+    };
 
-    print [clamp 5 0 10]     ` 5
-    print [clamp -3 0 10]    ` 0
-    print [clamp 99 0 10]    ` 10
+    print [clamp 5, 0, 10];      ` 5
+    print [clamp -3, 0, 10];     ` 0
+    print [clamp 99, 0, 10]      ` 10
 
 
 NESTED EXPRESSIONS
 
-    ` Expressions can nest freely
-    function square {n} { return [n * n] }
+    function square {n} { return [n * n] };
 
-    print [square 3 + square 4]    ` prefix add still works: [add [square 3] [square 4]] = 25
-    print [[square 3] + [square 4]]    ` infix: 25
+    ` Nest expressions freely
+    print [add [square 3] [square 4]]    ` 25
 
     ` Fibonacci
     function fibonacci {n} {
         if [n < 2]: return n ;
-        return [[fibonacci [n - 1]] + [fibonacci [n - 2]]]
-    }
+        return [add [fibonacci [n - 1]] [fibonacci [n - 2]]]
+    };
 
     print [fibonacci 10]    ` 55
 
@@ -247,48 +247,102 @@ NESTED EXPRESSIONS
 MULTIPLE STATEMENTS
 
     ` Semicolons separate statements on one line
-    a = 1; b = 2; print [add a b]    ` 3
+    a = 1; b = 2; print [add a, b]    ` 3
 
 
-FIRST-CLASS COMMANDS
+FIRST-CLASS CALLABLES
 
-    ` Built-in commands are regular callable bindings in the frame.
-    ` They can be stored in variables and passed as arguments just like
-    ` any user-defined function.
+    ` Built-in procedures are regular mutable bindings — store them, pass
+    ` them as arguments, and invoke them exactly like user-defined callables.
 
-    ` Store a built-in in a variable
-    branch = if
-    branch [2 > 1] { print "yes" } { print "no" }    ` yes
+    ` Store a built-in procedure in a variable
+    branch = if;
+    branch yes { print "yes" } { print "no" }    ` yes
 
     ` Pass a callable as an argument
-    function apply {operation a b} {
-        return [operation a b]
-    }
+    function apply {operation, a, b} {
+        return [operation a, b]
+    };
 
-    print [apply add 3 4]         ` 7
-    print [apply multiply 3 4]    ` 12
+    print [apply add, 3, 4];         ` 7
+    print [apply multiply, 3, 4];    ` 12
 
-    ` Works with any user-defined callable too
-    function double {n} { return [n * 2] }
-    function triple {n} { return [n * 3] }
+    ` Named comparison procedures — equal, less, greater — exist specifically
+    ` for passing as first-class callables, since infix requires a named
+    ` variable on the left and cannot be used in argument position directly.
+    print [apply equal, 5, 5];       ` yes
+    print [apply less, 3, 4];        ` yes
+    print [apply greater, 4, 3]      ` yes
 
-    transform = double
-    print [apply transform 5]    ` 10
-
-    transform = triple
-    print [apply transform 5]    ` 15
-
-    ` Higher-order: a function that applies another function twice
-    function twice {f x} {
+    ` Works with user-defined callables too
+    function twice {f, x} {
         return [f [f x]]
-    }
+    };
 
-    print [twice double 3]    ` 12  (3 * 2 * 2)
+    double = [function {n} { return [n * 2] }];
+    print [twice double, 3]    ` 12  (3 * 2 * 2)
 
-    ` Override a built-in — no keywords are reserved
-    add = function {a b} { return [a + b + 1] }   ` biased add
-    print [add 2 3]    ` 6
+    ` Override a built-in procedure — no keywords are reserved
+    ` Use [procedure ...] so the override remains reassignable
+    add = [procedure {a, b} { result = [a + 1]; return [result + b] }];
+    print [add 2, 3];    ` 6
 
-    ` Restore by redefining
-    add = procedure {a b} { return [a + b] }
-    print [add 2 3]    ` 5
+    add = [procedure {a, b} { return [a + b] }];
+    print [add 2, 3]     ` 5
+
+
+OPERATOR OVERRIDES
+
+    ` Operators (+, -, *, /, %, <, >, <=, >=, !=, and, or) can be
+    ` overridden just like any other procedure. A single override covers
+    ` both infix [a + b] and prefix [+ a b] call sites.
+
+    ` Named procedure form — operator as name
+    procedure + {a, b} {
+        return [multiply a b]
+    };
+
+    x = 10;
+    print [x + 3];    ` 30  (infix)
+    print [+ x 3]     ` 30  (prefix — same callable)
+
+    ` Expression form — equivalent result
+    + = [procedure {a, b} { return [multiply a b] }]
+
+    ` Override comparison operators the same way
+    procedure < {a, b} {
+        return [greater a, b]    ` deliberately reversed
+    };
+
+    x = 3;
+    print [x < 10]    ` no  (reversed: 3 is not greater than 10)
+
+    ` Restore a default operator by redefining it
+    + = [procedure {a, b} { return [add a b] }]
+
+
+KNOWN LIMITATIONS
+
+    ` Infix requires the left operand to be a named variable.
+    ` To compare a literal on the left, assign it to a variable first:
+    `   a = "hello";
+    `   print [a < "world"]    ` yes
+    ` Or use equal/less/greater as first-class callables (see FIRST-CLASS CALLABLES).
+
+    ` Infix is strictly binary. [a + b + c] only computes a + b.
+    ` Chain arithmetic via nesting:
+    `   [add [a + b] c]
+
+    ` Compound conditions with infix and/or do not work as expected.
+    ` [x > 0 and x < 10] only evaluates x > 0. Use prefix form:
+    `   [and [x > 0] [x < 10]]
+
+    ` There is no else keyword. The second block after if is the else branch:
+    `   if condition { then } { else }
+
+    ` function/procedure name {params} {body} only works when the name is
+    ` not already bound as a non-operator variable. For rebinding a normal
+    ` name, use the expression form:
+    `   name = [procedure {params} {body}]
+    ` Operator symbol names (+, -, etc.) are always safe to use in the
+    ` named form regardless of whether they have been overridden before.

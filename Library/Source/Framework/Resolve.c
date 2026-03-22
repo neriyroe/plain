@@ -38,7 +38,7 @@ static PLAIN_WORD_DOUBLE PLAIN_KEYWORD_AS_VALUE(struct PLAIN_CONTEXT* context, s
     struct PLAIN_BINDING* binding = PLAIN_FRAME_FIND(context->frame, buffer);
     if(binding != NULL) {
         if(binding->callable != NULL) {
-            destination->type = PLAIN_TYPE_SUBROUTINE;
+            destination->type = PLAIN_TYPE_CALLABLE;
             destination->data = (PLAIN_BYTE*)binding->callable;
             destination->length = 0;
             return 0;
@@ -67,7 +67,26 @@ static PLAIN_WORD_DOUBLE PLAIN_KEYWORD_AS_VALUE(struct PLAIN_CONTEXT* context, s
     return 0;
 }
 
-/* Returns nonzero if <argument> is a known infix operator keyword. */
+/* Returns nonzero if <name> is a reserved infix operator symbol.
+ * These are never resolved from the frame by the walker; overrides are
+ * looked up explicitly inside PLAIN_BUILTIN_INFIX at dispatch time. */
+PLAIN_INLINE PLAIN_WORD_DOUBLE PLAIN_IS_OPERATOR_SYMBOL(const PLAIN_BYTE* name) {
+    return strcmp((const char*)name, "+")   == 0 ||
+           strcmp((const char*)name, "-")   == 0 ||
+           strcmp((const char*)name, "*")   == 0 ||
+           strcmp((const char*)name, "/")   == 0 ||
+           strcmp((const char*)name, "%")   == 0 ||
+           strcmp((const char*)name, "=")   == 0 ||
+           strcmp((const char*)name, "!=")  == 0 ||
+           strcmp((const char*)name, "<")   == 0 ||
+           strcmp((const char*)name, ">")   == 0 ||
+           strcmp((const char*)name, "<=")  == 0 ||
+           strcmp((const char*)name, ">=")  == 0 ||
+           strcmp((const char*)name, "and") == 0 ||
+           strcmp((const char*)name, "or")  == 0;
+}
+
+/* Returns nonzero if <argument> is a keyword whose text is a known infix operator. */
 PLAIN_INLINE PLAIN_WORD_DOUBLE PLAIN_IS_INFIX_OPERATOR(struct PLAIN_VALUE* argument) {
     if(argument == NULL || argument->type != PLAIN_TYPE_KEYWORD) return 0;
     const PLAIN_BYTE* op = argument->data;
@@ -224,31 +243,27 @@ static PLAIN_WORD_DOUBLE PLAIN_CALL(struct PLAIN_CONTEXT* context, struct PLAIN_
 }
 
 /* ------------------------------------------------------------------ */
-/*  Forward declarations (needed by assign helpers below)            */
-/* ------------------------------------------------------------------ */
-
-static PLAIN_WORD_DOUBLE PLAIN_NATIVE_FUNCTION(void* raw, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value);
-static PLAIN_WORD_DOUBLE PLAIN_NATIVE_PROCEDURE(void* raw, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value);
-
-/* ------------------------------------------------------------------ */
 /*  Assignment and infix                                              */
 /* ------------------------------------------------------------------ */
 
-/* Checks whether <value> represents a function-defining callable.
- * Handles both the "function" keyword (if not in frame) and the
- * subroutine value that results when it has been resolved from the frame. */
-PLAIN_INLINE PLAIN_WORD_DOUBLE PLAIN_IS_FUNCTION_DEFINER(struct PLAIN_VALUE* value) {
-    if(PLAIN_KEYWORD_EQ(value, (const PLAIN_BYTE*)"function")) return 1;
-    if(value->type == PLAIN_TYPE_SUBROUTINE && value->data != NULL)
-        return ((struct PLAIN_CALLABLE*)value->data)->native == &PLAIN_NATIVE_FUNCTION;
-    return 0;
-}
-
-PLAIN_INLINE PLAIN_WORD_DOUBLE PLAIN_IS_PROCEDURE_DEFINER(struct PLAIN_VALUE* value) {
-    if(PLAIN_KEYWORD_EQ(value, (const PLAIN_BYTE*)"procedure")) return 1;
-    if(value->type == PLAIN_TYPE_SUBROUTINE && value->data != NULL)
-        return ((struct PLAIN_CALLABLE*)value->data)->native == &PLAIN_NATIVE_PROCEDURE;
-    return 0;
+/* Deep-copies a callable struct including its parameter and body strings. */
+static struct PLAIN_CALLABLE* PLAIN_CALLABLE_DUPLICATE(struct PLAIN_CALLABLE* source) {
+    struct PLAIN_CALLABLE* copy = (struct PLAIN_CALLABLE*)PLAIN_RESIZE(NULL, sizeof(struct PLAIN_CALLABLE), 0);
+    if(copy == NULL) return NULL;
+    memset(copy, 0, sizeof(struct PLAIN_CALLABLE));
+    copy->native = source->native;
+    copy->flags  = source->flags;
+    if(source->parameters != NULL) {
+        PLAIN_WORD_DOUBLE length = strlen((const char*)source->parameters) + 1;
+        copy->parameters = (PLAIN_BYTE*)PLAIN_RESIZE(NULL, length, 0);
+        if(copy->parameters) memcpy(copy->parameters, source->parameters, length);
+    }
+    if(source->body != NULL) {
+        PLAIN_WORD_DOUBLE length = strlen((const char*)source->body) + 1;
+        copy->body = (PLAIN_BYTE*)PLAIN_RESIZE(NULL, length, 0);
+        if(copy->body) memcpy(copy->body, source->body, length);
+    }
+    return copy;
 }
 
 static PLAIN_WORD_DOUBLE PLAIN_BUILTIN_ASSIGN(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* node, struct PLAIN_VALUE* value) {
@@ -257,27 +272,13 @@ static PLAIN_WORD_DOUBLE PLAIN_BUILTIN_ASSIGN(struct PLAIN_CONTEXT* context, str
     PLAIN_BYTE name[256];
     PLAIN_KEYWORD_EXTRACT(node, name, sizeof(name));
     struct PLAIN_VALUE* second = PLAIN_ARGUMENT(node, 1);
-    /* x = function {parameters} {body} */
-    if(arity >= 4 && PLAIN_IS_FUNCTION_DEFINER(second)) {
-        struct PLAIN_LIST* parameters = (struct PLAIN_LIST*)PLAIN_ARGUMENT(node, 2)->data;
-        struct PLAIN_LIST* body       = (struct PLAIN_LIST*)PLAIN_ARGUMENT(node, 3)->data;
-        struct PLAIN_CALLABLE* callable = (struct PLAIN_CALLABLE*)PLAIN_RESIZE(NULL, sizeof(struct PLAIN_CALLABLE), 0);
-        if(callable == NULL) return PLAIN_ERROR_SYSTEM;
-        memset(callable, 0, sizeof(struct PLAIN_CALLABLE));
-        callable->parameters = PLAIN_SEGMENT_COPY(parameters);
-        callable->body       = PLAIN_SEGMENT_COPY(body);
-        return PLAIN_FRAME_BIND(context->frame, name, NULL, callable, PLAIN_BINDING_IMMUTABLE);
-    }
-    /* x = procedure {parameters} {body} */
-    if(arity >= 4 && PLAIN_IS_PROCEDURE_DEFINER(second)) {
-        struct PLAIN_LIST* parameters = (struct PLAIN_LIST*)PLAIN_ARGUMENT(node, 2)->data;
-        struct PLAIN_LIST* body       = (struct PLAIN_LIST*)PLAIN_ARGUMENT(node, 3)->data;
-        struct PLAIN_CALLABLE* callable = (struct PLAIN_CALLABLE*)PLAIN_RESIZE(NULL, sizeof(struct PLAIN_CALLABLE), 0);
-        if(callable == NULL) return PLAIN_ERROR_SYSTEM;
-        memset(callable, 0, sizeof(struct PLAIN_CALLABLE));
-        callable->parameters = PLAIN_SEGMENT_COPY(parameters);
-        callable->body       = PLAIN_SEGMENT_COPY(body);
-        return PLAIN_FRAME_BIND(context->frame, name, NULL, callable, 0);
+    /* x = [function/procedure {params} {body}] — callable value from an expression */
+    if(second->type == PLAIN_TYPE_CALLABLE && second->data != NULL) {
+        struct PLAIN_CALLABLE* source = (struct PLAIN_CALLABLE*)second->data;
+        struct PLAIN_CALLABLE* copy = PLAIN_CALLABLE_DUPLICATE(source);
+        if(copy == NULL) return PLAIN_ERROR_SYSTEM;
+        PLAIN_WORD_DOUBLE flags = (source->flags & PLAIN_CALLABLE_IMMUTABLE) ? PLAIN_BINDING_IMMUTABLE : 0;
+        return PLAIN_FRAME_BIND(context->frame, name, NULL, copy, flags);
     }
     /* x = value */
     PLAIN_FRAME_BIND(context->frame, name, second, NULL, 0);
@@ -286,15 +287,31 @@ static PLAIN_WORD_DOUBLE PLAIN_BUILTIN_ASSIGN(struct PLAIN_CONTEXT* context, str
 }
 
 /* Handles all infix expressions: name op value.
- * "=" in statement context becomes assignment; in expression context, equality. */
+ * "=" in statement context (no parent node) always means assignment.
+ * For all other operators, the frame is checked first so users can override
+ * any operator by binding a callable to its symbol name. */
 static PLAIN_WORD_DOUBLE PLAIN_BUILTIN_INFIX(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* node, struct PLAIN_VALUE* value) {
-    const PLAIN_BYTE* op = PLAIN_ARGUMENT(node, 0)->data;
+    struct PLAIN_VALUE* arg0 = PLAIN_ARGUMENT(node, 0);
     struct PLAIN_VALUE* right = PLAIN_ARGUMENT(node, 1);
-    /* Assignment: name = value (no parent means statement context). */
+    const PLAIN_BYTE* op = arg0->data;
+
+    /* Assignment: name = value (statement context only, never overridable). */
     if(strcmp((const char*)op, "=") == 0 && node->parent == NULL) {
         return PLAIN_BUILTIN_ASSIGN(context, node, value);
     }
-    /* Resolve left operand from the node keyword. */
+
+    /* User override: if the operator symbol is bound to a callable in the frame,
+     * call it with (left, right) as its two parameters. */
+    struct PLAIN_BINDING* override = PLAIN_FRAME_FIND(context->frame, op);
+    if(override != NULL && override->callable != NULL) {
+        struct PLAIN_VALUE left = {NULL, 0, PLAIN_TYPE_NIL};
+        PLAIN_WORD_DOUBLE error = PLAIN_KEYWORD_AS_VALUE(context, node, &left);
+        if(error != 0) return error;
+        *arg0 = left; /* Inject left operand; callable receives (left, right). */
+        return PLAIN_CALL(context, node, override->callable, value);
+    }
+
+    /* Built-in operator logic. */
     struct PLAIN_VALUE left = {NULL, 0, PLAIN_TYPE_NIL};
     PLAIN_WORD_DOUBLE error = PLAIN_KEYWORD_AS_VALUE(context, node, &left);
     if(error != 0) return error;
@@ -420,34 +437,66 @@ static PLAIN_WORD_DOUBLE PLAIN_NATIVE_FUNCTION(void* raw, void* data, PLAIN_WORD
     struct PLAIN_CONTEXT* context = (struct PLAIN_CONTEXT*)raw;
     struct PLAIN_LIST* node = (struct PLAIN_LIST*)data;
     PLAIN_WORD_DOUBLE arity = PLAIN_ARITY(node);
-    if(arity < 3) return 0;
-    struct PLAIN_VALUE* name = PLAIN_ARGUMENT(node, 0);
-    if(name->type != PLAIN_TYPE_KEYWORD) return 0;
-    struct PLAIN_LIST* parameters = (struct PLAIN_LIST*)PLAIN_ARGUMENT(node, 1)->data;
-    struct PLAIN_LIST* body       = (struct PLAIN_LIST*)PLAIN_ARGUMENT(node, 2)->data;
-    struct PLAIN_CALLABLE* callable = (struct PLAIN_CALLABLE*)PLAIN_RESIZE(NULL, sizeof(struct PLAIN_CALLABLE), 0);
-    if(callable == NULL) return PLAIN_ERROR_SYSTEM;
-    memset(callable, 0, sizeof(struct PLAIN_CALLABLE));
-    callable->parameters = PLAIN_SEGMENT_COPY(parameters);
-    callable->body       = PLAIN_SEGMENT_COPY(body);
-    return PLAIN_FRAME_BIND(context->frame, name->data, NULL, callable, PLAIN_BINDING_IMMUTABLE);
+    if(arity < 2) return 0;
+    struct PLAIN_VALUE* first = PLAIN_ARGUMENT(node, 0);
+    /* Named form: function name {parameters} {body} — name may be a keyword or quoted string */
+    if(arity >= 3 && (first->type == PLAIN_TYPE_KEYWORD || first->type == PLAIN_TYPE_STRING)) {
+        struct PLAIN_LIST* parameters = (struct PLAIN_LIST*)PLAIN_ARGUMENT(node, 1)->data;
+        struct PLAIN_LIST* body       = (struct PLAIN_LIST*)PLAIN_ARGUMENT(node, 2)->data;
+        struct PLAIN_CALLABLE* callable = (struct PLAIN_CALLABLE*)PLAIN_RESIZE(NULL, sizeof(struct PLAIN_CALLABLE), 0);
+        if(callable == NULL) return PLAIN_ERROR_SYSTEM;
+        memset(callable, 0, sizeof(struct PLAIN_CALLABLE));
+        callable->parameters = PLAIN_SEGMENT_COPY(parameters);
+        callable->body       = PLAIN_SEGMENT_COPY(body);
+        callable->flags      = PLAIN_CALLABLE_IMMUTABLE;
+        return PLAIN_FRAME_BIND(context->frame, first->data, NULL, callable, PLAIN_BINDING_IMMUTABLE);
+    }
+    /* Anonymous form: [function {parameters} {body}] — returns a callable value */
+    if(first->type == PLAIN_TYPE_LIST) {
+        struct PLAIN_LIST* parameters = (struct PLAIN_LIST*)first->data;
+        struct PLAIN_LIST* body       = (struct PLAIN_LIST*)PLAIN_ARGUMENT(node, 1)->data;
+        struct PLAIN_CALLABLE* callable = (struct PLAIN_CALLABLE*)PLAIN_RESIZE(NULL, sizeof(struct PLAIN_CALLABLE), 0);
+        if(callable == NULL) return PLAIN_ERROR_SYSTEM;
+        memset(callable, 0, sizeof(struct PLAIN_CALLABLE));
+        callable->parameters = PLAIN_SEGMENT_COPY(parameters);
+        callable->body       = PLAIN_SEGMENT_COPY(body);
+        callable->flags      = PLAIN_CALLABLE_IMMUTABLE;
+        if(value != NULL) { value->type = PLAIN_TYPE_CALLABLE; value->data = (PLAIN_BYTE*)callable; value->length = 0; }
+        return 0;
+    }
+    return 0;
 }
 
 static PLAIN_WORD_DOUBLE PLAIN_NATIVE_PROCEDURE(void* raw, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
     struct PLAIN_CONTEXT* context = (struct PLAIN_CONTEXT*)raw;
     struct PLAIN_LIST* node = (struct PLAIN_LIST*)data;
     PLAIN_WORD_DOUBLE arity = PLAIN_ARITY(node);
-    if(arity < 3) return 0;
-    struct PLAIN_VALUE* name = PLAIN_ARGUMENT(node, 0);
-    if(name->type != PLAIN_TYPE_KEYWORD) return 0;
-    struct PLAIN_LIST* parameters = (struct PLAIN_LIST*)PLAIN_ARGUMENT(node, 1)->data;
-    struct PLAIN_LIST* body       = (struct PLAIN_LIST*)PLAIN_ARGUMENT(node, 2)->data;
-    struct PLAIN_CALLABLE* callable = (struct PLAIN_CALLABLE*)PLAIN_RESIZE(NULL, sizeof(struct PLAIN_CALLABLE), 0);
-    if(callable == NULL) return PLAIN_ERROR_SYSTEM;
-    memset(callable, 0, sizeof(struct PLAIN_CALLABLE));
-    callable->parameters = PLAIN_SEGMENT_COPY(parameters);
-    callable->body       = PLAIN_SEGMENT_COPY(body);
-    return PLAIN_FRAME_BIND(context->frame, name->data, NULL, callable, 0);
+    if(arity < 2) return 0;
+    struct PLAIN_VALUE* first = PLAIN_ARGUMENT(node, 0);
+    /* Named form: procedure name {parameters} {body} — name may be a keyword or quoted string */
+    if(arity >= 3 && (first->type == PLAIN_TYPE_KEYWORD || first->type == PLAIN_TYPE_STRING)) {
+        struct PLAIN_LIST* parameters = (struct PLAIN_LIST*)PLAIN_ARGUMENT(node, 1)->data;
+        struct PLAIN_LIST* body       = (struct PLAIN_LIST*)PLAIN_ARGUMENT(node, 2)->data;
+        struct PLAIN_CALLABLE* callable = (struct PLAIN_CALLABLE*)PLAIN_RESIZE(NULL, sizeof(struct PLAIN_CALLABLE), 0);
+        if(callable == NULL) return PLAIN_ERROR_SYSTEM;
+        memset(callable, 0, sizeof(struct PLAIN_CALLABLE));
+        callable->parameters = PLAIN_SEGMENT_COPY(parameters);
+        callable->body       = PLAIN_SEGMENT_COPY(body);
+        return PLAIN_FRAME_BIND(context->frame, first->data, NULL, callable, 0);
+    }
+    /* Anonymous form: [procedure {parameters} {body}] — returns a callable value */
+    if(first->type == PLAIN_TYPE_LIST) {
+        struct PLAIN_LIST* parameters = (struct PLAIN_LIST*)first->data;
+        struct PLAIN_LIST* body       = (struct PLAIN_LIST*)PLAIN_ARGUMENT(node, 1)->data;
+        struct PLAIN_CALLABLE* callable = (struct PLAIN_CALLABLE*)PLAIN_RESIZE(NULL, sizeof(struct PLAIN_CALLABLE), 0);
+        if(callable == NULL) return PLAIN_ERROR_SYSTEM;
+        memset(callable, 0, sizeof(struct PLAIN_CALLABLE));
+        callable->parameters = PLAIN_SEGMENT_COPY(parameters);
+        callable->body       = PLAIN_SEGMENT_COPY(body);
+        if(value != NULL) { value->type = PLAIN_TYPE_CALLABLE; value->data = (PLAIN_BYTE*)callable; value->length = 0; }
+        return 0;
+    }
+    return 0;
 }
 
 static PLAIN_WORD_DOUBLE PLAIN_NATIVE_NOT(void* raw, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
@@ -521,6 +570,39 @@ static PLAIN_WORD_DOUBLE PLAIN_NATIVE_GREATER(void* raw, void* data, PLAIN_WORD_
     return (a && b) ? PLAIN_APPLY_COMPARISON(a, b, '>', value) : 0;
 }
 
+static PLAIN_WORD_DOUBLE PLAIN_NATIVE_NOT_EQUAL(void* raw, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
+    struct PLAIN_LIST* node = (struct PLAIN_LIST*)data;
+    struct PLAIN_VALUE* a = PLAIN_ARGUMENT(node, 0); struct PLAIN_VALUE* b = PLAIN_ARGUMENT(node, 1);
+    if(!a || !b) return 0;
+    struct PLAIN_VALUE temp = {NULL, 0, PLAIN_TYPE_NIL};
+    PLAIN_WORD_DOUBLE error = PLAIN_APPLY_COMPARISON(a, b, '=', &temp);
+    if(error == 0) error = PLAIN_SET_BOOLEAN(value, !PLAIN_IS_TRUE(&temp));
+    PLAIN_VALUE_CLEAR(&temp);
+    return error;
+}
+
+static PLAIN_WORD_DOUBLE PLAIN_NATIVE_LESS_EQUAL(void* raw, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
+    struct PLAIN_LIST* node = (struct PLAIN_LIST*)data;
+    struct PLAIN_VALUE* a = PLAIN_ARGUMENT(node, 0); struct PLAIN_VALUE* b = PLAIN_ARGUMENT(node, 1);
+    if(!a || !b) return 0;
+    struct PLAIN_VALUE temp = {NULL, 0, PLAIN_TYPE_NIL};
+    PLAIN_WORD_DOUBLE error = PLAIN_APPLY_COMPARISON(a, b, '>', &temp);
+    if(error == 0) error = PLAIN_SET_BOOLEAN(value, !PLAIN_IS_TRUE(&temp));
+    PLAIN_VALUE_CLEAR(&temp);
+    return error;
+}
+
+static PLAIN_WORD_DOUBLE PLAIN_NATIVE_GREATER_EQUAL(void* raw, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
+    struct PLAIN_LIST* node = (struct PLAIN_LIST*)data;
+    struct PLAIN_VALUE* a = PLAIN_ARGUMENT(node, 0); struct PLAIN_VALUE* b = PLAIN_ARGUMENT(node, 1);
+    if(!a || !b) return 0;
+    struct PLAIN_VALUE temp = {NULL, 0, PLAIN_TYPE_NIL};
+    PLAIN_WORD_DOUBLE error = PLAIN_APPLY_COMPARISON(a, b, '<', &temp);
+    if(error == 0) error = PLAIN_SET_BOOLEAN(value, !PLAIN_IS_TRUE(&temp));
+    PLAIN_VALUE_CLEAR(&temp);
+    return error;
+}
+
 static PLAIN_WORD_DOUBLE PLAIN_NATIVE_CONCAT(void* raw, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
     if(value == NULL) return 0;
     struct PLAIN_LIST* node = (struct PLAIN_LIST*)data;
@@ -584,7 +666,7 @@ PLAIN_WORD_DOUBLE PLAIN_CONTEXT_INIT(struct PLAIN_CONTEXT* context) {
     PLAIN_REGISTER("equal",     PLAIN_NATIVE_EQUAL)
     PLAIN_REGISTER("less",      PLAIN_NATIVE_LESS)
     PLAIN_REGISTER("greater",   PLAIN_NATIVE_GREATER)
-    PLAIN_REGISTER("concat",    PLAIN_NATIVE_CONCAT)
+    PLAIN_REGISTER("join",      PLAIN_NATIVE_CONCAT)
     #undef PLAIN_REGISTER
     return 0;
 }
@@ -596,17 +678,22 @@ PLAIN_WORD_DOUBLE PLAIN_CONTEXT_INIT(struct PLAIN_CONTEXT* context) {
 PLAIN_WORD_DOUBLE PLAIN_RESOLVE(void* raw, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
     struct PLAIN_CONTEXT* context = (struct PLAIN_CONTEXT*)raw;
 
-    /* Variable substitution. Callable bindings are returned as PLAIN_TYPE_SUBROUTINE
-     * values so they can be passed around and called as first-class citizens. */
+    /* Variable substitution. Callable bindings are returned as PLAIN_TYPE_CALLABLE
+     * values so they can be passed around and called as first-class citizens.
+     * Operator symbols (+, -, and, etc.) are intentionally not resolved here;
+     * their frame overrides are looked up inside PLAIN_BUILTIN_INFIX instead,
+     * so the infix detection by keyword name always works. */
     if(type == PLAIN_TYPE_KEYWORD) {
-        struct PLAIN_BINDING* binding = PLAIN_FRAME_FIND(context->frame, (const PLAIN_BYTE*)data);
-        if(binding != NULL) {
-            if(binding->callable != NULL) {
-                value->type = PLAIN_TYPE_SUBROUTINE;
-                value->data = (PLAIN_BYTE*)binding->callable;
-                value->length = 0;
-            } else {
-                PLAIN_VALUE_COPY(value, &binding->value);
+        if(!PLAIN_IS_OPERATOR_SYMBOL((const PLAIN_BYTE*)data)) {
+            struct PLAIN_BINDING* binding = PLAIN_FRAME_FIND(context->frame, (const PLAIN_BYTE*)data);
+            if(binding != NULL) {
+                if(binding->callable != NULL) {
+                    value->type = PLAIN_TYPE_CALLABLE;
+                    value->data = (PLAIN_BYTE*)binding->callable;
+                    value->length = 0;
+                } else {
+                    PLAIN_VALUE_COPY(value, &binding->value);
+                }
             }
         }
         return 0;
@@ -617,13 +704,14 @@ PLAIN_WORD_DOUBLE PLAIN_RESOLVE(void* raw, void* data, PLAIN_WORD_DOUBLE type, s
     struct PLAIN_LIST* node = (struct PLAIN_LIST*)data;
     if(node->keyword.from == node->keyword.to) return 0;
 
-    /* Infix expression: name op value. */
-    if(PLAIN_ARITY(node) >= 2 && PLAIN_IS_INFIX_OPERATOR(PLAIN_ARGUMENT(node, 0))) {
+    /* Infix expression: name op value — strictly binary (exactly 2 arguments).
+     * More than 2 arguments means the first word is a command name, not a left operand. */
+    if(PLAIN_ARITY(node) == 2 && PLAIN_IS_INFIX_OPERATOR(PLAIN_ARGUMENT(node, 0))) {
         return PLAIN_BUILTIN_INFIX(context, node, value);
     }
 
     /* Look up in frame — built-ins and user-defined callables live here.
-     * A PLAIN_TYPE_SUBROUTINE value (from x = somefunction) is also callable. */
+     * A PLAIN_TYPE_CALLABLE value (from x = [function ...]) is also callable. */
     PLAIN_BYTE keyword[256];
     PLAIN_KEYWORD_EXTRACT(node, keyword, sizeof(keyword));
     struct PLAIN_BINDING* binding = PLAIN_FRAME_FIND(context->frame, keyword);
@@ -631,7 +719,7 @@ PLAIN_WORD_DOUBLE PLAIN_RESOLVE(void* raw, void* data, PLAIN_WORD_DOUBLE type, s
         if(binding->callable != NULL) {
             return PLAIN_CALL(context, node, binding->callable, value);
         }
-        if(binding->value.type == PLAIN_TYPE_SUBROUTINE && binding->value.data != NULL) {
+        if(binding->value.type == PLAIN_TYPE_CALLABLE && binding->value.data != NULL) {
             return PLAIN_CALL(context, node, (struct PLAIN_CALLABLE*)binding->value.data, value);
         }
     }

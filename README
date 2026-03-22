@@ -4,10 +4,17 @@ Nerijus Ramanauskas <nerijus@signaintermedia.com>
 
 OVERVIEW
 
-    Plain is a minimalist embeddable command language with influence from
-    Tcl, Bash and Lisp. The library handles tokenization, tree walking,
-    scope management, and a standard set of built-in commands. Semantics
-    can be extended or replaced entirely by the host application.
+    Plain is a minimalist embeddable scripting language influenced by
+    Tcl, Bash, and Lisp. It is a platform-independent library with no
+    I/O of its own — all input/output is the host application's concern.
+
+    The library provides:
+        - Tokenization and tree walking (Plain.h)
+        - A full runtime: variable frames, callables, built-in procedures,
+          infix operators, control flow (VM.h)
+
+    The host embeds it by supplying a PLAIN_CONTEXT, optionally handling
+    unknown keywords via a callback, and calling PLAIN_EVALUATE.
 
     See Documentation/Syntax and Documentation/Semantics.
 
@@ -47,7 +54,7 @@ OPTIONS
     Pass options with `xmake f` before building.
 
     --debugging=y    Enable debug assertions and symbols.
-    --embedded=y     Build plain as a static library instead of shared.
+    --embedded=y     Build plain as a shared library instead of static.
 
     Examples:
 
@@ -73,7 +80,7 @@ PLATFORMS
 
 TARGETS
 
-    plain        Shared (or static) library. Link against this to embed
+    plain        Static (or shared) library. Link against this to embed
                  Plain in any application: CLI, GUI, web server, game
                  engine, or anything else.
 
@@ -82,6 +89,8 @@ TARGETS
 
 INCLUDE
 
-    Include/Plain/Plain.h              Core API: tokenizer, walker.
-    Include/Plain/VM.h                 Higher-level: PLAIN_EVALUATE, PLAIN_VERSION.
-    Include/Plain/Framework/Scope.h    Framework: PLAIN_CONTEXT, scope, PLAIN_RESOLVE.
+    Include/Plain/Plain.h    Core parsing API: tokenizer, walker, types.
+    Include/Plain/VM.h       Full runtime: PLAIN_EVALUATE, PLAIN_CONTEXT,
+                             PLAIN_RESOLVE, PLAIN_CONTEXT_INIT, and everything
+                             from Plain.h. This is the only header a host
+                             application needs.

@@ -1,28 +1,136 @@
-As of 08/22/2015, 2015 Q3 (20153), Nerijus Ramanauskas <nerijus@signaintermedia.com>.
+Plain — Semantics
+Nerijus Ramanauskas <nerijus@signaintermedia.com>
 
-Semantics
 
-    Statement
+EVALUATION MODEL
 
-        As in <Node> (see <Syntax>).
+    Plain evaluates a list of statements left to right. Each statement
+    is a node: a keyword followed by zero or more arguments. The walker
+    resolves arguments (substituting variables and evaluating nested
+    expressions) before looking up the keyword in the frame and invoking
+    the bound callable.
 
-    Program
+    Blocks ({ }) are intentionally deferred — the walker leaves them
+    unevaluated so procedures like if and repeat can decide if/when/how
+    many times to run them.
 
-        As in <List> (see <Syntax>).
 
-    Argument
+STATEMENT vs EXPRESSION
 
-        As in <Data> (see <Syntax>) with the following substitutions.
+    A statement is a top-level node (no parent). Its return value is
+    usually discarded.
 
-        Expression
+    An expression is a node wrapped in [...]. The walker evaluates it
+    recursively and substitutes its result as an argument value.
 
-            <Node>, or simply a "statement that returns a value" or "statement
-            substitution".
+        print [add 1, 2]    ` [add 1, 2] is an expression here
 
-        Variable
 
-            <Keyword>, or simply a "keyword that contains a value" or "keyword
-            substitution".
+VARIABLES AND FRAMES
 
-            In fact, variables can contain any values. So far, there are only
-            two additional data types: subroutines and arbitrary pointers.
+    Variables are name-to-value bindings stored in a frame. Frames are
+    linked in a chain (lexical scoping): a lookup walks from the innermost
+    frame outward until the name is found.
+
+    Assignment is done with = in statement context (no enclosing [...]):
+
+        x = 42
+        name = "Plain"
+
+    The = operator cannot be overridden — it is always assignment in
+    statement context. Inside [...] it means equality comparison.
+
+
+CALLABLES
+
+    A callable is a stored function or procedure that can be invoked by
+    name, stored in a variable, and passed as an argument.
+
+    Two kinds:
+
+        function   — immutable binding; cannot be reassigned after definition.
+        procedure  — mutable binding; can be reassigned at any time.
+
+    Named definition form:
+
+        function  name {parameters} {body}
+        procedure name {parameters} {body}
+
+    The name can be a keyword, a quoted string, or an operator symbol:
+
+        function  square {n} { return [n * n] }
+        procedure 'greet' {name} { print [join "Hi, ", name] }
+        procedure + {a, b} { return [multiply a b] }   ` operator override
+
+    Anonymous (expression) form — returns a callable value:
+
+        double = [function  {n} { return [n * 2] }]
+        greet  = [procedure {n} { print [join "Hi, ", n] }]
+
+    The named form does not work when the name is already bound as a
+    non-operator variable (the walker resolves the keyword before the
+    procedure or function sees it). For rebinding a non-operator name,
+    use the expression form:
+
+        double = [function {n} { return [n * 2] }]
+
+    Operator symbol names (+, -, *, etc.) are exempt from this: they are
+    never resolved by the walker, so the named form always works for them.
+
+
+BUILT-IN PROCEDURES
+
+    Built-in procedures (if, repeat, add, etc.) are registered as mutable
+    callables in the root frame at startup. Because they are regular
+    bindings they can be overridden, stored, passed as arguments, and
+    invoked exactly like user-defined callables:
+
+        op = add;
+        print [op 3, 4]    ` 7
+
+        add = [procedure {a, b} { return [a + b + 1] }]
+
+
+INFIX OPERATORS
+
+    The thirteen operator symbols have a special infix calling convention
+    when used as the sole argument between a variable name and a value:
+
+        [name op value]
+
+    This is syntactic sugar — it is equivalent to invoking the operator as
+    a prefix procedure call with (name_value, value) as arguments:
+
+        [x + 3]    ` same as [+ x 3] once + is bound
+
+    Operator symbols are resolved from the frame at dispatch time, so
+    overriding them covers both infix and prefix call sites simultaneously:
+
+        procedure + {a, b} { return [multiply a b] };
+        x = 10;
+        print [x + 3]    ` 30  (infix, uses override)
+        print [+ x 3]    ` 30  (prefix, uses same override)
+
+    The = operator in infix position inside [...] means equality, not
+    assignment. The assignment behaviour of = in statement context is
+    hardcoded and cannot be overridden.
+
+    Infix is strictly binary. Compound expressions require nesting:
+
+        print [and [x > 0] [x < 10]]
+
+
+RETURN AND BREAK
+
+    return [value]   exits the current callable and yields a value.
+    break            exits the nearest repeat loop.
+
+    Both propagate as special signals through the evaluator.
+
+
+HOST EXTENSION
+
+    The host application can supply a PLAIN_SUBROUTINE handler on
+    PLAIN_CONTEXT that is called for any keyword not found in the frame.
+    This is how the Inspector implements print without the library
+    containing any I/O.

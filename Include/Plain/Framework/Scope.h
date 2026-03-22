@@ -17,6 +17,11 @@
 #define PLAIN_SIGNAL_BREAK  0x300
 #define PLAIN_SIGNAL_RETURN 0x301
 
+/* Flags for PLAIN_CALLABLE. */
+enum {
+    PLAIN_CALLABLE_IMMUTABLE = 0x01  /* Callable was created with function (not procedure); binding should be immutable. */
+};
+
 /* Flags for PLAIN_BINDING. */
 enum {
     PLAIN_BINDING_IMMUTABLE = 0x01  /* Binding cannot be reassigned (functions). */
@@ -31,6 +36,7 @@ struct PLAIN_CALLABLE {
     PLAIN_BYTE* parameters; /* Source text of the parameter list. NULL for native callables. */
     PLAIN_BYTE* body;       /* Source text of the body to evaluate on each call. NULL for native callables. */
     PLAIN_SUBROUTINE native; /* C implementation. NULL for user-defined callables. */
+    PLAIN_WORD_DOUBLE flags; /* PLAIN_CALLABLE_IMMUTABLE etc. */
 };
 
 /*
