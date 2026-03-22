@@ -110,6 +110,13 @@ namespace plain {
             std::shared_ptr<DispatchTable> dispatch;
         };
 
+        struct List {
+            std::vector<Value> items;
+
+            List() = default;
+            List(std::vector<Value> init) : items(std::move(init)) {}
+        };
+
     } /* namespace detail */
 
     /* -----------------------------------------------------------------------
@@ -133,8 +140,8 @@ namespace plain {
          *   methods      — list of { "name", [](T& self, const Args&){...} } pairs.
          *
          * Plain usage:
-         *   obj = [ClassName arg1 arg2]
-         *   result = [obj "method_name" extra_arg]
+         *   obj = [ClassName arg1, arg2]
+         *   result = [obj method_name extra_arg]
          */
         template<typename T>
         Runtime& bind_class(
@@ -183,6 +190,8 @@ namespace plain {
         std::function<void(const std::string&)>                                error_callback;
         std::vector<std::unique_ptr<detail::ObjectEntry>>                     objects;
         std::unordered_map<std::type_index, std::shared_ptr<detail::DispatchTable>> dispatch_tables;
+
+        void register_builtins();
 
         Value wrap_impl(std::shared_ptr<void> instance,
                         std::shared_ptr<detail::DispatchTable> dispatch);

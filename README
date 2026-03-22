@@ -55,11 +55,13 @@ OPTIONS
 
     --debugging=y    Enable debug assertions and symbols.
     --embedded=y     Build plain as a shared library instead of static.
+    --tetris=y       Build the Tetris demo (requires SFML; xmake downloads it).
 
     Examples:
 
         xmake f --debugging=y && xmake
         xmake f --embedded=y && xmake
+        xmake f --tetris=y && xmake build tetris && xmake run tetris
 
     Reset options back to defaults:
 
@@ -86,6 +88,10 @@ TARGETS
 
     inspector    Interactive REPL for experimenting with the language.
 
+    tetris       Tetris demo — game logic written entirely in Plain,
+                 SFML wrapped as Plain-callable objects. Opt-in via
+                 --tetris=y (see OPTIONS).
+
 
 INCLUDE
 
@@ -94,3 +100,30 @@ INCLUDE
                              PLAIN_RESOLVE, PLAIN_CONTEXT_INIT, and everything
                              from Plain.h. This is the only header a host
                              application needs.
+    Include/Plain/Plain.hpp  C++ interface: plain::Runtime, plain::Value,
+                             bind(), bind_class<T>(), run(), call().
+                             Includes VM.h automatically.
+
+
+C++ INTERFACE
+
+    For C++ hosts, include <Plain/Plain.hpp> instead of <Plain/VM.h>.
+    It provides:
+
+        plain::Runtime   Wraps a PLAIN_CONTEXT with automatic init/cleanup.
+        plain::Value     Owns a Plain value; converts to/from C++ types.
+        runtime.bind()        Register a C++ lambda as a Plain procedure.
+        runtime.bind_class()  Register a C++ class (constructor + methods).
+        runtime.run()         Evaluate Plain source code.
+        runtime.call()        Call a Plain procedure from C++.
+        runtime.wrap()        Wrap a C++ shared_ptr as a Plain object.
+        runtime.as_object()   Extract a C++ object from a Plain value.
+
+    Built-in data structures auto-registered by Runtime:
+
+        list     Mutable ordered collection.
+                 items = [list 1, 2, 3];
+                 print [items get 0];
+                 items append 42;
+
+    See Samples/ for working examples.

@@ -297,6 +297,75 @@ CLOSURES
     print [add5 10]     ` 15
 
 
+LISTS
+
+    ` Create a list with initial values
+    items = [list 10, 20, 30];
+
+    ` Access by index (zero-based)
+    print [items get 0];       ` 10
+    print [items get 2]        ` 30
+
+    ` Modify an element
+    items set 1, 99;
+    print [items get 1]        ` 99
+
+    ` Append and query length
+    items append 42;
+    print [items length]       ` 4
+
+    ` Remove by index
+    items remove 0;
+    print [items get 0]        ` 99  (was 20→99, now first after 10 removed)
+
+    ` Empty list
+    empty = [list];
+    print [empty length]       ` 0
+
+    ` Use a flat list as a 2D grid (10 columns x 3 rows)
+    grid = [list];
+    repeat 30 { grid append 0 };
+
+    ` Set cell (2, 1) to 5
+    grid set [add [multiply 1 10] 2], 5;
+
+    ` Get cell (2, 1)
+    print [grid get [add [multiply 1 10] 2]]    ` 5
+
+    ` Iterate over a list
+    values = [list 1, 2, 3, 4, 5];
+    i = 0;
+    repeat [values length] {
+        print [values get i];
+        i = [i + 1]
+    }
+
+
+OBJECTS (C++ BRIDGE)
+
+    ` The C++ host can register classes with bind_class<T>().
+    ` Plain constructs objects and calls methods using bare keywords.
+
+    ` Construct (calls the registered C++ constructor)
+    v = [Vec2 3, 4];
+
+    ` Call methods — the first bare keyword after the object is the method name
+    print [v length];          ` 5
+    print [v str];             ` Vec2(3, 4)
+
+    ` Method with arguments
+    w = [Vec2 1, 2];
+    u = [v add w];
+    print [u str]              ` Vec2(4, 6)
+
+    ` Statement form (no return value needed)
+    v draw
+
+    ` If a method name collides with a bound variable, use a quoted string:
+    length = 42;
+    print [v "length"]         ` still calls the method, not the variable
+
+
 TYPE INTROSPECTION
 
     print [type 42];       ` integer

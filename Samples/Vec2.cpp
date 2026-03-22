@@ -70,12 +70,12 @@ int main() {
 
     runtime.run(R"(
         a = [Vec2 3, 4];
-        print [a "str"];
-        print [a "length"];
+        print [a str];
+        print [a length];
 
         b = [Vec2 1, 2];
-        c = [a "add" b];
-        print [c "str"];
+        c = [a add b];
+        print [c str];
 
         greet = [procedure {name} { print [join "Hello, " name "!"] }];
         greet "World"

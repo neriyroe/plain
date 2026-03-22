@@ -222,7 +222,8 @@ namespace plain {
         /* First argument must be the method name (string). */
         if(PLAIN_ARITY(node) < 1) return 0;
         PLAIN_VALUE* method_arg = PLAIN_ARGUMENT(node, 0);
-        if(!method_arg || method_arg->type != PLAIN_TYPE_STRING || !method_arg->data) return 0;
+        if(!method_arg || !method_arg->data) return 0;
+        if(method_arg->type != PLAIN_TYPE_STRING && method_arg->type != PLAIN_TYPE_KEYWORD) return 0;
 
         std::string method_name((const char*)method_arg->data);
         auto mit = entry->dispatch->methods.find(method_name);
@@ -254,6 +255,47 @@ namespace plain {
         context.handler   = &object_method_handler;
         context.user_data = this;
         PLAIN_CONTEXT_INIT(&context);
+        register_builtins();
+    }
+
+    void Runtime::register_builtins() {
+        bind_class<detail::List>("list",
+            [](const Args& args) {
+                auto l = std::make_shared<detail::List>();
+                l->items.reserve(args.size());
+                for(const auto& a : args) l->items.push_back(a);
+                return l;
+            },
+            {
+                { "get", [](detail::List& l, const Args& a) -> Value {
+                    if(a.empty()) return Value{};
+                    int idx = a[0].as_integer();
+                    if(idx < 0 || idx >= static_cast<int>(l.items.size())) return Value{};
+                    return l.items[idx];
+                }},
+                { "set", [](detail::List& l, const Args& a) -> Value {
+                    if(a.size() < 2) return Value{};
+                    int idx = a[0].as_integer();
+                    if(idx < 0 || idx >= static_cast<int>(l.items.size())) return Value{};
+                    l.items[idx] = a[1];
+                    return Value{};
+                }},
+                { "length", [](detail::List& l, const Args&) -> Value {
+                    return Value(static_cast<int>(l.items.size()));
+                }},
+                { "append", [](detail::List& l, const Args& a) -> Value {
+                    for(const auto& v : a) l.items.push_back(v);
+                    return Value{};
+                }},
+                { "remove", [](detail::List& l, const Args& a) -> Value {
+                    if(a.empty()) return Value{};
+                    int idx = a[0].as_integer();
+                    if(idx < 0 || idx >= static_cast<int>(l.items.size())) return Value{};
+                    l.items.erase(l.items.begin() + idx);
+                    return Value{};
+                }}
+            }
+        );
     }
 
     Runtime::~Runtime() {
