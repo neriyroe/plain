@@ -258,6 +258,18 @@ NESTED EXPRESSIONS
     print [fibonacci 10]    ` 55
 
 
+DO
+
+    ` Executes a block in a fresh scope and returns its value.
+    ` Variables created inside do not leak into the surrounding frame.
+
+    result = [do { x = 6; y = 7; return [x * y] }];
+    print result    ` 42
+
+    ` do is a regular mutable callable — it can be overridden or passed around
+    print [type do]    ` callable
+
+
 CLOSURES
 
     ` Functions and procedures capture their definition frame. Outer

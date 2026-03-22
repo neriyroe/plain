@@ -124,7 +124,12 @@ PLAIN_WORD_DOUBLE PLAIN_IS_TRUE(const struct PLAIN_VALUE* value);
  * the current frame. Delegates unrecognised commands to context->handler. */
 PLAIN_WORD_DOUBLE PLAIN_RESOLVE(void* context, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value);
 
-/* Registers all standard built-in commands in the root frame of <context>.
+/* Registers all standard built-in procedures in the root frame of <context>.
  * Call once after PLAIN_FRAME_CREATE, before any evaluation. Built-ins are
  * mutable bindings — the user may freely override any of them. */
 PLAIN_WORD_DOUBLE PLAIN_CONTEXT_INIT(struct PLAIN_CONTEXT* context);
+
+/* Registers a single native procedure in the current frame of <context> as a
+ * mutable callable. Use this to extend Plain from the host application.
+ * The binding is mutable, so Plain code can override it at any time. */
+PLAIN_WORD_DOUBLE PLAIN_CONTEXT_REGISTER(struct PLAIN_CONTEXT* context, const PLAIN_BYTE* name, PLAIN_SUBROUTINE native);

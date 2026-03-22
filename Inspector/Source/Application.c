@@ -10,7 +10,7 @@
 #include <Plain/VM.h>
 
 void report(void* context, const PLAIN_BYTE* data, PLAIN_WORD_DOUBLE length, PLAIN_WORD_DOUBLE type);
-PLAIN_WORD_DOUBLE command_handler(void* raw, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value);
+PLAIN_WORD_DOUBLE print_native(void* raw, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value);
 int evaluate(void* context, const char* source);
 int prompt(void* context, const char* identifier, int (*listener)(void*, const char*));
 
@@ -21,12 +21,12 @@ int main() {
     }
     context.frame = PLAIN_FRAME_CREATE(NULL);
     context.tracker = &report;
-    context.handler = &command_handler;
     if(context.frame == NULL) {
         printf("Failed to allocate memory.\n");
         return 1;
     }
     PLAIN_CONTEXT_INIT(&context);
+    PLAIN_CONTEXT_REGISTER(&context, (const PLAIN_BYTE*)"print", &print_native);
     int result = prompt(&context, "do: ", &evaluate);
     PLAIN_FRAME_DESTROY(context.frame);
     return result;

@@ -499,6 +499,27 @@ static PLAIN_WORD_DOUBLE PLAIN_NATIVE_CONTINUE(void* raw, void* data, PLAIN_WORD
     return PLAIN_SIGNAL_CONTINUE;
 }
 
+static PLAIN_WORD_DOUBLE PLAIN_NATIVE_DO(void* raw, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
+    struct PLAIN_CONTEXT* context = (struct PLAIN_CONTEXT*)raw;
+    struct PLAIN_LIST* node = (struct PLAIN_LIST*)data;
+    if(PLAIN_ARITY(node) < 1) return 0;
+    struct PLAIN_VALUE* first = PLAIN_ARGUMENT(node, 0);
+    if(first->type != PLAIN_TYPE_LIST) return 0;
+    struct PLAIN_FRAME* frame = PLAIN_FRAME_CREATE(context->frame);
+    if(frame == NULL) return PLAIN_ERROR_SYSTEM;
+    struct PLAIN_FRAME* saved = context->frame;
+    context->frame = frame;
+    PLAIN_WORD_DOUBLE error = PLAIN_EVALUATE_BLOCK(context, (struct PLAIN_LIST*)first->data, value);
+    context->frame = saved;
+    PLAIN_FRAME_RELEASE(frame);
+    if(error == PLAIN_SIGNAL_RETURN) {
+        if(value != NULL) { *value = context->result; context->result = (struct PLAIN_VALUE){NULL, 0, PLAIN_TYPE_NIL}; }
+        else { PLAIN_VALUE_CLEAR(&context->result); }
+        return 0;
+    }
+    return error;
+}
+
 static PLAIN_WORD_DOUBLE PLAIN_NATIVE_TYPE(void* raw, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
     struct PLAIN_LIST* node = (struct PLAIN_LIST*)data;
     struct PLAIN_VALUE* argument = PLAIN_ARGUMENT(node, 0);
@@ -736,19 +757,23 @@ static PLAIN_WORD_DOUBLE PLAIN_NATIVE_CONCAT(void* raw, void* data, PLAIN_WORD_D
 /*  Context init — register all built-ins in the root frame          */
 /* ------------------------------------------------------------------ */
 
+PLAIN_WORD_DOUBLE PLAIN_CONTEXT_REGISTER(struct PLAIN_CONTEXT* context, const PLAIN_BYTE* name, PLAIN_SUBROUTINE native) {
+    struct PLAIN_CALLABLE* callable = (struct PLAIN_CALLABLE*)PLAIN_RESIZE(NULL, sizeof(struct PLAIN_CALLABLE), 0);
+    if(callable == NULL) return PLAIN_ERROR_SYSTEM;
+    memset(callable, 0, sizeof(struct PLAIN_CALLABLE));
+    callable->native = native;
+    return PLAIN_FRAME_BIND(context->frame, name, NULL, callable, 0);
+}
+
 PLAIN_WORD_DOUBLE PLAIN_CONTEXT_INIT(struct PLAIN_CONTEXT* context) {
-    #define PLAIN_REGISTER(name, fn) {                                                              \
-        struct PLAIN_CALLABLE* c = (struct PLAIN_CALLABLE*)PLAIN_RESIZE(NULL, sizeof(struct PLAIN_CALLABLE), 0); \
-        if(c == NULL) return PLAIN_ERROR_SYSTEM;                                                    \
-        memset(c, 0, sizeof(struct PLAIN_CALLABLE));                                                \
-        c->native = fn;                                                                             \
-        PLAIN_FRAME_BIND(context->frame, (const PLAIN_BYTE*)(name), NULL, c, 0);                   \
-    }
+    #define PLAIN_REGISTER(name, fn) \
+        if(PLAIN_CONTEXT_REGISTER(context, (const PLAIN_BYTE*)(name), fn) != 0) return PLAIN_ERROR_SYSTEM;
     PLAIN_REGISTER("if",        PLAIN_NATIVE_IF)
     PLAIN_REGISTER("repeat",    PLAIN_NATIVE_REPEAT)
     PLAIN_REGISTER("return",    PLAIN_NATIVE_RETURN)
     PLAIN_REGISTER("break",     PLAIN_NATIVE_BREAK)
     PLAIN_REGISTER("continue",  PLAIN_NATIVE_CONTINUE)
+    PLAIN_REGISTER("do",        PLAIN_NATIVE_DO)
     PLAIN_REGISTER("type",      PLAIN_NATIVE_TYPE)
     PLAIN_REGISTER("function",  PLAIN_NATIVE_FUNCTION)
     PLAIN_REGISTER("procedure", PLAIN_NATIVE_PROCEDURE)
