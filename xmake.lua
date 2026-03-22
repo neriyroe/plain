@@ -6,7 +6,7 @@ set_project("plain")
 set_version("2015.3")
 
 option("debugging", { description = "Enable debug assertions and symbols.", default = false })
-option("embedded",  { description = "Build plain as a static library.",     default = false })
+option("embedded",  { description = "Build plain as a shared (dynamic) library.",  default = false })
 
 if is_plat("linux", "macosx") then
     add_requires("readline")
@@ -15,9 +15,9 @@ end
 -- Library.
 target("plain")
     if has_config("embedded") then
-        set_kind("static")
-    else
         set_kind("shared")
+    else
+        set_kind("static")
     end
     add_files("Library/Source/**.c")
     add_includedirs("Include", { public = true })

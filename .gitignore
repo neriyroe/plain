@@ -6,3 +6,5 @@ Binary/Linux
 Binary/Darwin
 Library/Linux
 Library/Darwin
+.xmake
+build/

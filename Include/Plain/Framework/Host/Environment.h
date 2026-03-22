@@ -6,6 +6,8 @@
  * Copyright 2015 Nerijus Ramanauskas.
  */
 
+#pragma once
+
 struct PLAIN_ENVIRONMENT {
     struct { 
         const char* pattern; 

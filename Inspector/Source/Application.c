@@ -26,6 +26,7 @@ int main() {
         printf("Failed to allocate memory.\n");
         return 1;
     }
+    PLAIN_CONTEXT_INIT(&context);
     int result = prompt(&context, "do: ", &evaluate);
     PLAIN_FRAME_DESTROY(context.frame);
     return result;

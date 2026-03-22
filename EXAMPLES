@@ -55,34 +55,59 @@ EXPRESSIONS
 
 ARITHMETIC
 
+    ` Prefix form
     print [add 10 3]         ` 13
     print [subtract 10 3]    ` 7
     print [multiply 10 3]    ` 30
     print [divide 10 3]      ` 3
     print [modulo 10 3]      ` 1
 
+    ` Infix form
+    x = 10
+    print [x + 3]            ` 13
+    print [x - 3]            ` 7
+    print [x * 3]            ` 30
+    print [x / 3]            ` 3
+    print [x % 3]            ` 1
+
     ` Reals promote automatically
     print [add 1 0.5]        ` 1.5
+    print [x + 0.5]          ` 10.5
 
 
 COMPARISON
 
+    ` Prefix form
     print [equal 1 1]        ` yes
     print [less 1 2]         ` yes
     print [greater 3 2]      ` yes
 
+    ` Infix form — all six operators
+    x = 5
+    print [x = 5]            ` yes   (= means equality inside [...])
+    print [x != 4]           ` yes
+    print [x < 10]           ` yes
+    print [x > 3]            ` yes
+    print [x <= 5]           ` yes
+    print [x >= 5]           ` yes
+
     ` Works on strings too
     print [equal "a" "a"]    ` yes
-    print [less "a" "b"]     ` yes
+    print ["a" < "b"]        ` yes
 
 
 LOGIC
 
-    print [not yes]          ` no
-    print [and yes yes]      ` yes
-    print [and yes no]       ` no
-    print [or no yes]        ` yes
-    print [or no no]         ` no
+    print [not yes]              ` no
+
+    ` Prefix form
+    print [and yes yes]          ` yes
+    print [or no yes]            ` yes
+
+    ` Infix form
+    x = 5
+    print [x > 0 and x < 10]    ` yes
+    print [x < 0 or x > 3]      ` yes
 
 
 STRINGS
@@ -106,19 +131,19 @@ IF / ELSE
 
     x = 10
 
-    if [greater x 5] {
+    if [x > 5] {
         print "big"
     }
 
     ` With else
-    if [less x 0] {
+    if [x < 0] {
         print "negative"
     } {
         print "non-negative"
     }
 
     ` Colon shorthand (no else)
-    if [equal x 10]: print "exactly ten" ;
+    if [x = 10]: print "exactly ten" ;
 
 
 REPEAT
@@ -126,8 +151,8 @@ REPEAT
     ` Infinite loop — use break to exit
     x = 0
     repeat {
-        x = [add x 1]
-        if [equal x 3]: break ;
+        x = [x + 1]
+        if [x = 3]: break ;
     }
     print x    ` 3
 
@@ -138,9 +163,9 @@ REPEAT
 
     ` Conditional loop (like while)
     i = 0
-    repeat { [less i 5] } {
+    repeat { [i < 5] } {
         print i
-        i = [add i 1]
+        i = [i + 1]
     }
 
 
@@ -149,9 +174,9 @@ BREAK
     ` Break exits the nearest repeat
     i = 0
     repeat {
-        if [equal i 3]: break ;
+        if [i = 3]: break ;
         print i
-        i = [add i 1]
+        i = [i + 1]
     }
     ` Prints: 0, 1, 2
 
@@ -165,7 +190,7 @@ FUNCTIONS (immutable, named)
 
     print [double 7]    ` 14
 
-    ` Inline assignment form — identical result
+    ` Inline assignment form — identical result 
     double = function {n} { return [multiply n 2] }
 
     ` Functions cannot be reassigned (immutable binding)
@@ -192,8 +217,8 @@ PROCEDURES (mutable, named)
 RETURN
 
     function clamp {value minimum maximum} {
-        if [less value minimum]: return minimum ;
-        if [greater value maximum]: return maximum ;
+        if [value < minimum]: return minimum ;
+        if [value > maximum]: return maximum ;
         return value
     }
 
@@ -205,14 +230,15 @@ RETURN
 NESTED EXPRESSIONS
 
     ` Expressions can nest freely
-    function square {n} { return [multiply n n] }
+    function square {n} { return [n * n] }
 
-    print [add [square 3] [square 4]]    ` 25
+    print [square 3 + square 4]    ` prefix add still works: [add [square 3] [square 4]] = 25
+    print [[square 3] + [square 4]]    ` infix: 25
 
     ` Fibonacci
     function fibonacci {n} {
-        if [less n 2]: return n ;
-        return [add [fibonacci [subtract n 1]] [fibonacci [subtract n 2]]]
+        if [n < 2]: return n ;
+        return [[fibonacci [n - 1]] + [fibonacci [n - 2]]]
     }
 
     print [fibonacci 10]    ` 55
@@ -222,3 +248,47 @@ MULTIPLE STATEMENTS
 
     ` Semicolons separate statements on one line
     a = 1; b = 2; print [add a b]    ` 3
+
+
+FIRST-CLASS COMMANDS
+
+    ` Built-in commands are regular callable bindings in the frame.
+    ` They can be stored in variables and passed as arguments just like
+    ` any user-defined function.
+
+    ` Store a built-in in a variable
+    branch = if
+    branch [2 > 1] { print "yes" } { print "no" }    ` yes
+
+    ` Pass a callable as an argument
+    function apply {operation a b} {
+        return [operation a b]
+    }
+
+    print [apply add 3 4]         ` 7
+    print [apply multiply 3 4]    ` 12
+
+    ` Works with any user-defined callable too
+    function double {n} { return [n * 2] }
+    function triple {n} { return [n * 3] }
+
+    transform = double
+    print [apply transform 5]    ` 10
+
+    transform = triple
+    print [apply transform 5]    ` 15
+
+    ` Higher-order: a function that applies another function twice
+    function twice {f x} {
+        return [f [f x]]
+    }
+
+    print [twice double 3]    ` 12  (3 * 2 * 2)
+
+    ` Override a built-in — no keywords are reserved
+    add = function {a b} { return [a + b + 1] }   ` biased add
+    print [add 2 3]    ` 6
+
+    ` Restore by redefining
+    add = procedure {a b} { return [a + b] }
+    print [add 2 3]    ` 5

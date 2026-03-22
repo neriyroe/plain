@@ -25,10 +25,12 @@ enum {
 /*
  * PLAIN_CALLABLE — the stored source text of a user-defined function or
  * procedure, captured at definition time and re-evaluated on each call.
+ * For built-in commands, body and parameters are NULL and native is set.
  */
 struct PLAIN_CALLABLE {
-    PLAIN_BYTE* parameters; /* Source text of the parameter list (e.g. "a b c"). */
-    PLAIN_BYTE* body;       /* Source text of the body to evaluate on each call. */
+    PLAIN_BYTE* parameters; /* Source text of the parameter list. NULL for native callables. */
+    PLAIN_BYTE* body;       /* Source text of the body to evaluate on each call. NULL for native callables. */
+    PLAIN_SUBROUTINE native; /* C implementation. NULL for user-defined callables. */
 };
 
 /*
@@ -92,3 +94,8 @@ PLAIN_WORD_DOUBLE PLAIN_IS_TRUE(const struct PLAIN_VALUE* value);
 /* Evaluates all recognised built-in commands and substitutes variables from
  * the current frame. Delegates unrecognised commands to context->handler. */
 PLAIN_WORD_DOUBLE PLAIN_RESOLVE(void* context, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value);
+
+/* Registers all standard built-in commands in the root frame of <context>.
+ * Call once after PLAIN_FRAME_CREATE, before any evaluation. Built-ins are
+ * mutable bindings — the user may freely override any of them. */
+PLAIN_WORD_DOUBLE PLAIN_CONTEXT_INIT(struct PLAIN_CONTEXT* context);

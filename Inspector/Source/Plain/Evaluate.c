@@ -14,7 +14,7 @@ static PLAIN_WORD_DOUBLE keyword_match(struct PLAIN_LIST* node, const PLAIN_BYTE
     return length == strlen((const char*)name) && memcmp(node->keyword.from, name, length) == 0;
 }
 
-static PLAIN_WORD_DOUBLE command_handler(void* raw, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
+PLAIN_WORD_DOUBLE command_handler(void* raw, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
     if(type != PLAIN_TYPE_LIST) {
         return 0;
     }
