@@ -1,13 +1,87 @@
-This file is being updated.
+Plain
+Nerijus Ramanauskas <nerijus@signaintermedia.com>
 
-In the meantime, check Documentation for Syntax and Semantics. You'll need
-CMake to build the library and the binary. Check Library/Deployment for the
-availability of your target platform. Expand the tree to type 'make' and let it
-do the rest of the job. Call the ambulance should it fail.
 
-Check Binary/Deployment for the availability of your host. Expand the tree,
-type 'make' and let it do the rest of the job. Check Binary for the tree.
-Execute Inspector.
+OVERVIEW
 
-February 21, 2016,
-Nerijus Ramanauskas <nerijus@signaintermedia.com>.
+    Plain is a minimalist embeddable command language with influence from
+    Tcl, Bash and Lisp. The library handles tokenization, tree walking,
+    scope management, and a standard set of built-in commands. Semantics
+    can be extended or replaced entirely by the host application.
+
+    See Documentation/Syntax and Documentation/Semantics.
+
+
+REQUIREMENTS
+
+    xmake 2.5 or later. Get it at https://xmake.io
+
+    Linux and macOS also require readline (for Inspector):
+
+        Ubuntu/Debian:  apt install libreadline-dev
+        Fedora/RHEL:    dnf install readline-devel
+        macOS:          brew install readline
+
+
+BUILD
+
+    Build everything (library + Inspector):
+
+        xmake
+
+    Build only the library:
+
+        xmake build plain
+
+    Build only Inspector:
+
+        xmake build inspector
+
+    Run Inspector directly after building:
+
+        xmake run inspector
+
+
+OPTIONS
+
+    Pass options with `xmake f` before building.
+
+    --debugging=y    Enable debug assertions and symbols.
+    --embedded=y     Build plain as a static library instead of shared.
+
+    Examples:
+
+        xmake f --debugging=y && xmake
+        xmake f --embedded=y && xmake
+
+    Reset options back to defaults:
+
+        xmake f -c
+
+
+PLATFORMS
+
+    Tested configurations:
+
+        Linux   x64, ARMv8
+        macOS   x64
+        Windows x64
+
+    Inspector uses readline on Linux and macOS. On Windows it falls back
+    to a plain fgets-based prompt with no history or line editing.
+
+
+TARGETS
+
+    plain        Shared (or static) library. Link against this to embed
+                 Plain in any application: CLI, GUI, web server, game
+                 engine, or anything else.
+
+    inspector    Interactive REPL for experimenting with the language.
+
+
+INCLUDE
+
+    Include/Plain/Plain.h              Core API: tokenizer, walker.
+    Include/Plain/VM.h                 Higher-level: PLAIN_EVALUATE, PLAIN_VERSION.
+    Include/Plain/Framework/Scope.h    Framework: PLAIN_CONTEXT, scope, PLAIN_RESOLVE.

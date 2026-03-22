@@ -38,7 +38,7 @@ PLAIN_WORD_DOUBLE PLAIN_WALK(void* context, PLAIN_SUBROUTINE function, struct PL
             }
         } else if(argument->type == PLAIN_TYPE_LIST) { /* Expression. */
             struct PLAIN_LIST* child = (struct PLAIN_LIST*)argument->data;
-            if(child == NULL) {
+            if(child == NULL || child->parent == NULL) { /* Block — deferred. */
                 continue;
             }
             /* Substitute. */

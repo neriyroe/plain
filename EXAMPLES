@@ -1,0 +1,224 @@
+Plain — Examples
+Nerijus Ramanauskas <nerijus@signaintermedia.com>
+
+
+COMMENTS AND WHITESPACE
+
+    ` Backtick starts a comment, ends at the line break.
+
+    Whitespace and commas are interchangeable separators. These are the same:
+
+        add 1 2
+        add 1, 2
+
+
+LITERALS
+
+    ` Booleans
+    yes
+    no
+
+    ` Nil
+    none
+
+    ` Integers
+    42
+    -7
+
+    ` Reals
+    3.14
+    1.5e10
+
+    ` Strings (single or double quotes, backslash escapes)
+    "hello, world"
+    'it\'s fine'
+
+
+VARIABLES
+
+    ` Assign with =
+    x = 42
+    name = "Plain"
+
+    ` Read a variable by using its name as an argument
+    print x
+    print name
+
+
+EXPRESSIONS
+
+    ` Wrap any statement in [...] to use its result as a value
+    print [add 1 2]
+    print [concat "Hello, " name "!"]
+    x = [multiply 6 7]
+
+
+ARITHMETIC
+
+    print [add 10 3]         ` 13
+    print [subtract 10 3]    ` 7
+    print [multiply 10 3]    ` 30
+    print [divide 10 3]      ` 3
+    print [modulo 10 3]      ` 1
+
+    ` Reals promote automatically
+    print [add 1 0.5]        ` 1.5
+
+
+COMPARISON
+
+    print [equal 1 1]        ` yes
+    print [less 1 2]         ` yes
+    print [greater 3 2]      ` yes
+
+    ` Works on strings too
+    print [equal "a" "a"]    ` yes
+    print [less "a" "b"]     ` yes
+
+
+LOGIC
+
+    print [not yes]          ` no
+    print [and yes yes]      ` yes
+    print [and yes no]       ` no
+    print [or no yes]        ` yes
+    print [or no no]         ` no
+
+
+STRINGS
+
+    print [concat "Hello, " "world" "!"]    ` Hello, world!
+
+    ` Numbers are coerced to strings
+    print [concat "Result: " [add 1 2]]     ` Result: 3
+
+
+BLOCKS
+
+    ` Curly braces create a deferred block — not evaluated until needed
+    { print "I run when called" }
+
+    ` Colon shorthand: opens a block, semicolon closes it
+    : print "same thing" ;
+
+
+IF / ELSE
+
+    x = 10
+
+    if [greater x 5] {
+        print "big"
+    }
+
+    ` With else
+    if [less x 0] {
+        print "negative"
+    } {
+        print "non-negative"
+    }
+
+    ` Colon shorthand (no else)
+    if [equal x 10]: print "exactly ten" ;
+
+
+REPEAT
+
+    ` Infinite loop — use break to exit
+    x = 0
+    repeat {
+        x = [add x 1]
+        if [equal x 3]: break ;
+    }
+    print x    ` 3
+
+    ` Counted loop
+    repeat 5 {
+        print "hello"
+    }
+
+    ` Conditional loop (like while)
+    i = 0
+    repeat { [less i 5] } {
+        print i
+        i = [add i 1]
+    }
+
+
+BREAK
+
+    ` Break exits the nearest repeat
+    i = 0
+    repeat {
+        if [equal i 3]: break ;
+        print i
+        i = [add i 1]
+    }
+    ` Prints: 0, 1, 2
+
+
+FUNCTIONS (immutable, named)
+
+    ` Declare with function keyword: name {parameters} {body}
+    function double {n} {
+        return [multiply n 2]
+    }
+
+    print [double 7]    ` 14
+
+    ` Inline assignment form — identical result
+    double = function {n} { return [multiply n 2] }
+
+    ` Functions cannot be reassigned (immutable binding)
+
+
+PROCEDURES (mutable, named)
+
+    ` Declare with procedure: name {parameters} {body}
+    ` Procedures are reassignable; typically used for side effects.
+    procedure greet {name} {
+        print [concat "Hello, " name "!"]
+    }
+
+    greet "world"    ` Hello, world!
+
+    ` Inline assignment form
+    greet = procedure {name} { print [concat "Hi, " name "!"] }
+
+    ` Can be reassigned later
+    greet = procedure {name} { print [concat "Hey, " name "."] }
+    greet "Plain"    ` Hey, Plain.
+
+
+RETURN
+
+    function clamp {value minimum maximum} {
+        if [less value minimum]: return minimum ;
+        if [greater value maximum]: return maximum ;
+        return value
+    }
+
+    print [clamp 5 0 10]     ` 5
+    print [clamp -3 0 10]    ` 0
+    print [clamp 99 0 10]    ` 10
+
+
+NESTED EXPRESSIONS
+
+    ` Expressions can nest freely
+    function square {n} { return [multiply n n] }
+
+    print [add [square 3] [square 4]]    ` 25
+
+    ` Fibonacci
+    function fibonacci {n} {
+        if [less n 2]: return n ;
+        return [add [fibonacci [subtract n 1]] [fibonacci [subtract n 2]]]
+    }
+
+    print [fibonacci 10]    ` 55
+
+
+MULTIPLE STATEMENTS
+
+    ` Semicolons separate statements on one line
+    a = 1; b = 2; print [add a b]    ` 3

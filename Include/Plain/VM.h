@@ -1,9 +1,13 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus@signaintermedia.com>.
  * Date     10/05/2013.
- * Revision 09/01/2015.
+ * Revision 03/22/2026.
  *
- * Copyright 2015 Nerijus Ramanauskas.
+ * Copyright 2026 Nerijus Ramanauskas.
+ *
+ * VM — the complete runtime API. Include this to embed Plain with the
+ * standard framework: variable frames, built-in commands, and PLAIN_RESOLVE.
+ * For the bare parsing layer only, include <Plain/Plain.h> instead.
  */
 
 #pragma once
@@ -16,6 +20,7 @@ extern "C" {
 #include "Plain.h"
 #include "Framework/Host/Environment.h"
 #include "Framework/Object.h"
+#include "Framework/Scope.h"
 
 typedef struct PLAIN_ENVIRONMENT  PLAIN_ENVIRONMENT;
 typedef struct PLAIN_LIST         PLAIN_LIST;
