@@ -27,8 +27,10 @@
 #include <initializer_list>
 #include <memory>
 #include <string>
+#include <type_traits>
 #include <typeindex>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace plain {
@@ -36,6 +38,7 @@ namespace plain {
     /* Forward declarations. */
     class Value;
     class Runtime;
+    template<typename T> class ClassBinding;
     using Args = std::vector<Value>;
 
     /* -----------------------------------------------------------------------
@@ -117,12 +120,41 @@ namespace plain {
             List(std::vector<Value> init) : items(std::move(init)) {}
         };
 
+        /* Automatic argument conversion: Value -> C++ type. */
+        template<typename T>
+        decltype(auto) convert_arg(const Value& v, Runtime& rt) {
+            using Bare = std::remove_cv_t<std::remove_reference_t<T>>;
+            if constexpr (std::is_same_v<Bare, bool>)              return v.as_boolean();
+            else if constexpr (std::is_integral_v<Bare>)           return static_cast<Bare>(v.as_integer());
+            else if constexpr (std::is_floating_point_v<Bare>)     return static_cast<Bare>(v.as_real());
+            else if constexpr (std::is_same_v<Bare, std::string>)  return v.as_string();
+            else if constexpr (std::is_same_v<Bare, Value>)        return v;
+            else                                                   return rt.as_object<Bare>(v);
+        }
+
+        /* Automatic return conversion: C++ type -> Value. */
+        template<typename T>
+        Value convert_return(T&& result, Runtime& rt) {
+            using Bare = std::remove_cv_t<std::remove_reference_t<T>>;
+            if constexpr (std::is_same_v<Bare, Value>)              return std::forward<T>(result);
+            else if constexpr (std::is_same_v<Bare, bool>)          return Value(result);
+            else if constexpr (std::is_integral_v<Bare>)            return Value(static_cast<int>(result));
+            else if constexpr (std::is_floating_point_v<Bare>)      return Value(static_cast<double>(result));
+            else if constexpr (std::is_same_v<Bare, std::string>)   return Value(result);
+            else if constexpr (std::is_same_v<Bare, const char*>)   return Value(result);
+            else return rt.wrap(std::make_shared<Bare>(std::forward<T>(result)));
+        }
+
+        inline Value convert_return_void() { return Value{}; }
+
     } /* namespace detail */
 
     /* -----------------------------------------------------------------------
      * Runtime — the main entry point.  Create one, bind procedures, run code.
      * --------------------------------------------------------------------- */
     class Runtime {
+        template<typename U> friend class ClassBinding;
+
     public:
         Runtime();
         ~Runtime();
@@ -134,14 +166,21 @@ namespace plain {
          * Plain code can read, override, or pass it as a first-class value. */
         Runtime& bind(const std::string& name, Handler handler);
 
-        /* Register a C++ class so Plain can construct and call objects.
+        /* Register a C++ class — simplified builder API.
+         * Returns a ClassBinding<T> for chaining .constructor<>() and .method().
+         *
+         *   runtime.bind_class<Vec2>("Vec2")
+         *       .constructor<double, double>()
+         *       .method("length", &Vec2::length)
+         *       .method("add",    &Vec2::add);
+         */
+        template<typename T>
+        ClassBinding<T> bind_class(const std::string& name);
+
+        /* Register a C++ class — lambda API (full manual control).
          *
          *   constructor  — receives Plain arguments, returns a shared_ptr<T>.
          *   methods      — list of { "name", [](T& self, const Args&){...} } pairs.
-         *
-         * Plain usage:
-         *   obj = [ClassName arg1, arg2]
-         *   result = [obj method_name extra_arg]
          */
         template<typename T>
         Runtime& bind_class(
@@ -246,6 +285,114 @@ namespace plain {
     T& Runtime::as_object(const Value& v) {
         auto* entry = reinterpret_cast<detail::ObjectEntry*>(v.native().data);
         return *static_cast<T*>(entry->instance.get());
+    }
+
+    /* -----------------------------------------------------------------------
+     * ClassBinding<T> — builder returned by runtime.bind_class<T>(name).
+     * Chain .constructor<Args...>() and .method("name", &T::fn) on it.
+     * --------------------------------------------------------------------- */
+
+    template<typename T>
+    class ClassBinding {
+    public:
+        ClassBinding(Runtime* rt, const std::string& name,
+                     std::shared_ptr<detail::DispatchTable> dispatch)
+            : rt(rt), name(name), dispatch(dispatch) {}
+
+        /* Register the constructor with auto-converted arguments.
+         *   .constructor<double, double>()
+         * Plain: obj = [ClassName arg1, arg2]
+         */
+        template<typename... CtorArgs>
+        ClassBinding& constructor() {
+            return constructor_impl<CtorArgs...>(std::index_sequence_for<CtorArgs...>{});
+        }
+
+        /* Bind a const member function.
+         *   .method("length", &Vec2::length)
+         */
+        template<typename Ret, typename... MethodArgs>
+        ClassBinding& method(const std::string& method_name,
+                             Ret(T::*fn)(MethodArgs...) const) {
+            return method_impl(method_name, fn, std::index_sequence_for<MethodArgs...>{});
+        }
+
+        /* Bind a non-const member function. */
+        template<typename Ret, typename... MethodArgs>
+        ClassBinding& method(const std::string& method_name,
+                             Ret(T::*fn)(MethodArgs...)) {
+            return method_impl(method_name, fn, std::index_sequence_for<MethodArgs...>{});
+        }
+
+    private:
+        Runtime* rt;
+        std::string name;
+        std::shared_ptr<detail::DispatchTable> dispatch;
+
+        template<typename... CtorArgs, size_t... Is>
+        ClassBinding& constructor_impl(std::index_sequence<Is...>) {
+            Runtime* r = rt;
+            auto d = dispatch;
+            r->bind(name, [r, d](const Args& args) -> Value {
+                auto instance = std::make_shared<T>(
+                    detail::convert_arg<CtorArgs>(
+                        Is < args.size() ? args[Is] : Value{}, *r)...
+                );
+                return r->wrap_impl(std::static_pointer_cast<void>(instance), d);
+            });
+            return *this;
+        }
+
+        template<typename Ret, typename... MethodArgs, size_t... Is>
+        ClassBinding& method_impl(const std::string& method_name,
+                                  Ret(T::*fn)(MethodArgs...) const,
+                                  std::index_sequence<Is...>) {
+            Runtime* r = rt;
+            dispatch->methods[method_name] =
+                [r, fn](void* ptr, const Args& args) -> Value {
+                    T& self = *static_cast<T*>(ptr);
+                    if constexpr (std::is_void_v<Ret>) {
+                        (self.*fn)(detail::convert_arg<MethodArgs>(
+                            Is < args.size() ? args[Is] : Value{}, *r)...);
+                        return detail::convert_return_void();
+                    } else {
+                        return detail::convert_return(
+                            (self.*fn)(detail::convert_arg<MethodArgs>(
+                                Is < args.size() ? args[Is] : Value{}, *r)...),
+                            *r);
+                    }
+                };
+            return *this;
+        }
+
+        template<typename Ret, typename... MethodArgs, size_t... Is>
+        ClassBinding& method_impl(const std::string& method_name,
+                                  Ret(T::*fn)(MethodArgs...),
+                                  std::index_sequence<Is...>) {
+            Runtime* r = rt;
+            dispatch->methods[method_name] =
+                [r, fn](void* ptr, const Args& args) -> Value {
+                    T& self = *static_cast<T*>(ptr);
+                    if constexpr (std::is_void_v<Ret>) {
+                        (self.*fn)(detail::convert_arg<MethodArgs>(
+                            Is < args.size() ? args[Is] : Value{}, *r)...);
+                        return detail::convert_return_void();
+                    } else {
+                        return detail::convert_return(
+                            (self.*fn)(detail::convert_arg<MethodArgs>(
+                                Is < args.size() ? args[Is] : Value{}, *r)...),
+                            *r);
+                    }
+                };
+            return *this;
+        }
+    };
+
+    template<typename T>
+    ClassBinding<T> Runtime::bind_class(const std::string& name) {
+        auto dispatch = std::make_shared<detail::DispatchTable>();
+        dispatch_tables[std::type_index(typeid(T))] = dispatch;
+        return ClassBinding<T>(this, name, dispatch);
     }
 
 } /* namespace plain */

@@ -1,11 +1,9 @@
 /*
  * Sample: Vec2 class exposed to Plain via the C++ interface.
  *
- * Demonstrates:
- *   - bind_class<T>  registers a C++ class (constructor + methods)
- *   - wrap<T>        wraps a C++ shared_ptr as a Plain value
- *   - as_object<T>   extracts the C++ object from a Plain value
- *   - call()         calls a Plain procedure from C++
+ * Demonstrates the simplified builder API:
+ *   .constructor<Args...>()   auto-converts Plain arguments to C++ types
+ *   .method("name", &T::fn)  auto-wraps member function pointers
  *
  * Build & run:
  *   This file is not part of the main build. Compile manually:
@@ -48,25 +46,11 @@ int main() {
         return {};
     });
 
-    runtime.bind_class<Vec2>("Vec2",
-        [](const plain::Args& a) {
-            double x = a.size() > 0 ? a[0].as_real() : 0.0;
-            double y = a.size() > 1 ? a[1].as_real() : 0.0;
-            return std::make_shared<Vec2>(x, y);
-        },
-        {
-            { "length", [](Vec2& v, const plain::Args&) -> plain::Value {
-                return plain::Value(v.length());
-            }},
-            { "add", [&runtime](Vec2& v, const plain::Args& a) -> plain::Value {
-                auto& other = runtime.as_object<Vec2>(a[0]);
-                return runtime.wrap(std::make_shared<Vec2>(v.add(other)));
-            }},
-            { "str", [](Vec2& v, const plain::Args&) -> plain::Value {
-                return v.to_string();
-            }}
-        }
-    );
+    runtime.bind_class<Vec2>("Vec2")
+        .constructor<double, double>()
+        .method("length", &Vec2::length)
+        .method("add",    &Vec2::add)
+        .method("str",    &Vec2::to_string);
 
     runtime.run(R"(
         a = [Vec2 3, 4];
