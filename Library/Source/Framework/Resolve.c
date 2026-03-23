@@ -516,6 +516,41 @@ static PLAIN_WORD_DOUBLE PLAIN_NATIVE_IF(void* raw, void* data, PLAIN_WORD_DOUBL
     return 0;
 }
 
+/* Counted loop with a scoped iteration variable: repeat {x} times 10 { ... }. */
+static PLAIN_WORD_DOUBLE PLAIN_REPEAT_COUNTED_BINDING(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* variable, PLAIN_WORD_DOUBLE count, struct PLAIN_LIST* body) {
+    const PLAIN_BYTE* from = variable->segment.from;
+    const PLAIN_BYTE* to   = variable->segment.to;
+    while(from < to && (*from == ' ' || *from == '\t' || *from == '\n' || *from == '\r')) from++;
+    while(to > from && (*(to - 1) == ' ' || *(to - 1) == '\t' || *(to - 1) == '\n' || *(to - 1) == '\r')) to--;
+    PLAIN_WORD_DOUBLE length = to - from;
+    if(length == 0) return 0;
+    PLAIN_BYTE* name = (PLAIN_BYTE*)PLAIN_AUTO(length + 1);
+    if(name == NULL) return PLAIN_ERROR_SYSTEM;
+    memcpy(name, from, length);
+    name[length] = '\0';
+    struct PLAIN_FRAME* frame = PLAIN_FRAME_CREATE(context->frame);
+    if(frame == NULL) return PLAIN_ERROR_SYSTEM;
+    PLAIN_FRAME_RETAIN(frame);
+    struct PLAIN_FRAME* saved = context->frame;
+    context->frame = frame;
+    PLAIN_WORD_DOUBLE zero = 0;
+    struct PLAIN_VALUE initial = {(PLAIN_BYTE*)&zero, sizeof(PLAIN_WORD_DOUBLE), PLAIN_TYPE_INTEGER};
+    PLAIN_FRAME_BIND(frame, name, &initial, NULL, 0);
+    struct PLAIN_BINDING* binding = PLAIN_FRAME_FIND(frame, name);
+    for(PLAIN_WORD_DOUBLE index = 0; index < count; index++) {
+        *(PLAIN_WORD_DOUBLE*)binding->value.data = index;
+        struct PLAIN_VALUE result = {NULL, 0, PLAIN_TYPE_NIL};
+        PLAIN_WORD_DOUBLE error = PLAIN_EVALUATE_BLOCK(context, body, &result);
+        PLAIN_VALUE_CLEAR(&result);
+        if(error == PLAIN_SIGNAL_BREAK) break;
+        if(error == PLAIN_SIGNAL_CONTINUE) continue;
+        if(error != 0) { context->frame = saved; PLAIN_FRAME_RELEASE(frame); return error; }
+    }
+    context->frame = saved;
+    PLAIN_FRAME_RELEASE(frame);
+    return 0;
+}
+
 static PLAIN_WORD_DOUBLE PLAIN_NATIVE_REPEAT(void* raw, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
     struct PLAIN_CONTEXT* context = (struct PLAIN_CONTEXT*)raw;
     struct PLAIN_LIST* node = (struct PLAIN_LIST*)data;
@@ -534,6 +569,19 @@ static PLAIN_WORD_DOUBLE PLAIN_NATIVE_REPEAT(void* raw, void* data, PLAIN_WORD_D
             if(error != 0) return error;
         }
         return 0;
+    }
+    /* repeat {variable} times count {body} — counted with automatic binding. */
+    if(arity >= 4 && first->type == PLAIN_TYPE_LIST &&
+       PLAIN_KEYWORD_EQ(PLAIN_ARGUMENT(node, 1), (const PLAIN_BYTE*)"times")) {
+        struct PLAIN_VALUE* counter = PLAIN_ARGUMENT(node, 2);
+        struct PLAIN_VALUE* fourth  = PLAIN_ARGUMENT(node, 3);
+        if(counter != NULL && counter->type == PLAIN_TYPE_INTEGER &&
+           fourth  != NULL && fourth->type  == PLAIN_TYPE_LIST) {
+            return PLAIN_REPEAT_COUNTED_BINDING(context,
+                (struct PLAIN_LIST*)first->data,
+                *(PLAIN_WORD_DOUBLE*)counter->data,
+                (struct PLAIN_LIST*)fourth->data);
+        }
     }
     struct PLAIN_VALUE* second = PLAIN_ARGUMENT(node, 1);
     if(arity < 2 || second == NULL || second->type != PLAIN_TYPE_LIST) return 0;

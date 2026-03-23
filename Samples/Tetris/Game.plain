@@ -1,4 +1,4 @@
-` Tetris — written entirely in Plain.
+` Tetris — written entirely in Plain, using native OOP.
 ` C++ host only wraps SFML: Window, Clock, print, random, list.
 
 ` -----------------------------------------------------------------------
@@ -15,14 +15,6 @@ pieces = [list
     [list 2,0, 0,1, 1,1, 2,1]  [list 1,0, 1,1, 1,2, 2,2]  [list 0,1, 1,1, 2,1, 0,2]  [list 0,0, 1,0, 1,1, 1,2]
 ];
 
-function piece_cells {type, rotation} {
-    return [pieces get [add [multiply type 4] rotation]]
-};
-
-` -----------------------------------------------------------------------
-`  Colors — RGB triples per piece type (index 0 = empty cell)
-` -----------------------------------------------------------------------
-
 colors = [list
     [list  40,  40,  40]
     [list   0, 240, 240]
@@ -34,281 +26,174 @@ colors = [list
     [list 240, 160,   0]
 ];
 
-function color_r {index} { c = [colors get index]; return [c get 0] };
-function color_g {index} { c = [colors get index]; return [c get 1] };
-function color_b {index} { c = [colors get index]; return [c get 2] };
-
 ` -----------------------------------------------------------------------
-`  Constants
+`  Board — encapsulates the grid
 ` -----------------------------------------------------------------------
 
-cols = 10;
-rows = 20;
-cell_size = 28;
-board_x = 10;
-board_y = 10;
-sidebar_x = [add board_x [add [multiply cols cell_size] 20]];
+class Board {cols, rows} {
+    cells = [list];
+    repeat [multiply cols rows] { cells append 0 };
 
-` -----------------------------------------------------------------------
-`  Board — flat list (0 = empty, 1-7 = piece color index)
-` -----------------------------------------------------------------------
-
-board = [list];
-repeat [multiply cols rows] { board append 0 };
-
-function board_get {x, y} {
-    return [board get [add [multiply y cols] x]]
-};
-
-procedure board_set {x, y, val} {
-    board set [add [multiply y cols] x], val
-};
-
-` -----------------------------------------------------------------------
-`  Game state
-` -----------------------------------------------------------------------
-
-score = 0;
-level = 1;
-lines_total = 0;
-game_over = no;
-
-piece = [random 0, 6];
-next = [random 0, 6];
-px = 3;
-py = 0;
-rot = 0;
-
-drop_timer = 0;
-drop_speed = 0.5;
-
-` -----------------------------------------------------------------------
-`  Collision
-` -----------------------------------------------------------------------
-
-function collides {type, rotation, cx, cy} {
-    cells = [piece_cells type, rotation];
-    i = 0;
-    repeat 4 {
-        idx = [multiply i 2];
-        x = [cx + [cells get idx]];
-        y = [cy + [cells get [add idx 1]]];
-        if [x < 0]: return yes;
-        if [x >= cols]: return yes;
-        if [y >= rows]: return yes;
-        if [y >= 0] {
-            if [[board_get x, y] > 0]: return yes
-        };
-        i = [i + 1]
+    function get {x, y} {
+        return [cells get [add [multiply y cols] x]]
     };
-    return no
-};
 
-` -----------------------------------------------------------------------
-`  Lock & clear
-` -----------------------------------------------------------------------
+    procedure set {x, y, val} {
+        cells set [add [multiply y cols] x], val
+    };
 
-procedure lock_piece {} {
-    cells = [piece_cells piece, rot];
-    color = [add piece 1];
-    i = 0;
-    repeat 4 {
-        idx = [multiply i 2];
-        x = [px + [cells get idx]];
-        y = [py + [cells get [add idx 1]]];
-        if [y >= 0]: board_set x, y, color;
-        i = [i + 1]
+    procedure clear {} {
+        repeat {i} times [multiply cols rows] {
+            cells set i, 0
+        }
+    };
+
+    function row_full {y} {
+        repeat {x} times cols {
+            if [[self get x, y] = 0]: return no
+        };
+        return yes
+    };
+
+    procedure clear_lines {} {
+        cleared = 0;
+        y = [rows - 1];
+        repeat { y >= 0 } {
+            if [self row_full y] {
+                yy = y;
+                repeat { yy > 0 } {
+                    repeat {x} times cols {
+                        self set x, yy, [self get x, [yy - 1]]
+                    };
+                    yy = [yy - 1]
+                };
+                repeat {x} times cols {
+                    self set x, 0, 0
+                };
+                cleared = [cleared + 1]
+            } else {
+                y = [y - 1]
+            }
+        };
+        return cleared
     }
 };
 
-function clear_lines {} {
-    cleared = 0;
-    y = [rows - 1];
-    repeat { y >= 0 } {
-        full = yes;
-        x = 0;
-        repeat cols {
-            if [[board_get x, y] = 0]: full = no;
-            x = [x + 1]
-        };
-        if full {
-            yy = y;
-            repeat { yy > 0 } {
-                x = 0;
-                repeat cols {
-                    board_set x, yy, [board_get x, [yy - 1]];
-                    x = [x + 1]
-                };
-                yy = [yy - 1]
-            };
-            x = 0;
-            repeat cols {
-                board_set x, 0, 0;
-                x = [x + 1]
-            };
-            cleared = [cleared + 1]
-        } else {
-            y = [y - 1]
-        }
-    };
-    return cleared
-};
+` -----------------------------------------------------------------------
+`  Game — all state and logic
+` -----------------------------------------------------------------------
 
-procedure spawn {} {
-    piece = next;
+class Game {} {
+    board = [Board 10, 20];
+    cols = 10;
+    rows = 20;
+    cell_size = 28;
+    board_x = 10;
+    board_y = 10;
+    sidebar_x = [add board_x [add [multiply cols cell_size] 20]];
+
+    score = 0;
+    level = 1;
+    lines_total = 0;
+    over = no;
+
+    piece = [random 0, 6];
     next = [random 0, 6];
     px = 3;
     py = 0;
     rot = 0;
-    if [collides piece, rot, px, py]: game_over = yes
-};
 
-` -----------------------------------------------------------------------
-`  Drawing helpers
-` -----------------------------------------------------------------------
+    drop_timer = 0;
+    drop_speed = 0.5;
 
-procedure draw_cell {x, y, color_index} {
-    r = [color_r color_index];
-    g = [color_g color_index];
-    b = [color_b color_index];
-    window draw_rect x, y, [cell_size - 2], [cell_size - 2], r, g, b
-};
+    function piece_cells {type, rotation} {
+        return [pieces get [add [multiply type 4] rotation]]
+    };
 
-procedure draw_board {} {
-    y = 0;
-    repeat rows {
-        x = 0;
-        repeat cols {
-            c = [board_get x, y];
-            rx = [board_x + [multiply x cell_size]];
-            ry = [board_y + [multiply y cell_size]];
-            draw_cell rx, ry, c;
-            x = [x + 1]
+    function collides {type, rotation, cx, cy} {
+        c = [self piece_cells type, rotation];
+        repeat {i} times 4 {
+            idx = [multiply i 2];
+            x = [cx + [c get idx]];
+            y = [cy + [c get [add idx 1]]];
+            if [x < 0]: return yes;
+            if [x >= cols]: return yes;
+            if [y >= rows]: return yes;
+            if [y >= 0] {
+                if [[board get x, y] > 0]: return yes
+            }
         };
-        y = [y + 1]
-    }
-};
+        return no
+    };
 
-procedure draw_piece {type, rotation, cx, cy} {
-    cells = [piece_cells type, rotation];
-    color_index = [add type 1];
-    i = 0;
-    repeat 4 {
-        idx = [multiply i 2];
-        x = [cx + [cells get idx]];
-        y = [cy + [cells get [add idx 1]]];
-        if [y >= 0] {
-            rx = [board_x + [multiply x cell_size]];
-            ry = [board_y + [multiply y cell_size]];
-            draw_cell rx, ry, color_index
-        };
-        i = [i + 1]
-    }
-};
+    procedure lock {} {
+        c = [self piece_cells piece, rot];
+        color = [add piece 1];
+        repeat {i} times 4 {
+            idx = [multiply i 2];
+            x = [px + [c get idx]];
+            y = [py + [c get [add idx 1]]];
+            if [y >= 0]: board set x, y, color
+        }
+    };
 
-procedure draw_next {} {
-    window draw_text "Next:", sidebar_x, 120, 20;
-    cells = [piece_cells next, 0];
-    ci = [add next 1];
-    r = [color_r ci];
-    g = [color_g ci];
-    b = [color_b ci];
-    i = 0;
-    repeat 4 {
-        idx = [multiply i 2];
-        x = [cells get idx];
-        y = [cells get [add idx 1]];
-        rx = [sidebar_x + [multiply x 20]];
-        ry = [add 150 [multiply y 20]];
-        window draw_rect rx, ry, 18, 18, r, g, b;
-        i = [i + 1]
-    }
-};
+    procedure spawn {} {
+        piece = next;
+        next = [random 0, 6];
+        px = 3;
+        py = 0;
+        rot = 0;
+        if [self collides piece, rot, px, py]: over = yes
+    };
 
-procedure draw_ui {} {
-    window draw_text [join "Score: " score], sidebar_x, 20, 22;
-    window draw_text [join "Level: " level], sidebar_x, 50, 22;
-    window draw_text [join "Lines: " lines_total], sidebar_x, 80, 22;
-    draw_next;
-    if game_over {
-        window draw_text "GAME OVER", sidebar_x, 280, 28, 255, 80, 80;
-        window draw_text "Press R to restart", sidebar_x, 320, 16, 200, 200, 200
-    }
-};
-
-` -----------------------------------------------------------------------
-`  Input
-` -----------------------------------------------------------------------
-
-procedure handle_key {key} {
-    if [key = "escape"]: window close;
-    if [key = "r"] {
-        i = 0;
-        repeat [multiply cols rows] {
-            board set i, 0;
-            i = [i + 1]
-        };
+    procedure reset {} {
+        board clear;
         score = 0;
         level = 1;
         lines_total = 0;
-        game_over = no;
+        over = no;
         piece = [random 0, 6];
         next = [random 0, 6];
         px = 3;
         py = 0;
         rot = 0;
         drop_timer = 0;
-        drop_speed = 0.5;
-        return
+        drop_speed = 0.5
     };
-    if game_over: return;
-    if [key = "left"] {
-        if [not [collides piece, rot, [px - 1], py]]: px = [px - 1]
-    };
-    if [key = "right"] {
-        if [not [collides piece, rot, [px + 1], py]]: px = [px + 1]
-    };
-    if [key = "down"] {
-        if [not [collides piece, rot, px, [py + 1]]]: py = [py + 1]
-    };
-    if [key = "up"] {
-        nr = [modulo [add rot 1] 4];
-        if [not [collides piece, nr, px, py]]: rot = nr
-    };
-    if [key = "space"] {
-        repeat {
-            if [collides piece, rot, px, [py + 1]]: break;
-            py = [py + 1]
+
+    procedure handle_key {key, window} {
+        if [key = "escape"]: window close;
+        if [key = "r"] { self reset; return };
+        if over: return;
+        if [key = "left"] {
+            if [not [self collides piece, rot, [px - 1], py]]: px = [px - 1]
+        };
+        if [key = "right"] {
+            if [not [self collides piece, rot, [px + 1], py]]: px = [px + 1]
+        };
+        if [key = "down"] {
+            if [not [self collides piece, rot, px, [py + 1]]]: py = [py + 1]
+        };
+        if [key = "up"] {
+            nr = [modulo [add rot 1] 4];
+            if [not [self collides piece, nr, px, py]]: rot = nr
+        };
+        if [key = "space"] {
+            repeat {
+                if [self collides piece, rot, px, [py + 1]]: break;
+                py = [py + 1]
+            }
         }
-    }
-};
-
-` -----------------------------------------------------------------------
-`  Main loop
-` -----------------------------------------------------------------------
-
-window = [Window 500, 620, "Plain Tetris"];
-window load_font "C:/Windows/Fonts/consola.ttf";
-clock = [Clock];
-
-repeat {
-    dt = [clock restart];
-
-    repeat { window poll } {
-        event = [window event_type];
-        if [event = "closed"]: window close;
-        if [event = "key_pressed"]: handle_key [window event_key]
     };
 
-    if [window closed]: break;
-
-    if [not game_over] {
+    procedure update {dt} {
+        if over: return;
         drop_timer = [drop_timer + dt];
         if [drop_timer > drop_speed] {
             drop_timer = 0;
-            if [collides piece, rot, px, [py + 1]] {
-                lock_piece;
-                lines = [clear_lines];
+            if [self collides piece, rot, px, [py + 1]] {
+                self lock;
+                lines = [board clear_lines];
                 if [lines > 0] {
                     score = [score + [multiply lines [multiply lines 100]]];
                     lines_total = [lines_total + lines];
@@ -316,16 +201,94 @@ repeat {
                     drop_speed = [subtract 0.5 [multiply [subtract level 1] 0.04]];
                     if [drop_speed < 0.05]: drop_speed = 0.05
                 };
-                spawn
+                self spawn
             } else {
                 py = [py + 1]
             }
         }
     };
 
+    procedure draw_cell {window, x, y, ci} {
+        c = [colors get ci];
+        window draw_rect x, y, [cell_size - 2], [cell_size - 2], [c get 0], [c get 1], [c get 2]
+    };
+
+    procedure draw {window} {
+        ` Board
+        repeat {y} times rows {
+            repeat {x} times cols {
+                c = [board get x, y];
+                rx = [board_x + [multiply x cell_size]];
+                ry = [board_y + [multiply y cell_size]];
+                self draw_cell window, rx, ry, c
+            }
+        };
+
+        ` Active piece
+        if [not over] {
+            pc = [self piece_cells piece, rot];
+            ci = [add piece 1];
+            repeat {i} times 4 {
+                idx = [multiply i 2];
+                x = [px + [pc get idx]];
+                y = [py + [pc get [add idx 1]]];
+                if [y >= 0] {
+                    rx = [board_x + [multiply x cell_size]];
+                    ry = [board_y + [multiply y cell_size]];
+                    self draw_cell window, rx, ry, ci
+                }
+            }
+        };
+
+        ` UI
+        window draw_text [join "Score: " score], sidebar_x, 20, 22;
+        window draw_text [join "Level: " level], sidebar_x, 50, 22;
+        window draw_text [join "Lines: " lines_total], sidebar_x, 80, 22;
+
+        ` Next piece preview
+        window draw_text "Next:", sidebar_x, 120, 20;
+        nc = [self piece_cells next, 0];
+        ni = [add next 1];
+        ncolor = [colors get ni];
+        repeat {i} times 4 {
+            idx = [multiply i 2];
+            x = [nc get idx];
+            y = [nc get [add idx 1]];
+            rx = [sidebar_x + [multiply x 20]];
+            ry = [add 150 [multiply y 20]];
+            window draw_rect rx, ry, 18, 18, [ncolor get 0], [ncolor get 1], [ncolor get 2]
+        };
+
+        ` Game over overlay
+        if over {
+            window draw_text "GAME OVER", sidebar_x, 280, 28, 255, 80, 80;
+            window draw_text "Press R to restart", sidebar_x, 320, 16, 200, 200, 200
+        }
+    }
+};
+
+` -----------------------------------------------------------------------
+`  Main
+` -----------------------------------------------------------------------
+
+window = [Window 500, 620, "Plain Tetris"];
+window load_font "C:/Windows/Fonts/consola.ttf";
+clock = [Clock];
+game = [Game];
+
+repeat {
+    dt = [clock restart];
+
+    repeat { window poll } {
+        event = [window event_type];
+        if [event = "closed"]: window close;
+        if [event = "key_pressed"]: game handle_key [window event_key], window
+    };
+
+    if [window closed]: break;
+
+    game update dt;
     window clear 20, 20, 30;
-    draw_board;
-    if [not game_over]: draw_piece piece, rot, px, py;
-    draw_ui;
+    game draw window;
     window display
 }

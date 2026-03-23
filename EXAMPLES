@@ -177,6 +177,28 @@ REPEAT
         i = [i + 1]
     }
 
+    ` Counted loop with automatic variable binding
+    repeat {i} times 5 {
+        print i
+    }
+    ` Prints: 0, 1, 2, 3, 4
+
+    ` The variable is scoped to the loop body
+    repeat {x} times 3 {
+        print x
+    };
+    ` x is not defined here — clean scope
+
+    ` Nested counted loops
+    repeat {y} times 3 {
+        repeat {x} times 3 {
+            print [join x ", " y]
+        }
+    }
+
+    ` The modifier keyword "times" is extensible — future modifiers
+    ` like "in", "till", "unless" can follow the same pattern
+
 
 BREAK AND CONTINUE
 
