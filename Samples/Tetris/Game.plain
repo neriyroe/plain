@@ -1,6 +1,42 @@
 ` Tetris — written entirely in Plain.
-` C++ host provides: Window, Clock, list, print, random,
-`                     piece_cells, piece_color, draw_rect, draw_text.
+` C++ host only wraps SFML: Window, Clock, print, random, list.
+
+` -----------------------------------------------------------------------
+`  Piece data — 7 types x 4 rotations, each rotation = 8 ints (4 x,y pairs)
+` -----------------------------------------------------------------------
+
+pieces = [list
+    [list 0,1, 1,1, 2,1, 3,1]  [list 2,0, 2,1, 2,2, 2,3]  [list 0,2, 1,2, 2,2, 3,2]  [list 1,0, 1,1, 1,2, 1,3]
+    [list 1,0, 2,0, 1,1, 2,1]  [list 1,0, 2,0, 1,1, 2,1]  [list 1,0, 2,0, 1,1, 2,1]  [list 1,0, 2,0, 1,1, 2,1]
+    [list 0,1, 1,1, 2,1, 1,0]  [list 1,0, 1,1, 1,2, 2,1]  [list 0,1, 1,1, 2,1, 1,2]  [list 1,0, 1,1, 1,2, 0,1]
+    [list 1,0, 2,0, 0,1, 1,1]  [list 1,0, 1,1, 2,1, 2,2]  [list 1,1, 2,1, 0,2, 1,2]  [list 0,0, 0,1, 1,1, 1,2]
+    [list 0,0, 1,0, 1,1, 2,1]  [list 2,0, 1,1, 2,1, 1,2]  [list 0,1, 1,1, 1,2, 2,2]  [list 1,0, 1,1, 0,1, 0,2]
+    [list 0,0, 0,1, 1,1, 2,1]  [list 1,0, 2,0, 1,1, 1,2]  [list 0,1, 1,1, 2,1, 2,2]  [list 1,0, 1,1, 1,2, 0,2]
+    [list 2,0, 0,1, 1,1, 2,1]  [list 1,0, 1,1, 1,2, 2,2]  [list 0,1, 1,1, 2,1, 0,2]  [list 0,0, 1,0, 1,1, 1,2]
+];
+
+function piece_cells {type, rotation} {
+    return [pieces get [add [multiply type 4] rotation]]
+};
+
+` -----------------------------------------------------------------------
+`  Colors — RGB triples per piece type (index 0 = empty cell)
+` -----------------------------------------------------------------------
+
+colors = [list
+    [list  40,  40,  40]
+    [list   0, 240, 240]
+    [list 240, 240,   0]
+    [list 160,   0, 240]
+    [list   0, 240,   0]
+    [list 240,   0,   0]
+    [list   0,   0, 240]
+    [list 240, 160,   0]
+];
+
+function color_r {index} { c = [colors get index]; return [c get 0] };
+function color_g {index} { c = [colors get index]; return [c get 1] };
+function color_b {index} { c = [colors get index]; return [c get 2] };
 
 ` -----------------------------------------------------------------------
 `  Constants
@@ -8,32 +44,24 @@
 
 cols = 10;
 rows = 20;
-cell = 28;
+cell_size = 28;
 board_x = 10;
 board_y = 10;
-sidebar_x = [add [board_x + [cols * cell]] 20];
+sidebar_x = [add board_x [add [multiply cols cell_size] 20]];
 
 ` -----------------------------------------------------------------------
-`  Board — flat list of cols * rows integers (0 = empty, 1-7 = color)
+`  Board — flat list (0 = empty, 1-7 = piece color index)
 ` -----------------------------------------------------------------------
 
 board = [list];
-i = 0;
-repeat [multiply cols rows] {
-    board append 0;
-    i = [i + 1]
-};
-
-function board_index {x, y} {
-    return [add [multiply y cols] x]
-};
+repeat [multiply cols rows] { board append 0 };
 
 function board_get {x, y} {
-    return [board get [board_index x, y]]
+    return [board get [add [multiply y cols] x]]
 };
 
 procedure board_set {x, y, val} {
-    board set [board_index x, y], val
+    board set [add [multiply y cols] x], val
 };
 
 ` -----------------------------------------------------------------------
@@ -55,7 +83,7 @@ drop_timer = 0;
 drop_speed = 0.5;
 
 ` -----------------------------------------------------------------------
-`  Collision detection
+`  Collision
 ` -----------------------------------------------------------------------
 
 function collides {type, rotation, cx, cy} {
@@ -69,8 +97,7 @@ function collides {type, rotation, cx, cy} {
         if [x >= cols]: return yes;
         if [y >= rows]: return yes;
         if [y >= 0] {
-            cell = [board_get x, y];
-            if [cell > 0]: return yes
+            if [[board_get x, y] > 0]: return yes
         };
         i = [i + 1]
     };
@@ -78,27 +105,21 @@ function collides {type, rotation, cx, cy} {
 };
 
 ` -----------------------------------------------------------------------
-`  Lock piece into board
+`  Lock & clear
 ` -----------------------------------------------------------------------
 
 procedure lock_piece {} {
     cells = [piece_cells piece, rot];
-    color = [piece_color piece];
+    color = [add piece 1];
     i = 0;
     repeat 4 {
         idx = [multiply i 2];
         x = [px + [cells get idx]];
         y = [py + [cells get [add idx 1]]];
-        if [y >= 0] {
-            board_set x, y, color
-        };
+        if [y >= 0]: board_set x, y, color;
         i = [i + 1]
     }
 };
-
-` -----------------------------------------------------------------------
-`  Clear completed lines
-` -----------------------------------------------------------------------
 
 function clear_lines {} {
     cleared = 0;
@@ -107,13 +128,10 @@ function clear_lines {} {
         full = yes;
         x = 0;
         repeat cols {
-            if [[board_get x, y] = 0] {
-                full = no
-            };
+            if [[board_get x, y] = 0]: full = no;
             x = [x + 1]
         };
         if full {
-            ` Shift everything above down by one row
             yy = y;
             repeat { yy > 0 } {
                 x = 0;
@@ -123,7 +141,6 @@ function clear_lines {} {
                 };
                 yy = [yy - 1]
             };
-            ` Clear top row
             x = 0;
             repeat cols {
                 board_set x, 0, 0;
@@ -137,24 +154,25 @@ function clear_lines {} {
     return cleared
 };
 
-` -----------------------------------------------------------------------
-`  Spawn next piece
-` -----------------------------------------------------------------------
-
 procedure spawn {} {
     piece = next;
     next = [random 0, 6];
     px = 3;
     py = 0;
     rot = 0;
-    if [collides piece, rot, px, py] {
-        game_over = yes
-    }
+    if [collides piece, rot, px, py]: game_over = yes
 };
 
 ` -----------------------------------------------------------------------
-`  Drawing
+`  Drawing helpers
 ` -----------------------------------------------------------------------
+
+procedure draw_cell {x, y, color_index} {
+    r = [color_r color_index];
+    g = [color_g color_index];
+    b = [color_b color_index];
+    window draw_rect x, y, [cell_size - 2], [cell_size - 2], r, g, b
+};
 
 procedure draw_board {} {
     y = 0;
@@ -162,14 +180,9 @@ procedure draw_board {} {
         x = 0;
         repeat cols {
             c = [board_get x, y];
-            rx = [board_x + [multiply x cell]];
-            ry = [board_y + [multiply y cell]];
-            sz = [cell - 2];
-            if [c > 0] {
-                window draw_rect rx, ry, sz, sz, c
-            } else {
-                window draw_rect rx, ry, sz, sz, 0
-            };
+            rx = [board_x + [multiply x cell_size]];
+            ry = [board_y + [multiply y cell_size]];
+            draw_cell rx, ry, c;
             x = [x + 1]
         };
         y = [y + 1]
@@ -178,17 +191,16 @@ procedure draw_board {} {
 
 procedure draw_piece {type, rotation, cx, cy} {
     cells = [piece_cells type, rotation];
-    color = [piece_color type];
+    color_index = [add type 1];
     i = 0;
     repeat 4 {
         idx = [multiply i 2];
         x = [cx + [cells get idx]];
         y = [cy + [cells get [add idx 1]]];
         if [y >= 0] {
-            rx = [board_x + [multiply x cell]];
-            ry = [board_y + [multiply y cell]];
-            sz = [cell - 2];
-            window draw_rect rx, ry, sz, sz, color
+            rx = [board_x + [multiply x cell_size]];
+            ry = [board_y + [multiply y cell_size]];
+            draw_cell rx, ry, color_index
         };
         i = [i + 1]
     }
@@ -197,7 +209,10 @@ procedure draw_piece {type, rotation, cx, cy} {
 procedure draw_next {} {
     window draw_text "Next:", sidebar_x, 120, 20;
     cells = [piece_cells next, 0];
-    color = [piece_color next];
+    ci = [add next 1];
+    r = [color_r ci];
+    g = [color_g ci];
+    b = [color_b ci];
     i = 0;
     repeat 4 {
         idx = [multiply i 2];
@@ -205,7 +220,7 @@ procedure draw_next {} {
         y = [cells get [add idx 1]];
         rx = [sidebar_x + [multiply x 20]];
         ry = [add 150 [multiply y 20]];
-        window draw_rect rx, ry, 18, 18, color;
+        window draw_rect rx, ry, 18, 18, r, g, b;
         i = [i + 1]
     }
 };
@@ -222,16 +237,12 @@ procedure draw_ui {} {
 };
 
 ` -----------------------------------------------------------------------
-`  Input handling
+`  Input
 ` -----------------------------------------------------------------------
 
 procedure handle_key {key} {
-    if [key = "escape"] {
-        window close;
-        return
-    };
+    if [key = "escape"]: window close;
     if [key = "r"] {
-        ` Restart
         i = 0;
         repeat [multiply cols rows] {
             board set i, 0;
@@ -252,25 +263,17 @@ procedure handle_key {key} {
     };
     if game_over: return;
     if [key = "left"] {
-        if [not [collides piece, rot, [px - 1], py]] {
-            px = [px - 1]
-        }
+        if [not [collides piece, rot, [px - 1], py]]: px = [px - 1]
     };
     if [key = "right"] {
-        if [not [collides piece, rot, [px + 1], py]] {
-            px = [px + 1]
-        }
+        if [not [collides piece, rot, [px + 1], py]]: px = [px + 1]
     };
     if [key = "down"] {
-        if [not [collides piece, rot, px, [py + 1]]] {
-            py = [py + 1]
-        }
+        if [not [collides piece, rot, px, [py + 1]]]: py = [py + 1]
     };
     if [key = "up"] {
         nr = [modulo [add rot 1] 4];
-        if [not [collides piece, nr, px, py]] {
-            rot = nr
-        }
+        if [not [collides piece, nr, px, py]]: rot = nr
     };
     if [key = "space"] {
         repeat {
@@ -281,27 +284,24 @@ procedure handle_key {key} {
 };
 
 ` -----------------------------------------------------------------------
-`  Main game loop
+`  Main loop
 ` -----------------------------------------------------------------------
 
 window = [Window 500, 620, "Plain Tetris"];
+window load_font "C:/Windows/Fonts/consola.ttf";
 clock = [Clock];
 
 repeat {
     dt = [clock restart];
 
-    ` Poll events
     repeat { window poll } {
         event = [window event_type];
         if [event = "closed"]: window close;
-        if [event = "key"] {
-            handle_key [window event_key]
-        }
+        if [event = "key_pressed"]: handle_key [window event_key]
     };
 
     if [window closed]: break;
 
-    ` Gravity
     if [not game_over] {
         drop_timer = [drop_timer + dt];
         if [drop_timer > drop_speed] {
@@ -310,15 +310,11 @@ repeat {
                 lock_piece;
                 lines = [clear_lines];
                 if [lines > 0] {
-                    points = [multiply lines [multiply lines 100]];
-                    score = [score + points];
+                    score = [score + [multiply lines [multiply lines 100]]];
                     lines_total = [lines_total + lines];
                     level = [add 1 [divide lines_total 10]];
-                    speed = [subtract 0.5 [multiply [subtract level 1] 0.04]];
-                    if [speed < 0.05] {
-                        speed = 0.05
-                    };
-                    drop_speed = speed
+                    drop_speed = [subtract 0.5 [multiply [subtract level 1] 0.04]];
+                    if [drop_speed < 0.05]: drop_speed = 0.05
                 };
                 spawn
             } else {
@@ -327,12 +323,9 @@ repeat {
         }
     };
 
-    ` Render
     window clear 20, 20, 30;
     draw_board;
-    if [not game_over] {
-        draw_piece piece, rot, px, py
-    };
+    if [not game_over]: draw_piece piece, rot, px, py;
     draw_ui;
     window display
 }

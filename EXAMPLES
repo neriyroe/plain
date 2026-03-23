@@ -455,6 +455,68 @@ OPERATOR OVERRIDES
     + = [procedure {a, b} { return [add a b] }]
 
 
+CLASSES AND OBJECTS
+
+    ` Define a class with constructor parameters and methods.
+    ` Methods defined with function are immutable; procedure are mutable.
+    class Dog {name, age} {
+        procedure bark {} {
+            print [join name " says Woof!"]
+        };
+        function info {} {
+            return [join name ", age: " age]
+        };
+        procedure rename {new_name} {
+            name = new_name
+        }
+    };
+
+    ` Create instances
+    dog = [Dog "Rex", 3];
+    dog bark;                ` Rex says Woof!
+    print [dog info];        ` Rex, age: 3
+    print [dog name];        ` Rex  (direct field access)
+    print [type dog];        ` object
+
+    ` Mutation through procedures
+    dog rename "Buddy";
+    dog bark;                ` Buddy says Woof!
+
+    ` Multiple independent instances
+    a = [Dog "Alpha", 1];
+    b = [Dog "Beta", 2];
+    a bark;                  ` Alpha says Woof!
+    b bark                   ` Beta says Woof!
+
+    ` Self-reference — methods can call other methods on the same instance
+    class Calc {value} {
+        function double {} { return [value * 2] };
+        function quad {} { return [[self double] * 2] }
+    };
+    c = [Calc 5];
+    print [c double];        ` 10
+    print [c quad]           ` 20
+
+    ` Anonymous class — returns a constructor callable
+    Cat = [class {name} {
+        function meow {} { return [join name " meows"] }
+    }];
+    cat = [Cat "Whiskers"];
+    print [cat meow]         ` Whiskers meows
+
+    ` Stateful object — counter pattern
+    class Counter {} {
+        count = 0;
+        procedure increment {} { count = [count + 1] };
+        function value {} { return count }
+    };
+    counter = [Counter];
+    counter increment;
+    counter increment;
+    counter increment;
+    print [counter value]    ` 3
+
+
 KNOWN LIMITATIONS
 
     ` Infix requires the left operand to be a named variable.

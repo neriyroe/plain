@@ -23,12 +23,20 @@ enum {
 
 /* Flags for PLAIN_CALLABLE. */
 enum {
-    PLAIN_CALLABLE_IMMUTABLE = 0x01  /* Callable was created with function (not procedure); binding should be immutable. */
+    PLAIN_CALLABLE_IMMUTABLE = 0x01,  /* Callable was created with function (not procedure); binding should be immutable. */
+    PLAIN_CALLABLE_CLASS     = 0x02   /* Constructor: wrap the evaluation frame as an object instance instead of discarding it. */
 };
 
 /* Flags for PLAIN_BINDING. */
 enum {
     PLAIN_BINDING_IMMUTABLE = 0x01  /* Binding cannot be reassigned (functions). */
+};
+
+/* Object sub-kinds, stored in PLAIN_VALUE.length for PLAIN_TYPE_OBJECT values.
+ * length == 0                  → C++ managed object (dispatch via context->handler).
+ * length == PLAIN_OBJECT_NATIVE → Plain-native instance backed by a PLAIN_FRAME*. */
+enum {
+    PLAIN_OBJECT_NATIVE = 0x01
 };
 
 /*

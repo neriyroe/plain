@@ -1,10 +1,10 @@
 /*
- * Tetris — Pure Plain game with SFML bindings.
+ * Tetris host — pure SFML wrapper for Plain.
  *
- * This file is a thin C++ host that wraps SFML as Plain-callable objects
- * and then loads Game.plain which contains the entire game.
+ * This file knows NOTHING about Tetris. It wraps SFML primitives
+ * (Window, Clock) as Plain-callable objects and runs a .plain script.
  *
- * Build:  xmake build tetris
+ * Build:  xmake f --tetris=y; xmake build tetris
  * Run:    xmake run tetris
  */
 
@@ -18,43 +18,12 @@
 #include <sstream>
 #include <string>
 
-/* Piece data: 7 types x 4 rotations x 4 cells x 2 coords (x, y). */
-static const int PIECE_DATA[7][4][4][2] = {
-    /* I */ {{{0,1},{1,1},{2,1},{3,1}}, {{2,0},{2,1},{2,2},{2,3}}, {{0,2},{1,2},{2,2},{3,2}}, {{1,0},{1,1},{1,2},{1,3}}},
-    /* O */ {{{1,0},{2,0},{1,1},{2,1}}, {{1,0},{2,0},{1,1},{2,1}}, {{1,0},{2,0},{1,1},{2,1}}, {{1,0},{2,0},{1,1},{2,1}}},
-    /* T */ {{{0,1},{1,1},{2,1},{1,0}}, {{1,0},{1,1},{1,2},{2,1}}, {{0,1},{1,1},{2,1},{1,2}}, {{1,0},{1,1},{1,2},{0,1}}},
-    /* S */ {{{1,0},{2,0},{0,1},{1,1}}, {{1,0},{1,1},{2,1},{2,2}}, {{1,1},{2,1},{0,2},{1,2}}, {{0,0},{0,1},{1,1},{1,2}}},
-    /* Z */ {{{0,0},{1,0},{1,1},{2,1}}, {{2,0},{1,1},{2,1},{1,2}}, {{0,1},{1,1},{1,2},{2,2}}, {{1,0},{1,1},{0,1},{0,2}}},
-    /* J */ {{{0,0},{0,1},{1,1},{2,1}}, {{1,0},{2,0},{1,1},{1,2}}, {{0,1},{1,1},{2,1},{2,2}}, {{1,0},{1,1},{1,2},{0,2}}},
-    /* L */ {{{2,0},{0,1},{1,1},{2,1}}, {{1,0},{1,1},{1,2},{2,2}}, {{0,1},{1,1},{2,1},{0,2}}, {{0,0},{1,0},{1,1},{1,2}}}
-};
-
-static const sf::Color PIECE_COLORS[8] = {
-    sf::Color(40, 40, 40),       /* 0: empty cell background */
-    sf::Color(0, 240, 240),      /* 1: I — cyan */
-    sf::Color(240, 240, 0),      /* 2: O — yellow */
-    sf::Color(160, 0, 240),      /* 3: T — purple */
-    sf::Color(0, 240, 0),        /* 4: S — green */
-    sf::Color(240, 0, 0),        /* 5: Z — red */
-    sf::Color(0, 0, 240),        /* 6: J — blue */
-    sf::Color(240, 160, 0)       /* 7: L — orange */
-};
-
 struct GameWindow {
     sf::RenderWindow window;
     sf::Font font;
     sf::Event last_event = {};
     bool has_event = false;
     bool font_loaded = false;
-
-    GameWindow(int w, int h, const std::string& title)
-        : window(sf::VideoMode(w, h), title) {
-        window.setFramerateLimit(60);
-        font_loaded = font.loadFromFile("C:/Windows/Fonts/consola.ttf");
-        if(!font_loaded) font_loaded = font.loadFromFile("C:/Windows/Fonts/arial.ttf");
-        if(!font_loaded) font_loaded = font.loadFromFile("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf");
-        if(!font_loaded) font_loaded = font.loadFromFile("/usr/share/fonts/TTF/DejaVuSansMono.ttf");
-    }
 };
 
 struct GameClock {
@@ -72,17 +41,40 @@ static std::string load_file(const std::string& path) {
     return ss.str();
 }
 
-static std::string key_name(sf::Keyboard::Key code) {
+static std::string sfml_key_name(sf::Keyboard::Key code) {
     switch(code) {
+        case sf::Keyboard::A: return "a"; case sf::Keyboard::B: return "b";
+        case sf::Keyboard::C: return "c"; case sf::Keyboard::D: return "d";
+        case sf::Keyboard::E: return "e"; case sf::Keyboard::F: return "f";
+        case sf::Keyboard::G: return "g"; case sf::Keyboard::H: return "h";
+        case sf::Keyboard::I: return "i"; case sf::Keyboard::J: return "j";
+        case sf::Keyboard::K: return "k"; case sf::Keyboard::L: return "l";
+        case sf::Keyboard::M: return "m"; case sf::Keyboard::N: return "n";
+        case sf::Keyboard::O: return "o"; case sf::Keyboard::P: return "p";
+        case sf::Keyboard::Q: return "q"; case sf::Keyboard::R: return "r";
+        case sf::Keyboard::S: return "s"; case sf::Keyboard::T: return "t";
+        case sf::Keyboard::U: return "u"; case sf::Keyboard::V: return "v";
+        case sf::Keyboard::W: return "w"; case sf::Keyboard::X: return "x";
+        case sf::Keyboard::Y: return "y"; case sf::Keyboard::Z: return "z";
+        case sf::Keyboard::Num0: return "0"; case sf::Keyboard::Num1: return "1";
+        case sf::Keyboard::Num2: return "2"; case sf::Keyboard::Num3: return "3";
+        case sf::Keyboard::Num4: return "4"; case sf::Keyboard::Num5: return "5";
+        case sf::Keyboard::Num6: return "6"; case sf::Keyboard::Num7: return "7";
+        case sf::Keyboard::Num8: return "8"; case sf::Keyboard::Num9: return "9";
+        case sf::Keyboard::Escape: return "escape";
+        case sf::Keyboard::Space:  return "space";
+        case sf::Keyboard::Enter:  return "enter";
+        case sf::Keyboard::Tab:    return "tab";
         case sf::Keyboard::Left:   return "left";
         case sf::Keyboard::Right:  return "right";
-        case sf::Keyboard::Down:   return "down";
         case sf::Keyboard::Up:     return "up";
-        case sf::Keyboard::Space:  return "space";
-        case sf::Keyboard::Escape: return "escape";
-        case sf::Keyboard::P:      return "p";
-        case sf::Keyboard::R:      return "r";
-        default:                   return "";
+        case sf::Keyboard::Down:   return "down";
+        case sf::Keyboard::LShift: case sf::Keyboard::RShift: return "shift";
+        case sf::Keyboard::LControl: case sf::Keyboard::RControl: return "control";
+        case sf::Keyboard::LAlt: case sf::Keyboard::RAlt: return "alt";
+        case sf::Keyboard::BackSpace: return "backspace";
+        case sf::Keyboard::Delete:    return "delete";
+        default: return "";
     }
 }
 
@@ -111,33 +103,22 @@ int main(int argc, char** argv) {
         return plain::Value(lo + std::rand() % (hi - lo + 1));
     });
 
-    runtime.bind("piece_cells", [&runtime](const plain::Args& a) -> plain::Value {
-        int type = a.size() > 0 ? a[0].as_integer() : 0;
-        int rot  = a.size() > 1 ? a[1].as_integer() : 0;
-        if(type < 0 || type > 6) type = 0;
-        rot = ((rot % 4) + 4) % 4;
-        plain::Args items;
-        for(int c = 0; c < 4; c++) {
-            items.push_back(plain::Value(PIECE_DATA[type][rot][c][0]));
-            items.push_back(plain::Value(PIECE_DATA[type][rot][c][1]));
-        }
-        auto l = std::make_shared<plain::detail::List>(std::move(items));
-        return runtime.wrap(l);
-    });
-
-    runtime.bind("piece_color", [](const plain::Args& a) -> plain::Value {
-        int type = a.size() > 0 ? a[0].as_integer() : 0;
-        return plain::Value(type + 1);
-    });
-
     runtime.bind_class<GameWindow>("Window",
         [](const plain::Args& a) {
             int w = a.size() > 0 ? a[0].as_integer() : 800;
             int h = a.size() > 1 ? a[1].as_integer() : 600;
             std::string title = a.size() > 2 ? a[2].as_string() : "Plain";
-            return std::make_shared<GameWindow>(w, h, title);
+            auto gw = std::make_shared<GameWindow>();
+            gw->window.create(sf::VideoMode(w, h), title);
+            gw->window.setFramerateLimit(60);
+            return gw;
         },
         {
+            { "load_font", [](GameWindow& gw, const plain::Args& a) -> plain::Value {
+                if(a.empty()) return plain::Value(false);
+                gw.font_loaded = gw.font.loadFromFile(a[0].as_string());
+                return plain::Value(gw.font_loaded);
+            }},
             { "poll", [](GameWindow& gw, const plain::Args&) -> plain::Value {
                 if(!gw.window.isOpen()) return plain::Value(false);
                 gw.has_event = gw.window.pollEvent(gw.last_event);
@@ -146,14 +127,18 @@ int main(int argc, char** argv) {
             { "event_type", [](GameWindow& gw, const plain::Args&) -> plain::Value {
                 if(!gw.has_event) return "none";
                 switch(gw.last_event.type) {
-                    case sf::Event::Closed:     return "closed";
-                    case sf::Event::KeyPressed: return "key";
-                    default:                    return "other";
+                    case sf::Event::Closed:      return "closed";
+                    case sf::Event::KeyPressed:  return "key_pressed";
+                    case sf::Event::KeyReleased: return "key_released";
+                    case sf::Event::Resized:     return "resized";
+                    default:                     return "other";
                 }
             }},
             { "event_key", [](GameWindow& gw, const plain::Args&) -> plain::Value {
-                if(!gw.has_event || gw.last_event.type != sf::Event::KeyPressed) return "";
-                return key_name(gw.last_event.key.code);
+                if(!gw.has_event) return "";
+                if(gw.last_event.type != sf::Event::KeyPressed &&
+                   gw.last_event.type != sf::Event::KeyReleased) return "";
+                return sfml_key_name(gw.last_event.key.code);
             }},
             { "close", [](GameWindow& gw, const plain::Args&) -> plain::Value {
                 gw.window.close();
@@ -174,33 +159,25 @@ int main(int argc, char** argv) {
                 return {};
             }},
             { "draw_rect", [](GameWindow& gw, const plain::Args& a) -> plain::Value {
-                if(a.size() < 5) return {};
+                if(a.size() < 7) return {};
                 float x = static_cast<float>(a[0].as_real());
                 float y = static_cast<float>(a[1].as_real());
                 float w = static_cast<float>(a[2].as_real());
                 float h = static_cast<float>(a[3].as_real());
-                int ci  = a[4].as_integer();
-                sf::Color color = (ci >= 0 && ci < 8) ? PIECE_COLORS[ci] : sf::Color(ci, ci, ci);
-                if(a.size() >= 7) {
-                    color = sf::Color(a[4].as_integer(), a[5].as_integer(), a[6].as_integer());
-                }
                 sf::RectangleShape rect({w, h});
                 rect.setPosition(x, y);
-                rect.setFillColor(color);
+                rect.setFillColor(sf::Color(a[4].as_integer(), a[5].as_integer(), a[6].as_integer()));
                 gw.window.draw(rect);
                 return {};
             }},
             { "draw_text", [](GameWindow& gw, const plain::Args& a) -> plain::Value {
                 if(a.size() < 4 || !gw.font_loaded) return {};
-                std::string text = a[0].as_string();
-                float x    = static_cast<float>(a[1].as_real());
-                float y    = static_cast<float>(a[2].as_real());
-                int size   = a[3].as_integer();
+                sf::Text txt(a[0].as_string(), gw.font, a[3].as_integer());
+                txt.setPosition(static_cast<float>(a[1].as_real()),
+                                static_cast<float>(a[2].as_real()));
                 int r = a.size() > 4 ? a[4].as_integer() : 255;
                 int g = a.size() > 5 ? a[5].as_integer() : 255;
                 int b = a.size() > 6 ? a[6].as_integer() : 255;
-                sf::Text txt(text, gw.font, size);
-                txt.setPosition(x, y);
                 txt.setFillColor(sf::Color(r, g, b));
                 gw.window.draw(txt);
                 return {};
@@ -225,7 +202,7 @@ int main(int argc, char** argv) {
 
     std::string source = load_file(script_path);
     if(source.empty()) {
-        std::cerr << "Failed to load game script: " << script_path << '\n';
+        std::cerr << "Failed to load script: " << script_path << '\n';
         return 1;
     }
 

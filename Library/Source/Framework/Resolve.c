@@ -268,6 +268,97 @@ PLAIN_WORD_DOUBLE PLAIN_CALL(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* n
     struct PLAIN_VALUE body = {NULL, 0, PLAIN_TYPE_NIL};
     PLAIN_WORD_DOUBLE error = PLAIN_EVALUATE(&context->environment, &PLAIN_RESOLVE, callable->body, context->tracker, &body);
     context->frame = saved;
+
+    /* Class constructor: the frame becomes the object instance. */
+    if(callable->flags & PLAIN_CALLABLE_CLASS) {
+        PLAIN_VALUE_CLEAR(&body);
+        PLAIN_VALUE_CLEAR(&context->result);
+        /* Break circular closure references: methods defined in the class body
+         * retain this frame as their closure. Undo those retains so the frame's
+         * ref count only reflects external holders (object values). */
+        struct PLAIN_BINDING* b;
+        struct PLAIN_BINDING* t;
+        HASH_ITER(hh, frame->bindings, b, t) {
+            if(b->callable != NULL && b->callable->closure == frame) {
+                frame->references--;
+            }
+        }
+        PLAIN_FRAME_RETAIN(frame);
+        /* Bind `self` directly — set the value without PLAIN_VALUE_COPY to avoid
+         * an extra retain that would create an unbreakable circular reference. */
+        {
+            const PLAIN_BYTE* self_name = (const PLAIN_BYTE*)"self";
+            PLAIN_WORD_DOUBLE self_len = 4;
+            struct PLAIN_BINDING* self_binding = NULL;
+            HASH_FIND(hh, frame->bindings, self_name, self_len, self_binding);
+            if(self_binding == NULL) {
+                self_binding = (struct PLAIN_BINDING*)PLAIN_RESIZE(NULL, sizeof(struct PLAIN_BINDING), 0);
+                if(self_binding != NULL) {
+                    memset(self_binding, 0, sizeof(struct PLAIN_BINDING));
+                    self_binding->name = (PLAIN_BYTE*)PLAIN_RESIZE(NULL, self_len + 1, 0);
+                    if(self_binding->name != NULL) {
+                        memcpy(self_binding->name, self_name, self_len + 1);
+                        HASH_ADD_KEYPTR(hh, frame->bindings, self_binding->name, self_len, self_binding);
+                    }
+                }
+            }
+            if(self_binding != NULL) {
+                self_binding->value.type = PLAIN_TYPE_OBJECT;
+                self_binding->value.data = (PLAIN_BYTE*)frame;
+                self_binding->value.length = PLAIN_OBJECT_NATIVE;
+                self_binding->flags = PLAIN_BINDING_IMMUTABLE;
+            }
+        }
+        if(value != NULL) {
+            value->type = PLAIN_TYPE_OBJECT;
+            value->data = (PLAIN_BYTE*)frame;
+            value->length = PLAIN_OBJECT_NATIVE;
+        }
+        PLAIN_FRAME_RELEASE(frame);
+        return (error == PLAIN_SIGNAL_RETURN) ? 0 : error;
+    }
+
+    PLAIN_FRAME_RELEASE(frame);
+    if(error == PLAIN_SIGNAL_RETURN) {
+        if(value != NULL) { *value = context->result; context->result = (struct PLAIN_VALUE){NULL, 0, PLAIN_TYPE_NIL}; }
+        else { PLAIN_VALUE_CLEAR(&context->result); }
+        PLAIN_VALUE_CLEAR(&body);
+        return 0;
+    }
+    if(error == 0 && value != NULL) { *value = body; }
+    else { PLAIN_VALUE_CLEAR(&body); }
+    return error;
+}
+
+/* Like PLAIN_CALL, but binds parameters starting from PLAIN_ARGUMENT(node, offset).
+ * Used for method dispatch where arg0 is the method name, not a parameter. */
+static PLAIN_WORD_DOUBLE PLAIN_CALL_OFFSET(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* node, struct PLAIN_CALLABLE* callable, struct PLAIN_VALUE* value, PLAIN_WORD_DOUBLE offset) {
+    if(callable->native != NULL) {
+        return callable->native((void*)context, (void*)node, PLAIN_TYPE_LIST, value);
+    }
+    struct PLAIN_FRAME* frame = PLAIN_FRAME_CREATE(callable->closure != NULL ? callable->closure : context->frame);
+    if(frame == NULL) return PLAIN_ERROR_SYSTEM;
+    const PLAIN_BYTE* pointer = callable->parameters;
+    PLAIN_WORD_DOUBLE index = 0;
+    while(pointer != NULL && *pointer != '\0') {
+        while(*pointer == ' ' || *pointer == '\t' || *pointer == ',' || *pointer == '\n' || *pointer == '\r') pointer++;
+        if(*pointer == '\0') break;
+        const PLAIN_BYTE* start = pointer;
+        while(*pointer != '\0' && *pointer != ' ' && *pointer != '\t' && *pointer != ',' && *pointer != '\n' && *pointer != '\r') pointer++;
+        PLAIN_BYTE name[256];
+        PLAIN_WORD_DOUBLE length = pointer - start;
+        if(length >= sizeof(name)) length = sizeof(name) - 1;
+        memcpy(name, start, length);
+        name[length] = '\0';
+        struct PLAIN_VALUE* argument = PLAIN_ARGUMENT(node, offset + index);
+        if(argument != NULL) PLAIN_FRAME_BIND(frame, name, argument, NULL, 0);
+        index++;
+    }
+    struct PLAIN_FRAME* saved = context->frame;
+    context->frame = frame;
+    struct PLAIN_VALUE body = {NULL, 0, PLAIN_TYPE_NIL};
+    PLAIN_WORD_DOUBLE error = PLAIN_EVALUATE(&context->environment, &PLAIN_RESOLVE, callable->body, context->tracker, &body);
+    context->frame = saved;
     PLAIN_FRAME_RELEASE(frame);
     if(error == PLAIN_SIGNAL_RETURN) {
         if(value != NULL) { *value = context->result; context->result = (struct PLAIN_VALUE){NULL, 0, PLAIN_TYPE_NIL}; }
@@ -616,6 +707,44 @@ static PLAIN_WORD_DOUBLE PLAIN_NATIVE_PROCEDURE(void* raw, void* data, PLAIN_WOR
     return 0;
 }
 
+static PLAIN_WORD_DOUBLE PLAIN_NATIVE_CLASS(void* raw, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
+    struct PLAIN_CONTEXT* context = (struct PLAIN_CONTEXT*)raw;
+    struct PLAIN_LIST* node = (struct PLAIN_LIST*)data;
+    PLAIN_WORD_DOUBLE arity = PLAIN_ARITY(node);
+    if(arity < 2) return 0;
+    struct PLAIN_VALUE* first = PLAIN_ARGUMENT(node, 0);
+    /* Named form: class Name {parameters} {body} */
+    if(arity >= 3 && (first->type == PLAIN_TYPE_KEYWORD || first->type == PLAIN_TYPE_STRING)) {
+        struct PLAIN_LIST* parameters = (struct PLAIN_LIST*)PLAIN_ARGUMENT(node, 1)->data;
+        struct PLAIN_LIST* body       = (struct PLAIN_LIST*)PLAIN_ARGUMENT(node, 2)->data;
+        struct PLAIN_CALLABLE* callable = (struct PLAIN_CALLABLE*)PLAIN_RESIZE(NULL, sizeof(struct PLAIN_CALLABLE), 0);
+        if(callable == NULL) return PLAIN_ERROR_SYSTEM;
+        memset(callable, 0, sizeof(struct PLAIN_CALLABLE));
+        callable->parameters = PLAIN_SEGMENT_COPY(parameters);
+        callable->body       = PLAIN_SEGMENT_COPY(body);
+        callable->closure    = context->frame;
+        callable->flags      = PLAIN_CALLABLE_IMMUTABLE | PLAIN_CALLABLE_CLASS;
+        PLAIN_FRAME_RETAIN(context->frame);
+        return PLAIN_FRAME_BIND(context->frame, first->data, NULL, callable, PLAIN_BINDING_IMMUTABLE);
+    }
+    /* Anonymous form: [class {parameters} {body}] — returns a constructor callable */
+    if(first->type == PLAIN_TYPE_LIST) {
+        struct PLAIN_LIST* parameters = (struct PLAIN_LIST*)first->data;
+        struct PLAIN_LIST* body       = (struct PLAIN_LIST*)PLAIN_ARGUMENT(node, 1)->data;
+        struct PLAIN_CALLABLE* callable = (struct PLAIN_CALLABLE*)PLAIN_RESIZE(NULL, sizeof(struct PLAIN_CALLABLE), 0);
+        if(callable == NULL) return PLAIN_ERROR_SYSTEM;
+        memset(callable, 0, sizeof(struct PLAIN_CALLABLE));
+        callable->parameters = PLAIN_SEGMENT_COPY(parameters);
+        callable->body       = PLAIN_SEGMENT_COPY(body);
+        callable->closure    = context->frame;
+        callable->flags      = PLAIN_CALLABLE_IMMUTABLE | PLAIN_CALLABLE_CLASS;
+        PLAIN_FRAME_RETAIN(context->frame);
+        if(value != NULL) { value->type = PLAIN_TYPE_CALLABLE; value->data = (PLAIN_BYTE*)callable; value->length = 0; }
+        return 0;
+    }
+    return 0;
+}
+
 static PLAIN_WORD_DOUBLE PLAIN_NATIVE_NOT(void* raw, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
     struct PLAIN_LIST* node = (struct PLAIN_LIST*)data;
     struct PLAIN_VALUE* a = PLAIN_ARGUMENT(node, 0);
@@ -778,6 +907,7 @@ PLAIN_WORD_DOUBLE PLAIN_CONTEXT_INIT(struct PLAIN_CONTEXT* context) {
     PLAIN_REGISTER("type",      PLAIN_NATIVE_TYPE)
     PLAIN_REGISTER("function",  PLAIN_NATIVE_FUNCTION)
     PLAIN_REGISTER("procedure", PLAIN_NATIVE_PROCEDURE)
+    PLAIN_REGISTER("class",     PLAIN_NATIVE_CLASS)
     PLAIN_REGISTER("not",       PLAIN_NATIVE_NOT)
     PLAIN_REGISTER("and",       PLAIN_NATIVE_AND)
     PLAIN_REGISTER("or",        PLAIN_NATIVE_OR)
@@ -845,10 +975,38 @@ PLAIN_WORD_DOUBLE PLAIN_RESOLVE(void* raw, void* data, PLAIN_WORD_DOUBLE type, s
         if(binding->value.type == PLAIN_TYPE_CALLABLE && binding->value.data != NULL) {
             return PLAIN_CALL(context, node, (struct PLAIN_CALLABLE*)binding->value.data, value);
         }
-        /* C++ object value — dispatch via context->handler with PLAIN_TYPE_OBJECT type
-         * so the host can distinguish object method calls from unknown-keyword fallbacks. */
-        if(binding->value.type == PLAIN_TYPE_OBJECT && context->handler != NULL) {
-            return context->handler(raw, data, PLAIN_TYPE_OBJECT, value);
+        /* Object dispatch. */
+        if(binding->value.type == PLAIN_TYPE_OBJECT) {
+            /* Plain-native instance — dispatch via frame lookup. */
+            if(binding->value.length == PLAIN_OBJECT_NATIVE && binding->value.data != NULL) {
+                struct PLAIN_FRAME* instance = (struct PLAIN_FRAME*)binding->value.data;
+                PLAIN_WORD_DOUBLE arity = PLAIN_ARITY(node);
+                if(arity == 0) {
+                    if(value != NULL) PLAIN_VALUE_COPY(value, &binding->value);
+                    return 0;
+                }
+                struct PLAIN_VALUE* method_arg = PLAIN_ARGUMENT(node, 0);
+                if(method_arg == NULL) return 0;
+                /* If the method name was pre-resolved to a callable (because it
+                 * was in the scope chain during argument walk), call it directly. */
+                if(method_arg->type == PLAIN_TYPE_CALLABLE && method_arg->data != NULL) {
+                    return PLAIN_CALL_OFFSET(context, node, (struct PLAIN_CALLABLE*)method_arg->data, value, 1);
+                }
+                const PLAIN_BYTE* method_name = NULL;
+                if(method_arg->type == PLAIN_TYPE_KEYWORD || method_arg->type == PLAIN_TYPE_STRING)
+                    method_name = method_arg->data;
+                if(method_name == NULL) return 0;
+                struct PLAIN_BINDING* member = PLAIN_FRAME_FIND(instance, method_name);
+                if(member == NULL) return 0;
+                if(member->callable != NULL)
+                    return PLAIN_CALL_OFFSET(context, node, member->callable, value, 1);
+                if(value != NULL) PLAIN_VALUE_COPY(value, &member->value);
+                return 0;
+            }
+            /* C++ managed object — dispatch via context->handler. */
+            if(context->handler != NULL) {
+                return context->handler(raw, data, PLAIN_TYPE_OBJECT, value);
+            }
         }
     }
 

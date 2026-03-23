@@ -153,11 +153,64 @@ RETURN, BREAK, CONTINUE
 
 TYPE INTROSPECTION
 
+    type value       returns a string describing the value's type:
+                     "boolean", "integer", "real", "string", "keyword",
+                     "list", "callable", "object", or "none".
+
     do {block}       evaluates the block in a fresh child scope and returns
                      its value. Variables created inside do not leak out.
                      `return` inside the block yields the do expression's value.
-                     "boolean", "integer", "real", "string", "keyword",
-                     "list", "callable", or "none".
+
+
+CLASSES AND OBJECTS
+
+    class defines a constructor. Calling the constructor creates an object
+    whose methods and fields live in a frame — the same structure used for
+    variable scopes. From Plain code, there is no distinction between
+    objects created in Plain (via class) and objects created in C++ (via
+    the host bridge). [type obj] returns "object" for both.
+
+    Named form:
+
+        class Dog {name, age} {
+            procedure bark {} { print name };
+            function info {} { return [join name " " age] }
+        }
+
+    Anonymous form (returns a constructor callable):
+
+        Cat = [class {name} {
+            function meow {} { return name }
+        }]
+
+    Constructing an instance:
+
+        dog = [Dog "Rex", 3]
+
+    Method call — same syntax as any other statement/expression:
+
+        dog bark                 ` statement
+        result = [dog info]      ` expression
+
+    Field access — use the field name as the first argument:
+
+        print [dog name]         ` "Rex"
+
+    Methods defined with function produce immutable bindings; those
+    defined with procedure produce mutable bindings. Constructor
+    parameters become regular fields in the instance.
+
+    Self-reference: each instance has an immutable binding "self" that
+    refers to itself, so methods can call other methods on the same
+    object:
+
+        class Calc {n} {
+            function double {} { return [n * 2] };
+            function quad {} { return [[self double] * 2] }
+        }
+
+    Classes are registered in the frame like any other callable, so they
+    can be overridden, stored, and passed as arguments.
 
 
 HOST EXTENSION

@@ -487,7 +487,7 @@ void PLAIN_UNLINK(struct PLAIN_LIST* node) {
         if(value->type == PLAIN_TYPE_LIST) {
             PLAIN_UNLINK((struct PLAIN_LIST*)value->data);
         }
-        if(value->length > 0) {
+        if(value->type != PLAIN_TYPE_OBJECT && value->length > 0) {
             PLAIN_RESIZE(value->data, 0, value->length);
         }
     }
