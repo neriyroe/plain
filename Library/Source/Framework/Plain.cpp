@@ -254,7 +254,7 @@ namespace plain {
         context.tracker   = &error_delegate;
         context.handler   = &object_method_handler;
         context.user_data = this;
-        PLAIN_CONTEXT_INITIALIZE(&context);
+        PLAIN_CONTEXT_REGISTER_RUNTIME(&context);
         register_builtins();
     }
 
@@ -394,13 +394,13 @@ namespace plain {
         auto* ptr = owned.get();
         objects.push_back(std::move(owned));
 
-        /* Store the raw pointer in data with length = 0.
-         * length = 0 means PLAIN_VALUE_CLEAR will never free it and
-         * PLAIN_VALUE_COPY will copy only the pointer — exactly what we want,
-         * since the Runtime owns the object, not the individual Plain values. */
+        /* Store the raw pointer in data. length = 0 and flags = 0 (no PLAIN_VALUE_USER_DEFINED)
+         * so PLAIN_VALUE_CLEAR never frees it and PLAIN_VALUE_COPY only copies the pointer —
+         * the Runtime owns the object lifetime, not individual Plain values. */
         Value result;
         result.native().data   = reinterpret_cast<PLAIN_BYTE*>(ptr);
         result.native().length = 0;
+        result.native().flags  = 0;
         result.native().type   = PLAIN_TYPE_OBJECT;
         return result;
     }

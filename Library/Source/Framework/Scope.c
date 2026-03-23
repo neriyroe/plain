@@ -59,6 +59,7 @@ void PLAIN_FRAME_DESTROY(struct PLAIN_FRAME* frame) {
         if(binding->value.type == PLAIN_TYPE_OBJECT && binding->value.data == (PLAIN_BYTE*)frame) {
             binding->value.data = NULL;
             binding->value.length = 0;
+            binding->value.flags = 0;
             binding->value.type = PLAIN_TYPE_NIL;
         }
         HASH_DEL(frame->bindings, binding);
@@ -131,10 +132,11 @@ PLAIN_WORD_DOUBLE PLAIN_FRAME_SET(struct PLAIN_FRAME* frame, const PLAIN_BYTE* n
 }
 
 void PLAIN_VALUE_CLEAR(struct PLAIN_VALUE* value) {
-    if(value->type == PLAIN_TYPE_OBJECT && value->length == PLAIN_OBJECT_NATIVE) {
+    if(value->type == PLAIN_TYPE_OBJECT && (value->flags & PLAIN_VALUE_USER_DEFINED)) {
         if(value->data != NULL) PLAIN_FRAME_RELEASE((struct PLAIN_FRAME*)value->data);
         value->data = NULL;
         value->length = 0;
+        value->flags = 0;
         value->type = PLAIN_TYPE_NIL;
         return;
     }
@@ -143,13 +145,15 @@ void PLAIN_VALUE_CLEAR(struct PLAIN_VALUE* value) {
     }
     value->data = NULL;
     value->length = 0;
+    value->flags = 0;
     value->type = PLAIN_TYPE_NIL;
 }
 
 PLAIN_WORD_DOUBLE PLAIN_VALUE_COPY(struct PLAIN_VALUE* destination, const struct PLAIN_VALUE* source) {
     destination->type = source->type;
     destination->length = source->length;
-    if(source->type == PLAIN_TYPE_OBJECT && source->length == PLAIN_OBJECT_NATIVE) {
+    destination->flags = source->flags;
+    if(source->type == PLAIN_TYPE_OBJECT && (source->flags & PLAIN_VALUE_USER_DEFINED)) {
         destination->data = source->data;
         if(source->data != NULL) PLAIN_FRAME_RETAIN((struct PLAIN_FRAME*)source->data);
         return 0;

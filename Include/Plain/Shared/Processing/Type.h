@@ -16,6 +16,5 @@ enum {
     PLAIN_TYPE_POINTER,
     PLAIN_TYPE_REAL,
     PLAIN_TYPE_STRING,
-    PLAIN_TYPE_SUBROUTINE,
-    PLAIN_TYPE_OBJECT     /* Opaque C++ object managed by the host; data = pointer. */
+    PLAIN_TYPE_OBJECT
 };

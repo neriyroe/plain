@@ -56,15 +56,6 @@ PLAIN_WORD_DOUBLE PLAIN_WALK(void* context, PLAIN_SUBROUTINE function, struct PL
     if(error != 0) {
         return error;
     }
-    /* Expression. */
-    if(node->parent != NULL) {
-        if(value->type == PLAIN_TYPE_SUBROUTINE) { /* Subroutine. */
-            error = ((PLAIN_SUBROUTINE)value->data)(context, node, PLAIN_TYPE_LIST, value);
-            if(error != 0) {
-                return error;
-            }
-        }
-    }
     if(node->node != NULL) {
         PLAIN_WORD_DOUBLE error = PLAIN_WALK(context, function, node->node, NULL);
         if(error != 0) {

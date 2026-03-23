@@ -5,7 +5,7 @@
 `  Piece data — 7 types x 4 rotations, each rotation = 8 ints (4 x,y pairs)
 ` -----------------------------------------------------------------------
 
-pieces = [list
+set pieces, [list
     [list 0,1, 1,1, 2,1, 3,1]  [list 2,0, 2,1, 2,2, 2,3]  [list 0,2, 1,2, 2,2, 3,2]  [list 1,0, 1,1, 1,2, 1,3]
     [list 1,0, 2,0, 1,1, 2,1]  [list 1,0, 2,0, 1,1, 2,1]  [list 1,0, 2,0, 1,1, 2,1]  [list 1,0, 2,0, 1,1, 2,1]
     [list 0,1, 1,1, 2,1, 1,0]  [list 1,0, 1,1, 1,2, 2,1]  [list 0,1, 1,1, 2,1, 1,2]  [list 1,0, 1,1, 1,2, 0,1]
@@ -15,7 +15,7 @@ pieces = [list
     [list 2,0, 0,1, 1,1, 2,1]  [list 1,0, 1,1, 1,2, 2,2]  [list 0,1, 1,1, 2,1, 0,2]  [list 0,0, 1,0, 1,1, 1,2]
 ];
 
-colors = [list
+set colors, [list
     [list  40,  40,  40]
     [list   0, 240, 240]
     [list 240, 240,   0]
@@ -31,52 +31,52 @@ colors = [list
 ` -----------------------------------------------------------------------
 
 class Board {cols, rows} {
-    cells = [list];
-    repeat [cols * rows] { cells append 0 };
+    set cells, [list];
+    repeat [* cols rows] { cells append 0 };
 
-    function index {x, y} {
-        return [x + [y * cols]]
+    define index {x, y} {
+        return [+ x [* y cols]]
     };
 
-    function get {x, y} {
+    define get {x, y} {
         return [cells get [index x, y]]
     };
 
-    procedure set {x, y, val} {
+    define set {x, y, val} {
         cells set [index x, y], val
     };
 
-    procedure clear {} {
-        repeat {i} times [cols * rows] {
+    define clear {} {
+        repeat {i} times [* cols rows] {
             cells set i, 0
         }
     };
 
-    function row_full {y} {
+    define row_full {y} {
         repeat {x} times cols {
-            if [[get x, y] = 0]: return no
+            if [= [get x, y] 0]: return no
         };
         return yes
     };
 
-    procedure clear_lines {} {
-        cleared = 0;
-        y = [rows - 1];
-        repeat { y >= 0 } {
+    define clear_lines {} {
+        set cleared, 0;
+        set y, [- rows 1];
+        repeat { [>= y 0] } {
             if [row_full y] {
-                yy = y;
-                repeat { yy > 0 } {
+                set yy, y;
+                repeat { [> yy 0] } {
                     repeat {x} times cols {
-                        set x, yy, [get x, [yy - 1]]
+                        set x, yy, [get x, [- yy 1]]
                     };
-                    yy = [yy - 1]
+                    set yy, [- yy 1]
                 };
                 repeat {x} times cols {
                     set x, 0, 0
                 };
-                cleared = [cleared + 1]
+                set cleared, [+ cleared 1]
             } else {
-                y = [y - 1]
+                set y, [- y 1]
             }
         };
         return cleared
@@ -88,146 +88,146 @@ class Board {cols, rows} {
 ` -----------------------------------------------------------------------
 
 class Game {} {
-    board = [Board 10, 20];
-    cols = 10;
-    rows = 20;
-    cell_size = 28;
-    board_x = 10;
-    board_y = 10;
-    sidebar_x = [board_x + [add [cols * cell_size] 20]];
+    set board, [Board 10, 20];
+    set cols, 10;
+    set rows, 20;
+    set cell_size, 28;
+    set board_x, 10;
+    set board_y, 10;
+    set sidebar_x, [+ board_x [add [* cols cell_size] 20]];
 
-    score = 0;
-    level = 1;
-    lines_total = 0;
-    over = no;
+    set score, 0;
+    set level, 1;
+    set lines_total, 0;
+    set over, no;
 
-    piece = [random 0, 6];
-    next = [random 0, 6];
-    px = 3;
-    py = 0;
-    rot = 0;
+    set piece, [random 0, 6];
+    set next, [random 0, 6];
+    set px, 3;
+    set py, 0;
+    set rot, 0;
 
-    drop_timer = 0;
-    drop_speed = 0.5;
+    set drop_timer, 0;
+    set drop_speed, 0.5;
 
-    function piece_cells {type, rotation} {
-        return [pieces get [rotation + [type * 4]]]
+    define piece_cells {type, rotation} {
+        return [pieces get [+ rotation [* type 4]]]
     };
 
-    function collides {type, rotation, cx, cy} {
-        c = [piece_cells type, rotation];
+    define collides {type, rotation, cx, cy} {
+        set c, [piece_cells type, rotation];
         repeat {i} times 4 {
-            idx = [i * 2];
-            x = [cx + [c get idx]];
-            y = [cy + [c get [idx + 1]]];
-            if [x < 0]: return yes;
-            if [x >= cols]: return yes;
-            if [y >= rows]: return yes;
-            if [y >= 0] {
-                if [[board get x, y] > 0]: return yes
+            set idx, [* i 2];
+            set x, [+ cx [c get idx]];
+            set y, [+ cy [c get [+ idx 1]]];
+            if [< x 0]: return yes;
+            if [>= x cols]: return yes;
+            if [>= y rows]: return yes;
+            if [>= y 0] {
+                if [> [board get x, y] 0]: return yes
             }
         };
         return no
     };
 
-    procedure lock {} {
-        c = [piece_cells piece, rot];
-        color = [piece + 1];
+    define lock {} {
+        set c, [piece_cells piece, rot];
+        set color, [+ piece 1];
         repeat {i} times 4 {
-            idx = [i * 2];
-            x = [px + [c get idx]];
-            y = [py + [c get [idx + 1]]];
-            if [y >= 0]: board set x, y, color
+            set idx, [* i 2];
+            set x, [+ px [c get idx]];
+            set y, [+ py [c get [+ idx 1]]];
+            if [>= y 0]: board set x, y, color
         }
     };
 
-    procedure spawn {} {
-        piece = next;
-        next = [random 0, 6];
-        px = 3;
-        py = 0;
-        rot = 0;
-        if [collides piece, rot, px, py]: over = yes
+    define spawn {} {
+        set piece, next;
+        set next, [random 0, 6];
+        set px, 3;
+        set py, 0;
+        set rot, 0;
+        if [collides piece, rot, px, py]: set over, yes
     };
 
-    procedure reset {} {
+    define reset {} {
         board clear;
-        score = 0;
-        level = 1;
-        lines_total = 0;
-        drop_timer = 0;
-        drop_speed = 0.5;
-        over = no;
-        next = [random 0, 6];
+        set score, 0;
+        set level, 1;
+        set lines_total, 0;
+        set drop_timer, 0;
+        set drop_speed, 0.5;
+        set over, no;
+        set next, [random 0, 6];
         spawn
     };
 
-    procedure handle_key {key, window} {
-        if [key = "escape"]: window close;
-        if [key = "r"] { reset; return };
+    define handle_key {key, window} {
+        if [= key "escape"]: window close;
+        if [= key "r"] { reset; return };
         if over: return;
         when key
-            "left"  { if [not [collides piece, rot, [px - 1], py]]: px = [px - 1] }
-            "right" { if [not [collides piece, rot, [px + 1], py]]: px = [px + 1] }
-            "down"  { if [not [collides piece, rot, px, [py + 1]]]: py = [py + 1] }
+            "left"  { if [not [collides piece, rot, [- px 1], py]]: set px, [- px 1] }
+            "right" { if [not [collides piece, rot, [+ px 1], py]]: set px, [+ px 1] }
+            "down"  { if [not [collides piece, rot, px, [+ py 1]]]: set py, [+ py 1] }
             "up"    {
-                nr = [modulo [rot + 1] 4];
-                if [not [collides piece, nr, px, py]]: rot = nr
+                set nr, [modulo [+ rot 1] 4];
+                if [not [collides piece, nr, px, py]]: set rot, nr
             }
             "space" {
                 repeat {
-                    if [collides piece, rot, px, [py + 1]]: break;
-                    py = [py + 1]
+                    if [collides piece, rot, px, [+ py 1]]: break;
+                    set py, [+ py 1]
                 }
             }
     };
 
-    procedure update {dt} {
+    define update {dt} {
         if over: return;
-        drop_timer = [drop_timer + dt];
-        if [drop_timer > drop_speed] {
-            drop_timer = 0;
-            if [collides piece, rot, px, [py + 1]] {
+        set drop_timer, [+ drop_timer dt];
+        if [> drop_timer drop_speed] {
+            set drop_timer, 0;
+            if [collides piece, rot, px, [+ py 1]] {
                 lock;
-                lines = [board clear_lines];
-                if [lines > 0] {
-                    score = [score + [lines * [lines * 100]]];
-                    lines_total = [lines_total + lines];
-                    level = [add 1 [lines_total / 10]];
-                    drop_speed = [subtract 0.5 [multiply [level - 1] 0.04]];
-                    if [drop_speed < 0.05]: drop_speed = 0.05
+                set lines, [board clear_lines];
+                if [> lines 0] {
+                    set score, [+ score [* lines [* lines 100]]];
+                    set lines_total, [+ lines_total lines];
+                    set level, [add 1 [divide lines_total 10]];
+                    set drop_speed, [subtract 0.5 [multiply [- level 1] 0.04]];
+                    if [< drop_speed 0.05]: set drop_speed, 0.05
                 };
                 spawn
             } else {
-                py = [py + 1]
+                set py, [+ py 1]
             }
         }
     };
 
-    procedure draw_piece {window, type, rotation, ox, oy, origin_x, origin_y, size} {
-        cells = [piece_cells type, rotation];
-        c = [colors get [type + 1]];
+    define draw_piece {window, type, rotation, ox, oy, origin_x, origin_y, size} {
+        set cells, [piece_cells type, rotation];
+        set c, [colors get [+ type 1]];
         repeat {i} times 4 {
-            idx = [i * 2];
-            gx = [ox + [cells get idx]];
-            gy = [oy + [cells get [idx + 1]]];
-            if [gy >= 0] {
-                rx = [origin_x + [gx * size]];
-                ry = [origin_y + [gy * size]];
-                window draw_rect rx, ry, [size - 2], [size - 2], [c get 0], [c get 1], [c get 2]
+            set idx, [* i 2];
+            set gx, [+ ox [cells get idx]];
+            set gy, [+ oy [cells get [+ idx 1]]];
+            if [>= gy 0] {
+                set rx, [+ origin_x [* gx size]];
+                set ry, [+ origin_y [* gy size]];
+                window draw_rect rx, ry, [- size 2], [- size 2], [c get 0], [c get 1], [c get 2]
             }
         }
     };
 
-    procedure draw {window} {
+    define draw {window} {
         ` Board
         repeat {y} times rows {
             repeat {x} times cols {
-                c = [board get x, y];
-                cl = [colors get c];
-                rx = [board_x + [x * cell_size]];
-                ry = [board_y + [y * cell_size]];
-                window draw_rect rx, ry, [cell_size - 2], [cell_size - 2], [cl get 0], [cl get 1], [cl get 2]
+                set c, [board get x, y];
+                set cl, [colors get c];
+                set rx, [+ board_x [* x cell_size]];
+                set ry, [+ board_y [* y cell_size]];
+                window draw_rect rx, ry, [- cell_size 2], [- cell_size 2], [cl get 0], [cl get 1], [cl get 2]
             }
         };
 
@@ -255,13 +255,13 @@ class Game {} {
 `  Main
 ` -----------------------------------------------------------------------
 
-window = [Window 500, 620, "Plain Tetris"];
+set window, [Window 500, 620, "Plain Tetris"];
 window load_font "C:/Windows/Fonts/consola.ttf";
-clock = [Clock];
-game = [Game];
+set clock, [Clock];
+set game, [Game];
 
 repeat {
-    dt = [clock restart];
+    set dt, [clock restart];
 
     repeat { window poll } {
         when [window event_type]

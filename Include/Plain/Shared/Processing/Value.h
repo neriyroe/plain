@@ -10,4 +10,5 @@ struct PLAIN_VALUE {
     PLAIN_BYTE* data;
     PLAIN_WORD_DOUBLE length;
     PLAIN_WORD_DOUBLE type;
+    PLAIN_WORD_DOUBLE flags;
 };

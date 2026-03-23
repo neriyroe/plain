@@ -6,9 +6,10 @@ EVALUATION MODEL
 
     Plain evaluates a list of statements left to right. Each statement
     is a node: a keyword followed by zero or more arguments. The walker
-    resolves arguments (substituting variables and evaluating nested
-    expressions) before looking up the keyword in the frame and invoking
-    the bound callable.
+    evaluates nested sub-expressions [...] and leaves everything else —
+    keyword arguments and deferred blocks { } — for the called procedure
+    to handle. This means each procedure decides which arguments to
+    resolve to values and which to treat as raw names.
 
     Blocks ({ }) are intentionally deferred — the walker leaves them
     unevaluated so procedures like if and repeat can decide if/when/how
@@ -32,50 +33,42 @@ VARIABLES AND FRAMES
     linked in a chain (lexical scoping): a lookup walks from the innermost
     frame outward until the name is found.
 
-    Assignment is done with = in statement context (no enclosing [...]):
+    Assignment is done with set:
 
-        x = 42
-        name = "Plain"
+        set x, 42
+        set name, "Plain"
 
-    The = operator cannot be overridden — it is always assignment in
-    statement context. Inside [...] it means equality comparison.
+    set keeps a keyword argument as a raw name (the variable to assign)
+    and resolves the second argument to its value. This lets set, define,
+    and object choose what to do with their keyword arguments without any
+    special treatment in the evaluator.
 
 
 CALLABLES
 
-    A callable is a stored function or procedure that can be invoked by
-    name, stored in a variable, and passed as an argument.
-
-    Two kinds:
-
-        function   — immutable binding; cannot be reassigned after definition.
-        procedure  — mutable binding; can be reassigned at any time.
+    A callable is a stored routine that can be invoked by name, stored in
+    a variable, and passed as an argument. There is a single kind: define.
 
     Named definition form:
 
-        function  name {parameters} {body}
-        procedure name {parameters} {body}
+        define name {parameters} {body}
 
     The name can be a keyword, a quoted string, or an operator symbol:
 
-        function  square {n} { return [n * n] }
-        procedure 'greet' {name} { print "Hi, {name}" }
-        procedure + {a, b} { return [multiply a b] }   ` operator override
+        define square {n} { return [* n, n] }
+        define 'greet' {name} { print "Hi, {name}" }
 
     Anonymous (expression) form — returns a callable value:
 
-        double = [function  {n} { return [n * 2] }]
-        greet  = [procedure {n} { print "Hi, {n}" }]
+        set double, [define {n} { return [* n, 2] }]
 
-    The named form does not work when the name is already bound as a
-    non-operator variable (the walker resolves the keyword before the
-    procedure or function sees it). For rebinding a non-operator name,
-    use the expression form:
+    Because define creates a regular mutable binding, any name can be
+    redefined later using set:
 
-        double = [function {n} { return [n * 2] }]
+        define greet {name} { print "Hello, {name}!" };
+        set greet, [define {name} { print "Hey, {name}." }]
 
-    Operator symbol names (+, -, *, etc.) are exempt from this: they are
-    never resolved by the walker, so the named form always works for them.
+    Callables capture the frame in which they were defined (see CLOSURES).
 
 
 STRING INTERPOLATION
@@ -85,7 +78,7 @@ STRING INTERPOLATION
     from the literal parts and interpolated values:
 
         "Score: {score}"         ` equivalent to [join "Score: " score]
-        "{a} + {b} = {[a + b]}"  ` equivalent to [join a " + " b " = " [a + b]]
+        "{a} + {b} = {[+ a, b]}" ` equivalent to [join a " + " b " = " [+ a, b]]
 
     {name} inserts the value of a variable. {[expression]} inserts
     the result of an arbitrary expression. Both forms convert values
@@ -99,15 +92,22 @@ STRING INTERPOLATION
 
 BUILT-IN PROCEDURES
 
-    Built-in procedures (if, repeat, add, etc.) are registered as mutable
-    callables in the root frame at startup. Because they are regular
-    bindings they can be overridden, stored, passed as arguments, and
-    invoked exactly like user-defined callables:
+    Built-in procedures (if, repeat, set, define, add, etc.) are
+    registered as mutable callables in the root frame at startup.
+    Because they are regular bindings they can be overridden, stored,
+    passed as arguments, and invoked exactly like user-defined callables:
 
-        op = add;
+        set op, add;
         print [op 3, 4]    ` 7
 
-        add = [procedure {a, b} { return [a + b + 1] }]
+        set add, [define {a, b} { return [+ a, b, 1] }]
+
+    set — assignment
+
+        set name, value
+
+    Binds or rebinds the name in the nearest enclosing frame. The first
+    argument stays as a raw keyword (the name); the second is resolved.
 
     if — condition chains
 
@@ -144,47 +144,53 @@ BUILT-IN PROCEDURES
     scope. The modifier keyword "times" is extensible — future modifiers
     can follow the same natural-language pattern.
 
+    arithmetic — variadic prefix callables
 
-INFIX OPERATORS
+        +  -  *  /  %   (also: add, subtract, multiply, divide, modulo)
 
-    The thirteen operator symbols have a special infix calling convention
-    when used as the sole argument between a variable name and a value:
+    Accept two or more arguments and fold left to right:
 
-        [name op value]
+        [+ 1, 2, 3]        ` 6
+        [* 2, 3, 4]        ` 24
 
-    This is syntactic sugar — it is equivalent to invoking the operator as
-    a prefix procedure call with (name_value, value) as arguments:
+    comparison — binary prefix callables
 
-        [x + 3]    ` same as [+ x 3] once + is bound
+        =  !=  <  >  <=  >=   (also: equal, not_equal, less, greater, less_equal, greater_equal)
 
-    Operator symbols are resolved from the frame at dispatch time, so
-    overriding them covers both infix and prefix call sites simultaneously:
+    Strictly binary — exactly two arguments.
 
-        procedure + {a, b} { return [multiply a b] };
-        x = 10;
-        print [x + 3]    ` 30  (infix, uses override)
-        print [+ x 3]    ` 30  (prefix, uses same override)
+    logic — variadic prefix callables
 
-    The = operator in infix position inside [...] means equality, not
-    assignment. The assignment behaviour of = in statement context is
-    hardcoded and cannot be overridden.
+        and   or   not
 
-    Infix is strictly binary. Compound expressions require nesting:
+    and and or accept any number of arguments and short-circuit.
+    not takes exactly one argument.
 
-        print [and [x > 0] [x < 10]]
+
+OPERATORS AS REGULAR CALLABLES
+
+    All operator symbols (+, -, *, /, %, =, !=, <, >, <=, >=) are
+    registered as regular mutable callables, identical to any other
+    procedure. They can be overridden, stored, and passed:
+
+        set plus, +;
+        print [plus 3, 4]    ` 7
+
+        set +, [define {a, b} { return [multiply a, b] }];
+        print [+ 3, 4]       ` 12  (overridden to multiply)
 
 
 CLOSURES
 
-    Every function and procedure captures the frame in which it was
-    defined. When invoked, the callable's own frame is created as a
-    child of the captured frame, not the caller's frame. This means
-    outer variables stay accessible and mutable — enabling counter
+    Every callable captures the frame in which it was defined.
+    When invoked, the callable's own frame is created as a child of
+    the captured frame, not the caller's frame. This means outer
+    variables stay accessible and mutable — enabling counter
     factories, partial application, and all other closure patterns.
 
-    Assignment (x = value) updates an existing variable wherever it
-    lives in the frame chain; a new local is created only if the name
-    does not already exist.
+    set (x = value) updates the nearest enclosing frame where the
+    name is already bound; a new local is created only if the name
+    does not exist anywhere in the chain.
 
 
 RETURN, BREAK, CONTINUE
@@ -200,7 +206,7 @@ TYPE INTROSPECTION
 
     type value       returns a string describing the value's type:
                      "boolean", "integer", "real", "string", "keyword",
-                     "list", "callable", "object", or "none".
+                     "list", "callable", "object", or "nil".
 
     do {block}       evaluates the block in a fresh child scope and returns
                      its value. Variables created inside do not leak out.
@@ -209,54 +215,82 @@ TYPE INTROSPECTION
 
 CLASSES AND OBJECTS
 
-    class defines a constructor. Calling the constructor creates an object
-    whose methods and fields live in a frame — the same structure used for
-    variable scopes. From Plain code, there is no distinction between
-    objects created in Plain (via class) and objects created in C++ (via
-    the host bridge). [type obj] returns "object" for both.
+    Classes are built from two plain concepts: define for the constructor
+    and object for the instance.
 
-    Named form:
+    object {block} evaluates the block in a fresh child frame and returns
+    that frame as an object value. Fields and methods are created by set
+    and define inside the block. self is automatically bound to the
+    instance so methods can pass the object itself as a value.
 
-        class Dog {name, age} {
-            procedure bark {} { print "{name} barks!" };
-            function info {} { return "{name}, age: {age}" }
-        }
+    The constructor is a regular define that returns [object { ... }]:
 
-    Anonymous form (returns a constructor callable):
-
-        Cat = [class {name} {
-            function meow {} { return name }
-        }]
+        define Dog {name, age}:
+            return [object {
+                define bark {} { print "{name} says Woof!" };
+                define info {} { return "{name}, age: {age}" };
+                define rename {new_name} { set name, new_name }
+            }]
 
     Constructing an instance:
 
-        dog = [Dog "Rex", 3]
+        set dog, [Dog "Rex", 3]
 
     Method call — same syntax as any other statement/expression:
 
-        dog bark                 ` statement
-        result = [dog info]      ` expression
+        dog bark                  ` statement
+        set result, [dog info]    ` expression
 
-    Field access — use the field name as the first argument:
+    Field access — any binding in the object frame is reachable:
 
-        print [dog name]         ` "Rex"
+        print [dog name]          ` works if name was explicitly set inside the block
 
-    Methods defined with function produce immutable bindings; those
-    defined with procedure produce mutable bindings. Constructor
-    parameters become regular fields in the instance.
+    Constructor parameters are visible to methods via the closure chain
+    (the object frame's parent is the constructor's frame). To expose a
+    param as an externally accessible field, set it inside the block:
+
+        define Dog {name, age}:
+            return [object {
+                set name, name;   ` expose as public field
+                set age, age;
+                define bark {} { print "{name} says Woof!" }
+            }]
+
+    All methods are defined with define and are mutable bindings.
 
     Implicit self: methods access fields and other methods directly
-    through closure scoping — the instance frame is always in the
-    method's parent scope chain. Explicit "self" is only needed when
-    passing the instance itself as a value:
+    through the closure chain without explicit self. self is only needed
+    when passing the instance itself as a value:
 
-        class Calc {n} {
-            function double {} { return [n * 2] };
-            function quad {} { v = [double]; return [v * 2] }
-        }
+        define Node {value}:
+            return [object {
+                define get_self {} { return self }
+            }]
 
-    Classes are registered in the frame like any other callable, so they
-    can be overridden, stored, and passed as arguments.
+    Constructors are regular callables — they can be stored, passed, and
+    overridden like anything else:
+
+        set Cat, [define {name} {
+            return [object {
+                define meow {} { return "{name} meows" }
+            }]
+        }];
+        set cat, [Cat "Whiskers"];
+        print [cat meow]    ` Whiskers meows
+
+    Stateful object — counter pattern:
+
+        define Counter {}:
+            return [object {
+                set count, 0;
+                define increment {} { set count, [+ count, 1] };
+                define value {} { return count }
+            }]
+
+        set counter, [Counter];
+        counter increment;
+        counter increment;
+        print [counter value]    ` 2
 
 
 HOST EXTENSION

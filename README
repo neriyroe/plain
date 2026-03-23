@@ -11,7 +11,7 @@ OVERVIEW
     The library provides:
         - Tokenization and tree walking (Plain.h)
         - A full runtime: variable frames, callables, built-in procedures,
-          infix operators, control flow (VM.h)
+          prefix operators, control flow (VM.h)
 
     The host embeds it by supplying a PLAIN_CONTEXT, optionally handling
     unknown keywords via a callback, and calling PLAIN_EVALUATE.
@@ -97,7 +97,7 @@ INCLUDE
 
     Include/Plain/Plain.h    Core parsing API: tokenizer, walker, types.
     Include/Plain/VM.h       Full runtime: PLAIN_EVALUATE, PLAIN_CONTEXT,
-                             PLAIN_RESOLVE, PLAIN_CONTEXT_INITIALIZE, and everything
+                             PLAIN_RESOLVE, PLAIN_CONTEXT_REGISTER_RUNTIME, and everything
                              from Plain.h. This is the only header a host
                              application needs.
     Include/Plain/Plain.hpp  C++ interface: plain::Runtime, plain::Value,

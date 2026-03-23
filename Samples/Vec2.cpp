@@ -53,15 +53,15 @@ int main() {
         .method("str",    &Vec2::to_string);
 
     runtime.run(R"(
-        a = [Vec2 3, 4];
+        set a, [Vec2 3, 4];
         print [a str];
         print [a length];
 
-        b = [Vec2 1, 2];
-        c = [a add b];
+        set b, [Vec2 1, 2];
+        set c, [+ a b];
         print [c str];
 
-        greet = [procedure {name} { print [join "Hello, " name "!"] }];
+        set greet, [define {name} { print "Hello, {name}!" }];
         greet "World"
     )");
 

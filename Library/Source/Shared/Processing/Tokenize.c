@@ -21,7 +21,6 @@ PLAIN_WORD_DOUBLE PLAIN_EXPORT(PLAIN_BYTE* data, PLAIN_WORD_DOUBLE length, PLAIN
         case PLAIN_TYPE_POINTER:
         case PLAIN_TYPE_REAL:
         case PLAIN_TYPE_STRING:
-        case PLAIN_TYPE_SUBROUTINE:
             PLAIN_ASSERT(data != NULL);
         case PLAIN_TYPE_BOOLEAN:
         case PLAIN_TYPE_NIL:
@@ -33,6 +32,7 @@ PLAIN_WORD_DOUBLE PLAIN_EXPORT(PLAIN_BYTE* data, PLAIN_WORD_DOUBLE length, PLAIN
     value->data = data;
     value->length = length;
     value->type = type;
+    value->flags = 0;
     if(length > 0) {
         value->data = (PLAIN_BYTE*)PLAIN_RESIZE(NULL, length, 0);
         /* PLAIN_ERROR_SYSTEM. */

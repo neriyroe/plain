@@ -32,11 +32,14 @@ enum {
     PLAIN_BINDING_IMMUTABLE = 0x01  /* Binding cannot be reassigned (functions). */
 };
 
-/* Object sub-kinds, stored in PLAIN_VALUE.length for PLAIN_TYPE_OBJECT values.
- * length == 0                  → C++ managed object (dispatch via context->handler).
- * length == PLAIN_OBJECT_NATIVE → Plain-native instance backed by a PLAIN_FRAME*. */
+/* Flags for PLAIN_VALUE. */
 enum {
-    PLAIN_OBJECT_NATIVE = 0x01
+    /* Set on PLAIN_TYPE_OBJECT values whose data pointer is a PLAIN_FRAME*
+     * (Plain-native instance created with object { ... }).
+     * PLAIN_VALUE_CLEAR will call PLAIN_FRAME_RELEASE; PLAIN_VALUE_COPY will
+     * call PLAIN_FRAME_RETAIN. Without this flag, data is an externally managed
+     * C/C++ pointer and the runtime never frees or retains it. */
+    PLAIN_VALUE_USER_DEFINED = 0x01
 };
 
 /*
@@ -136,7 +139,7 @@ PLAIN_WORD_DOUBLE PLAIN_RESOLVE(void* context, void* data, PLAIN_WORD_DOUBLE typ
 /* Registers all standard built-in procedures in the root frame of <context>.
  * Call once after PLAIN_FRAME_CREATE, before any evaluation. Built-ins are
  * mutable bindings — the user may freely override any of them. */
-PLAIN_WORD_DOUBLE PLAIN_CONTEXT_INITIALIZE(struct PLAIN_CONTEXT* context);
+PLAIN_WORD_DOUBLE PLAIN_CONTEXT_REGISTER_RUNTIME(struct PLAIN_CONTEXT* context);
 
 /* Registers a single native procedure in the current frame of <context> as a
  * mutable callable. Use this to extend Plain from the host application.
