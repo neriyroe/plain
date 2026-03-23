@@ -32,25 +32,29 @@ colors = [list
 
 class Board {cols, rows} {
     cells = [list];
-    repeat [multiply cols rows] { cells append 0 };
+    repeat [cols * rows] { cells append 0 };
+
+    function index {x, y} {
+        return [x + [y * cols]]
+    };
 
     function get {x, y} {
-        return [cells get [add [multiply y cols] x]]
+        return [cells get [index x, y]]
     };
 
     procedure set {x, y, val} {
-        cells set [add [multiply y cols] x], val
+        cells set [index x, y], val
     };
 
     procedure clear {} {
-        repeat {i} times [multiply cols rows] {
+        repeat {i} times [cols * rows] {
             cells set i, 0
         }
     };
 
     function row_full {y} {
         repeat {x} times cols {
-            if [[self get x, y] = 0]: return no
+            if [[get x, y] = 0]: return no
         };
         return yes
     };
@@ -59,16 +63,16 @@ class Board {cols, rows} {
         cleared = 0;
         y = [rows - 1];
         repeat { y >= 0 } {
-            if [self row_full y] {
+            if [row_full y] {
                 yy = y;
                 repeat { yy > 0 } {
                     repeat {x} times cols {
-                        self set x, yy, [self get x, [yy - 1]]
+                        set x, yy, [get x, [yy - 1]]
                     };
                     yy = [yy - 1]
                 };
                 repeat {x} times cols {
-                    self set x, 0, 0
+                    set x, 0, 0
                 };
                 cleared = [cleared + 1]
             } else {
@@ -90,7 +94,7 @@ class Game {} {
     cell_size = 28;
     board_x = 10;
     board_y = 10;
-    sidebar_x = [add board_x [add [multiply cols cell_size] 20]];
+    sidebar_x = [board_x + [add [cols * cell_size] 20]];
 
     score = 0;
     level = 1;
@@ -107,15 +111,15 @@ class Game {} {
     drop_speed = 0.5;
 
     function piece_cells {type, rotation} {
-        return [pieces get [add [multiply type 4] rotation]]
+        return [pieces get [rotation + [type * 4]]]
     };
 
     function collides {type, rotation, cx, cy} {
-        c = [self piece_cells type, rotation];
+        c = [piece_cells type, rotation];
         repeat {i} times 4 {
-            idx = [multiply i 2];
+            idx = [i * 2];
             x = [cx + [c get idx]];
-            y = [cy + [c get [add idx 1]]];
+            y = [cy + [c get [idx + 1]]];
             if [x < 0]: return yes;
             if [x >= cols]: return yes;
             if [y >= rows]: return yes;
@@ -127,12 +131,12 @@ class Game {} {
     };
 
     procedure lock {} {
-        c = [self piece_cells piece, rot];
-        color = [add piece 1];
+        c = [piece_cells piece, rot];
+        color = [piece + 1];
         repeat {i} times 4 {
-            idx = [multiply i 2];
+            idx = [i * 2];
             x = [px + [c get idx]];
-            y = [py + [c get [add idx 1]]];
+            y = [py + [c get [idx + 1]]];
             if [y >= 0]: board set x, y, color
         }
     };
@@ -143,7 +147,7 @@ class Game {} {
         px = 3;
         py = 0;
         rot = 0;
-        if [self collides piece, rot, px, py]: over = yes
+        if [collides piece, rot, px, py]: over = yes
     };
 
     procedure reset {} {
@@ -151,39 +155,31 @@ class Game {} {
         score = 0;
         level = 1;
         lines_total = 0;
-        over = no;
-        piece = [random 0, 6];
-        next = [random 0, 6];
-        px = 3;
-        py = 0;
-        rot = 0;
         drop_timer = 0;
-        drop_speed = 0.5
+        drop_speed = 0.5;
+        over = no;
+        next = [random 0, 6];
+        spawn
     };
 
     procedure handle_key {key, window} {
         if [key = "escape"]: window close;
-        if [key = "r"] { self reset; return };
+        if [key = "r"] { reset; return };
         if over: return;
-        if [key = "left"] {
-            if [not [self collides piece, rot, [px - 1], py]]: px = [px - 1]
-        };
-        if [key = "right"] {
-            if [not [self collides piece, rot, [px + 1], py]]: px = [px + 1]
-        };
-        if [key = "down"] {
-            if [not [self collides piece, rot, px, [py + 1]]]: py = [py + 1]
-        };
-        if [key = "up"] {
-            nr = [modulo [add rot 1] 4];
-            if [not [self collides piece, nr, px, py]]: rot = nr
-        };
-        if [key = "space"] {
-            repeat {
-                if [self collides piece, rot, px, [py + 1]]: break;
-                py = [py + 1]
+        when key
+            "left"  { if [not [collides piece, rot, [px - 1], py]]: px = [px - 1] }
+            "right" { if [not [collides piece, rot, [px + 1], py]]: px = [px + 1] }
+            "down"  { if [not [collides piece, rot, px, [py + 1]]]: py = [py + 1] }
+            "up"    {
+                nr = [modulo [rot + 1] 4];
+                if [not [collides piece, nr, px, py]]: rot = nr
             }
-        }
+            "space" {
+                repeat {
+                    if [collides piece, rot, px, [py + 1]]: break;
+                    py = [py + 1]
+                }
+            }
     };
 
     procedure update {dt} {
@@ -191,26 +187,36 @@ class Game {} {
         drop_timer = [drop_timer + dt];
         if [drop_timer > drop_speed] {
             drop_timer = 0;
-            if [self collides piece, rot, px, [py + 1]] {
-                self lock;
+            if [collides piece, rot, px, [py + 1]] {
+                lock;
                 lines = [board clear_lines];
                 if [lines > 0] {
-                    score = [score + [multiply lines [multiply lines 100]]];
+                    score = [score + [lines * [lines * 100]]];
                     lines_total = [lines_total + lines];
-                    level = [add 1 [divide lines_total 10]];
-                    drop_speed = [subtract 0.5 [multiply [subtract level 1] 0.04]];
+                    level = [add 1 [lines_total / 10]];
+                    drop_speed = [subtract 0.5 [multiply [level - 1] 0.04]];
                     if [drop_speed < 0.05]: drop_speed = 0.05
                 };
-                self spawn
+                spawn
             } else {
                 py = [py + 1]
             }
         }
     };
 
-    procedure draw_cell {window, x, y, ci} {
-        c = [colors get ci];
-        window draw_rect x, y, [cell_size - 2], [cell_size - 2], [c get 0], [c get 1], [c get 2]
+    procedure draw_piece {window, type, rotation, ox, oy, origin_x, origin_y, size} {
+        cells = [piece_cells type, rotation];
+        c = [colors get [type + 1]];
+        repeat {i} times 4 {
+            idx = [i * 2];
+            gx = [ox + [cells get idx]];
+            gy = [oy + [cells get [idx + 1]]];
+            if [gy >= 0] {
+                rx = [origin_x + [gx * size]];
+                ry = [origin_y + [gy * size]];
+                window draw_rect rx, ry, [size - 2], [size - 2], [c get 0], [c get 1], [c get 2]
+            }
+        }
     };
 
     procedure draw {window} {
@@ -218,46 +224,24 @@ class Game {} {
         repeat {y} times rows {
             repeat {x} times cols {
                 c = [board get x, y];
-                rx = [board_x + [multiply x cell_size]];
-                ry = [board_y + [multiply y cell_size]];
-                self draw_cell window, rx, ry, c
+                cl = [colors get c];
+                rx = [board_x + [x * cell_size]];
+                ry = [board_y + [y * cell_size]];
+                window draw_rect rx, ry, [cell_size - 2], [cell_size - 2], [cl get 0], [cl get 1], [cl get 2]
             }
         };
 
         ` Active piece
-        if [not over] {
-            pc = [self piece_cells piece, rot];
-            ci = [add piece 1];
-            repeat {i} times 4 {
-                idx = [multiply i 2];
-                x = [px + [pc get idx]];
-                y = [py + [pc get [add idx 1]]];
-                if [y >= 0] {
-                    rx = [board_x + [multiply x cell_size]];
-                    ry = [board_y + [multiply y cell_size]];
-                    self draw_cell window, rx, ry, ci
-                }
-            }
-        };
+        if [not over]: draw_piece window, piece, rot, px, py, board_x, board_y, cell_size;
 
         ` UI
-        window draw_text [join "Score: " score], sidebar_x, 20, 22;
-        window draw_text [join "Level: " level], sidebar_x, 50, 22;
-        window draw_text [join "Lines: " lines_total], sidebar_x, 80, 22;
+        window draw_text "Score: {score}", sidebar_x, 20, 22;
+        window draw_text "Level: {level}", sidebar_x, 50, 22;
+        window draw_text "Lines: {lines_total}", sidebar_x, 80, 22;
 
         ` Next piece preview
         window draw_text "Next:", sidebar_x, 120, 20;
-        nc = [self piece_cells next, 0];
-        ni = [add next 1];
-        ncolor = [colors get ni];
-        repeat {i} times 4 {
-            idx = [multiply i 2];
-            x = [nc get idx];
-            y = [nc get [add idx 1]];
-            rx = [sidebar_x + [multiply x 20]];
-            ry = [add 150 [multiply y 20]];
-            window draw_rect rx, ry, 18, 18, [ncolor get 0], [ncolor get 1], [ncolor get 2]
-        };
+        draw_piece window, next, 0, 0, 0, sidebar_x, 150, 20;
 
         ` Game over overlay
         if over {
@@ -280,9 +264,9 @@ repeat {
     dt = [clock restart];
 
     repeat { window poll } {
-        event = [window event_type];
-        if [event = "closed"]: window close;
-        if [event = "key_pressed"]: game handle_key [window event_key], window
+        when [window event_type]
+            "closed"      { window close }
+            "key_pressed" { game handle_key [window event_key], window }
     };
 
     if [window closed]: break;

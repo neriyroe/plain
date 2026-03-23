@@ -121,6 +121,24 @@ STRINGS
     ` Numbers coerce to strings automatically
     print [join "Result: ", [add 1, 2]]     ` Result: 3
 
+    ` String interpolation — {name} inserts a variable's value
+    name = "world";
+    print "Hello, {name}!"                  ` Hello, world!
+
+    ` Expressions inside interpolation use {[...]}
+    x = 6;
+    print "{x} * 7 = {[x * 7]}"            ` 6 * 7 = 42
+
+    ` Multiple interpolations in one string
+    a = 10; b = 20;
+    print "{a} + {b} = {[a + b]}"           ` 10 + 20 = 30
+
+    ` Strings without braces are unchanged (zero overhead)
+    print "no interpolation here"           ` no interpolation here
+
+    ` Escape braces with backslash to get literal braces
+    print "use \{name\} for interpolation"  ` use {name} for interpolation
+
 
 BLOCKS
 
@@ -153,6 +171,40 @@ IF
 
     ` Colon shorthand (no else)
     if [x = 10]: print "exactly ten";
+
+
+WHEN
+
+    ` Value-based dispatch — matches the target against each case
+    x = "b";
+    when x
+        "a" { print "matched a" }
+        "b" { print "matched b" }
+        "c" { print "matched c" }
+    ` Prints: matched b
+
+    ` With else fallback
+    color = "purple";
+    when color
+        "red"   { print "warm" }
+        "blue"  { print "cool" }
+        else    { print "unknown" }
+    ` Prints: unknown
+
+    ` Works with integers
+    code = 42;
+    when code
+        0  { print "zero" }
+        1  { print "one" }
+        42 { print "the answer" }
+    ` Prints: the answer
+
+    ` The target can be an expression
+    when [add 1, 1]
+        1 { print "one" }
+        2 { print "two" }
+        3 { print "three" }
+    ` Prints: two
 
 
 REPEAT
@@ -241,13 +293,13 @@ PROCEDURES (mutable)
 
     ` Named form
     procedure greet {name} {
-        print [join "Hello, ", name, "!"]
+        print "Hello, {name}!"
     };
 
     greet "world"    ` Hello, world!
 
     ` Expression form — [procedure ...] returns a mutable, reassignable callable
-    greet = [procedure {name} { print [join "Hey, ", name, "."] }];
+    greet = [procedure {name} { print "Hey, {name}." }];
     greet "Plain"    ` Hey, Plain.
 
 
@@ -483,10 +535,10 @@ CLASSES AND OBJECTS
     ` Methods defined with function are immutable; procedure are mutable.
     class Dog {name, age} {
         procedure bark {} {
-            print [join name " says Woof!"]
+            print "{name} says Woof!"
         };
         function info {} {
-            return [join name ", age: " age]
+            return "{name}, age: {age}"
         };
         procedure rename {new_name} {
             name = new_name
@@ -510,10 +562,12 @@ CLASSES AND OBJECTS
     a bark;                  ` Alpha says Woof!
     b bark                   ` Beta says Woof!
 
-    ` Self-reference — methods can call other methods on the same instance
+    ` Implicit self — methods access fields and other methods directly
+    ` through closure scoping. Explicit "self" is only needed when
+    ` passing the instance itself as a value.
     class Calc {value} {
         function double {} { return [value * 2] };
-        function quad {} { return [[self double] * 2] }
+        function quad {} { v = [double]; return [v * 2] }
     };
     c = [Calc 5];
     print [c double];        ` 10
@@ -521,7 +575,7 @@ CLASSES AND OBJECTS
 
     ` Anonymous class — returns a constructor callable
     Cat = [class {name} {
-        function meow {} { return [join name " meows"] }
+        function meow {} { return "{name} meows" }
     }];
     cat = [Cat "Whiskers"];
     print [cat meow]         ` Whiskers meows

@@ -97,7 +97,7 @@ INCLUDE
 
     Include/Plain/Plain.h    Core parsing API: tokenizer, walker, types.
     Include/Plain/VM.h       Full runtime: PLAIN_EVALUATE, PLAIN_CONTEXT,
-                             PLAIN_RESOLVE, PLAIN_CONTEXT_INIT, and everything
+                             PLAIN_RESOLVE, PLAIN_CONTEXT_INITIALIZE, and everything
                              from Plain.h. This is the only header a host
                              application needs.
     Include/Plain/Plain.hpp  C++ interface: plain::Runtime, plain::Value,

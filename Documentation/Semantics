@@ -59,13 +59,13 @@ CALLABLES
     The name can be a keyword, a quoted string, or an operator symbol:
 
         function  square {n} { return [n * n] }
-        procedure 'greet' {name} { print [join "Hi, ", name] }
+        procedure 'greet' {name} { print "Hi, {name}" }
         procedure + {a, b} { return [multiply a b] }   ` operator override
 
     Anonymous (expression) form — returns a callable value:
 
         double = [function  {n} { return [n * 2] }]
-        greet  = [procedure {n} { print [join "Hi, ", n] }]
+        greet  = [procedure {n} { print "Hi, {n}" }]
 
     The named form does not work when the name is already bound as a
     non-operator variable (the walker resolves the keyword before the
@@ -76,6 +76,25 @@ CALLABLES
 
     Operator symbol names (+, -, *, etc.) are exempt from this: they are
     never resolved by the walker, so the named form always works for them.
+
+
+STRING INTERPOLATION
+
+    Quoted strings containing unescaped braces are automatically
+    expanded at parse time. The tokenizer synthesizes a join expression
+    from the literal parts and interpolated values:
+
+        "Score: {score}"         ` equivalent to [join "Score: " score]
+        "{a} + {b} = {[a + b]}"  ` equivalent to [join a " + " b " = " [a + b]]
+
+    {name} inserts the value of a variable. {[expression]} inserts
+    the result of an arbitrary expression. Both forms convert values
+    to strings automatically (same coercion rules as join).
+
+    Strings without braces are treated as plain strings with no extra
+    cost. Use \{ and \} to produce literal brace characters:
+
+        "use \{name\} for interpolation"    ` literal braces, no expansion
 
 
 BUILT-IN PROCEDURES
@@ -98,6 +117,17 @@ BUILT-IN PROCEDURES
 
     "else" followed by a block is the final fallback. "else" followed by
     any non-block value is an elseif condition; the chain continues.
+
+    when — value dispatch
+
+        when target
+            value1 {body1}
+            value2 {body2}
+            else   {default}
+
+    Compares the target against each value using equality. Executes the
+    body of the first match and stops. "else" provides a fallback when no
+    case matches. Works with strings, integers, reals, and booleans.
 
     repeat — loop forms
 
@@ -188,8 +218,8 @@ CLASSES AND OBJECTS
     Named form:
 
         class Dog {name, age} {
-            procedure bark {} { print name };
-            function info {} { return [join name " " age] }
+            procedure bark {} { print "{name} barks!" };
+            function info {} { return "{name}, age: {age}" }
         }
 
     Anonymous form (returns a constructor callable):
@@ -215,13 +245,14 @@ CLASSES AND OBJECTS
     defined with procedure produce mutable bindings. Constructor
     parameters become regular fields in the instance.
 
-    Self-reference: each instance has an immutable binding "self" that
-    refers to itself, so methods can call other methods on the same
-    object:
+    Implicit self: methods access fields and other methods directly
+    through closure scoping — the instance frame is always in the
+    method's parent scope chain. Explicit "self" is only needed when
+    passing the instance itself as a value:
 
         class Calc {n} {
             function double {} { return [n * 2] };
-            function quad {} { return [[self double] * 2] }
+            function quad {} { v = [double]; return [v * 2] }
         }
 
     Classes are registered in the frame like any other callable, so they

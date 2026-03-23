@@ -516,6 +516,35 @@ static PLAIN_WORD_DOUBLE PLAIN_NATIVE_IF(void* raw, void* data, PLAIN_WORD_DOUBL
     return 0;
 }
 
+static PLAIN_WORD_DOUBLE PLAIN_NATIVE_WHEN(void* raw, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
+    struct PLAIN_CONTEXT* context = (struct PLAIN_CONTEXT*)raw;
+    struct PLAIN_LIST* node = (struct PLAIN_LIST*)data;
+    PLAIN_WORD_DOUBLE arity = PLAIN_ARITY(node);
+    if(arity < 3) return 0;
+    struct PLAIN_VALUE* target = PLAIN_ARGUMENT(node, 0);
+    PLAIN_WORD_DOUBLE i = 1;
+    while(i + 1 < arity) {
+        struct PLAIN_VALUE* candidate = PLAIN_ARGUMENT(node, i);
+        struct PLAIN_VALUE* block     = PLAIN_ARGUMENT(node, i + 1);
+        if(PLAIN_KEYWORD_EQ(candidate, (const PLAIN_BYTE*)"else")) {
+            if(block != NULL && block->type == PLAIN_TYPE_LIST)
+                return PLAIN_EVALUATE_BLOCK(context, (struct PLAIN_LIST*)block->data, value);
+            break;
+        }
+        if(block != NULL && block->type == PLAIN_TYPE_LIST) {
+            struct PLAIN_VALUE result = {NULL, 0, PLAIN_TYPE_NIL};
+            PLAIN_APPLY_COMPARISON(target, candidate, '=', &result);
+            if(PLAIN_IS_TRUE(&result)) {
+                PLAIN_VALUE_CLEAR(&result);
+                return PLAIN_EVALUATE_BLOCK(context, (struct PLAIN_LIST*)block->data, value);
+            }
+            PLAIN_VALUE_CLEAR(&result);
+        }
+        i += 2;
+    }
+    return 0;
+}
+
 /* Counted loop with a scoped iteration variable: repeat {x} times 10 { ... }. */
 static PLAIN_WORD_DOUBLE PLAIN_REPEAT_COUNTED_BINDING(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* variable, PLAIN_WORD_DOUBLE count, struct PLAIN_LIST* body) {
     const PLAIN_BYTE* from = variable->segment.from;
@@ -943,10 +972,11 @@ PLAIN_WORD_DOUBLE PLAIN_CONTEXT_REGISTER(struct PLAIN_CONTEXT* context, const PL
     return PLAIN_FRAME_BIND(context->frame, name, NULL, callable, 0);
 }
 
-PLAIN_WORD_DOUBLE PLAIN_CONTEXT_INIT(struct PLAIN_CONTEXT* context) {
+PLAIN_WORD_DOUBLE PLAIN_CONTEXT_INITIALIZE(struct PLAIN_CONTEXT* context) {
     #define PLAIN_REGISTER(name, fn) \
         if(PLAIN_CONTEXT_REGISTER(context, (const PLAIN_BYTE*)(name), fn) != 0) return PLAIN_ERROR_SYSTEM;
     PLAIN_REGISTER("if",        PLAIN_NATIVE_IF)
+    PLAIN_REGISTER("when",      PLAIN_NATIVE_WHEN)
     PLAIN_REGISTER("repeat",    PLAIN_NATIVE_REPEAT)
     PLAIN_REGISTER("return",    PLAIN_NATIVE_RETURN)
     PLAIN_REGISTER("break",     PLAIN_NATIVE_BREAK)

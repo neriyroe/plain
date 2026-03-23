@@ -75,6 +75,102 @@ PLAIN_INLINE PLAIN_WORD_DOUBLE PLAIN_JOIN(PLAIN_BYTE* data, PLAIN_WORD_DOUBLE le
     return PLAIN_EXPORT(data, length, type, (struct PLAIN_VALUE*)&node->layout.from[distance]);
 }
 
+static PLAIN_WORD_DOUBLE PLAIN_INTERPOLATE(void* context, struct PLAIN_LIST* node,
+    const PLAIN_BYTE* data, PLAIN_WORD_DOUBLE length,
+    const PLAIN_BYTE* pattern, PLAIN_DELEGATE tracker) {
+    static const PLAIN_BYTE join_keyword[] = "join";
+    struct PLAIN_LIST* subnode = (struct PLAIN_LIST*)PLAIN_AUTO(sizeof(struct PLAIN_LIST));
+    if(subnode == NULL) return PLAIN_ERROR_SYSTEM;
+    subnode->keyword.from = (PLAIN_BYTE*)join_keyword;
+    subnode->keyword.to   = (PLAIN_BYTE*)(join_keyword + 4);
+    subnode->layout.from  = NULL;
+    subnode->layout.to    = NULL;
+    subnode->node         = NULL;
+    subnode->parent       = node;
+    subnode->segment.from = (PLAIN_BYTE*)data;
+    subnode->segment.to   = (PLAIN_BYTE*)(data + length);
+    PLAIN_WORD_DOUBLE position = 0;
+    PLAIN_WORD_DOUBLE literal_start = 0;
+    while(position < length) {
+        if(data[position] == '\\' && position + 1 < length) {
+            position += 2;
+            continue;
+        }
+        if(data[position] != '{') {
+            position++;
+            continue;
+        }
+        if(position > literal_start) {
+            PLAIN_WORD_DOUBLE error = PLAIN_JOIN((PLAIN_BYTE*)&data[literal_start],
+                (position - literal_start) + 1, subnode, PLAIN_TYPE_STRING);
+            if(error != 0) return error;
+        }
+        PLAIN_WORD_DOUBLE content_start = position + 1;
+        PLAIN_WORD_DOUBLE depth = 1;
+        PLAIN_WORD_DOUBLE scan = content_start;
+        while(scan < length && depth > 0) {
+            if(data[scan] == '\\' && scan + 1 < length) { scan += 2; continue; }
+            if(data[scan] == '"' || data[scan] == '\'') {
+                PLAIN_BYTE quote = data[scan++];
+                while(scan < length) {
+                    if(data[scan] == '\\' && scan + 1 < length) { scan += 2; continue; }
+                    if(data[scan] == quote) { scan++; break; }
+                    scan++;
+                }
+                continue;
+            }
+            if(data[scan] == '{') depth++;
+            else if(data[scan] == '}') { depth--; if(depth == 0) break; }
+            scan++;
+        }
+        PLAIN_WORD_DOUBLE content_end = scan;
+        if(content_start < content_end) {
+            if(data[content_start] == '[') {
+                PLAIN_WORD_DOUBLE bracket_depth = 1;
+                PLAIN_WORD_DOUBLE bracket_scan = content_start + 1;
+                while(bracket_scan < content_end) {
+                    if(data[bracket_scan] == '\\' && bracket_scan + 1 < content_end) { bracket_scan += 2; continue; }
+                    if(data[bracket_scan] == '"' || data[bracket_scan] == '\'') {
+                        PLAIN_BYTE quote = data[bracket_scan++];
+                        while(bracket_scan < content_end) {
+                            if(data[bracket_scan] == '\\' && bracket_scan + 1 < content_end) { bracket_scan += 2; continue; }
+                            if(data[bracket_scan] == quote) { bracket_scan++; break; }
+                            bracket_scan++;
+                        }
+                        continue;
+                    }
+                    if(data[bracket_scan] == '[') bracket_depth++;
+                    else if(data[bracket_scan] == ']') { bracket_depth--; if(bracket_depth == 0) break; }
+                    bracket_scan++;
+                }
+                struct PLAIN_SEGMENT subsegment = {
+                    (PLAIN_BYTE*)&data[content_start + 1],
+                    (PLAIN_BYTE*)&data[bracket_scan]
+                };
+                struct PLAIN_LIST* expression = (struct PLAIN_LIST*)PLAIN_AUTO(sizeof(struct PLAIN_LIST));
+                if(expression == NULL) return PLAIN_ERROR_SYSTEM;
+                PLAIN_WORD_DOUBLE error = PLAIN_TOKENIZE(context, expression, subnode, pattern, &subsegment, tracker);
+                if(error != 0) return error;
+                error = PLAIN_JOIN((PLAIN_BYTE*)expression, sizeof(struct PLAIN_LIST), subnode, PLAIN_TYPE_LIST);
+                if(error != 0) return error;
+            } else {
+                PLAIN_WORD_DOUBLE name_length = content_end - content_start;
+                PLAIN_WORD_DOUBLE error = PLAIN_JOIN((PLAIN_BYTE*)&data[content_start],
+                    name_length + 1, subnode, PLAIN_TYPE_KEYWORD);
+                if(error != 0) return error;
+            }
+        }
+        position = content_end + 1;
+        literal_start = position;
+    }
+    if(position > literal_start) {
+        PLAIN_WORD_DOUBLE error = PLAIN_JOIN((PLAIN_BYTE*)&data[literal_start],
+            (position - literal_start) + 1, subnode, PLAIN_TYPE_STRING);
+        if(error != 0) return error;
+    }
+    return PLAIN_JOIN((PLAIN_BYTE*)subnode, sizeof(struct PLAIN_LIST), node, PLAIN_TYPE_LIST);
+}
+
 PLAIN_WORD_DOUBLE PLAIN_TOKENIZE(void* context, struct PLAIN_LIST* node, struct PLAIN_LIST* parent, const PLAIN_BYTE* pattern, struct PLAIN_SEGMENT* segment, PLAIN_DELEGATE tracker) {
     PLAIN_ASSERT(node != NULL);
     PLAIN_ASSERT(pattern != NULL);
@@ -177,6 +273,7 @@ PLAIN_WORD_DOUBLE PLAIN_TOKENIZE(void* context, struct PLAIN_LIST* node, struct 
         if(segment->from[i] == '"' || segment->from[i] == '\'') {
             k = segment->from[i];
             l = ++i;
+            m = 0;
             for(; l < j; l++) {
                 /* Escape. */
                 if(segment->from[l] == '\\') {
@@ -184,6 +281,8 @@ PLAIN_WORD_DOUBLE PLAIN_TOKENIZE(void* context, struct PLAIN_LIST* node, struct 
                 /* Quotation mark. */
                 } else if(segment->from[l] == k) {
                     break;
+                } else if(segment->from[l] == '{') {
+                    m = 1;
                 }
             }
             /* PLAIN_ERROR_SYNTAX. */
@@ -193,10 +292,19 @@ PLAIN_WORD_DOUBLE PLAIN_TOKENIZE(void* context, struct PLAIN_LIST* node, struct 
                 }
                 return PLAIN_ERROR_SYNTAX;
             }
-            /* String. */
-            PLAIN_WORD_DOUBLE error = PLAIN_JOIN(&segment->from[i], l - i + 1, node, PLAIN_TYPE_STRING);
-            if(error != 0) {
-                return error;
+            /* String with interpolation. */
+            if(m) {
+                PLAIN_WORD_DOUBLE error = PLAIN_INTERPOLATE(context, node,
+                    &segment->from[i], l - i, pattern, tracker);
+                if(error != 0) {
+                    return error;
+                }
+            /* Plain string. */
+            } else {
+                PLAIN_WORD_DOUBLE error = PLAIN_JOIN(&segment->from[i], l - i + 1, node, PLAIN_TYPE_STRING);
+                if(error != 0) {
+                    return error;
+                }
             }
             i = l;
         /* List. */

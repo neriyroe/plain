@@ -254,7 +254,7 @@ namespace plain {
         context.tracker   = &error_delegate;
         context.handler   = &object_method_handler;
         context.user_data = this;
-        PLAIN_CONTEXT_INIT(&context);
+        PLAIN_CONTEXT_INITIALIZE(&context);
         register_builtins();
     }
 
