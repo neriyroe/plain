@@ -206,14 +206,11 @@ namespace plain {
         auto* node    = reinterpret_cast<PLAIN_LIST*>(data);
 
         /* Resolve the object from the frame using the node keyword. */
-        char kw[256] = {};
-        size_t kw_len = std::min(
-            static_cast<size_t>(node->keyword.to - node->keyword.from),
-            sizeof(kw) - 1);
-        memcpy(kw, node->keyword.from, kw_len);
+        size_t kw_len = static_cast<size_t>(node->keyword.to - node->keyword.from);
+        std::string kw((const char*)node->keyword.from, kw_len);
 
         PLAIN_BINDING* binding = PLAIN_FRAME_FIND(context->frame,
-                                                   reinterpret_cast<const PLAIN_BYTE*>(kw));
+                                                   reinterpret_cast<const PLAIN_BYTE*>(kw.c_str()));
         if(!binding || binding->value.type != PLAIN_TYPE_OBJECT || !binding->value.data) return 0;
 
         auto* entry = reinterpret_cast<detail::ObjectEntry*>(binding->value.data);

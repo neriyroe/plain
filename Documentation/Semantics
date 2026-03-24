@@ -100,7 +100,7 @@ BUILT-IN PROCEDURES
         set op, add;
         print [op 3, 4]    ` 7
 
-        set add, [define {a, b} { return [+ a, b, 1] }]
+        set add, [define {a; b} { return [+ a, b, 1] }]
 
     set — assignment
 
@@ -176,7 +176,7 @@ OPERATORS AS REGULAR CALLABLES
         set plus, +;
         print [plus 3, 4]    ` 7
 
-        set +, [define {a, b} { return [multiply a, b] }];
+        set +, [define {a; b} { return [multiply a, b] }];
         print [+ 3, 4]       ` 12  (overridden to multiply)
 
 
@@ -225,7 +225,7 @@ CLASSES AND OBJECTS
 
     The constructor is a regular define that returns [object { ... }]:
 
-        define Dog {name, age}:
+        define Dog {name; age}:
             return [object {
                 define bark {} { print "{name} says Woof!" };
                 define info {} { return "{name}, age: {age}" };
@@ -249,7 +249,7 @@ CLASSES AND OBJECTS
     (the object frame's parent is the constructor's frame). To expose a
     param as an externally accessible field, set it inside the block:
 
-        define Dog {name, age}:
+        define Dog {name; age}:
             return [object {
                 set name, name;   ` expose as public field
                 set age, age;
@@ -295,7 +295,7 @@ CLASSES AND OBJECTS
 
 HOST EXTENSION
 
-    The host application can supply a PLAIN_SUBROUTINE handler on
+    The host application can supply a handler function on
     PLAIN_CONTEXT that is called for any keyword not found in the frame.
     This is how the Inspector implements print without the library
     containing any I/O.

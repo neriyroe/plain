@@ -286,7 +286,7 @@ DEFINE
 
 RETURN
 
-    define clamp {value, minimum, maximum} {
+    define clamp {value; minimum; maximum} {
         if [< value, minimum]: return minimum;
         if [> value, maximum]: return maximum;
         return value
@@ -416,10 +416,6 @@ OBJECTS (C++ BRIDGE)
     ` Statement form (no return value needed)
     v draw
 
-    ` If a method name collides with a bound variable, use a quoted string:
-    set length, 42;
-    print [v "length"]         ` still calls the method, not the variable
-
 
 TYPE INTROSPECTION
 
@@ -449,7 +445,7 @@ FIRST-CLASS CALLABLES
     branch yes { print "yes" } { print "no" }    ` yes
 
     ` Pass a callable as an argument
-    define apply {operation, a, b} {
+    define apply {operation; a; b} {
         return [operation a, b]
     };
 
@@ -460,7 +456,7 @@ FIRST-CLASS CALLABLES
     print [apply greater, 4, 3]      ` yes
 
     ` Works with user-defined callables too
-    define twice {f, x} {
+    define twice {f; x} {
         return [f [f x]]
     };
 
@@ -468,10 +464,10 @@ FIRST-CLASS CALLABLES
     print [twice double, 3]    ` 12  (3 * 2 * 2)
 
     ` Override a built-in — no keywords are reserved
-    set add, [define {a, b} { return [+ a, b, 1] }];
+    set add, [define {a; b} { return [+ a, b, 1] }];
     print [add 2, 3];    ` 6
 
-    set add, [define {a, b} { return [+ a, b] }];
+    set add, [define {a; b} { return [+ a, b] }];
     print [add 2, 3]     ` 5
 
 
@@ -480,7 +476,7 @@ CLASSES AND OBJECTS
     ` define is the constructor — a regular callable that returns [object { ... }].
     ` object evaluates its block in a fresh frame and returns it as an object value.
 
-    define Dog {name, age}:
+    define Dog {name; age}:
         return [object {
             set name, name;
             set age, age;

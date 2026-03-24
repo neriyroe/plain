@@ -220,10 +220,10 @@ PLAIN_WORD_DOUBLE PLAIN_CALL(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* n
     const PLAIN_BYTE* pointer = callable->parameters;
     PLAIN_WORD_DOUBLE index = 0;
     while(pointer != NULL && *pointer != '\0') {
-        while(*pointer == ' ' || *pointer == '\t' || *pointer == ',' || *pointer == '\n' || *pointer == '\r') pointer++;
+        while(*pointer == ' ' || *pointer == '\t' || *pointer == ',' || *pointer == ';' || *pointer == '\n' || *pointer == '\r') pointer++;
         if(*pointer == '\0') break;
         const PLAIN_BYTE* start = pointer;
-        while(*pointer != '\0' && *pointer != ' ' && *pointer != '\t' && *pointer != ',' && *pointer != '\n' && *pointer != '\r') pointer++;
+        while(*pointer != '\0' && *pointer != ' ' && *pointer != '\t' && *pointer != ',' && *pointer != ';' && *pointer != '\n' && *pointer != '\r') pointer++;
         PLAIN_WORD_DOUBLE length = pointer - start;
         PLAIN_BYTE* name = (PLAIN_BYTE*)PLAIN_AUTO(length + 1);
         memcpy(name, start, length);
@@ -264,10 +264,10 @@ static PLAIN_WORD_DOUBLE PLAIN_CALL_OFFSET(struct PLAIN_CONTEXT* context, struct
     const PLAIN_BYTE* pointer = callable->parameters;
     PLAIN_WORD_DOUBLE index = 0;
     while(pointer != NULL && *pointer != '\0') {
-        while(*pointer == ' ' || *pointer == '\t' || *pointer == ',' || *pointer == '\n' || *pointer == '\r') pointer++;
+        while(*pointer == ' ' || *pointer == '\t' || *pointer == ',' || *pointer == ';' || *pointer == '\n' || *pointer == '\r') pointer++;
         if(*pointer == '\0') break;
         const PLAIN_BYTE* start = pointer;
-        while(*pointer != '\0' && *pointer != ' ' && *pointer != '\t' && *pointer != ',' && *pointer != '\n' && *pointer != '\r') pointer++;
+        while(*pointer != '\0' && *pointer != ' ' && *pointer != '\t' && *pointer != ',' && *pointer != ';' && *pointer != '\n' && *pointer != '\r') pointer++;
         PLAIN_WORD_DOUBLE length = pointer - start;
         PLAIN_BYTE* name = (PLAIN_BYTE*)PLAIN_AUTO(length + 1);
         memcpy(name, start, length);
