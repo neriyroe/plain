@@ -15,36 +15,25 @@ PLAIN_WORD_DOUBLE PLAIN_EVALUATE(PLAIN_ENVIRONMENT* environment, PLAIN_SUBROUTIN
     if(environment == NULL || source == NULL) {
         return PLAIN_ERROR_SYSTEM_WRONG_DATA;
     }
-    PLAIN_OBJECT object = {
-        (PLAIN_BYTE*)source,
-        (PLAIN_BYTE*)source + strlen((const char*)source),
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL
-    };
+    PLAIN_SEGMENT body = { (PLAIN_BYTE*)source, (PLAIN_BYTE*)source + strlen((const char*)source) };
+    PLAIN_LIST root = { NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0 };
     if(object.segment.data.from == object.segment.data.to) {
         return 0;
     }
     /* System failures and syntax errors, <tracker> shall be able to print a nice report. */
     PLAIN_WORD_DOUBLE error = PLAIN_TOKENIZE(environment,
-                                             &object.segment.structure,
+                                             &root,
                                              NULL,
                                              (const PLAIN_BYTE*)environment->meta.delimiters,
-                                             &object.segment.data,
+                                             &body,
                                              tracker);
     /* Only system failures, no runtime dependencies. */
     if(error == 0) {
-       error = PLAIN_WALK(environment, function, &object.segment.structure, value);
+       error = PLAIN_WALK(environment, function, &root, value);
     }
     /* The object might be dummy. */
-    if(object.segment.structure.layout.from != NULL ||
-       object.segment.structure.node != NULL) {
-        PLAIN_UNLINK(&object.segment.structure);
+    if(root.layout.from != NULL || root.node != NULL) {
+        PLAIN_UNLINK(&root);
     }
     return error;
 }

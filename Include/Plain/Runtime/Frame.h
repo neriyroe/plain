@@ -11,13 +11,12 @@
 
 #include <uthash.h>
 #include <Plain/Plain.h>
-#include <Plain/Runtime/Subroutine.h>
 
 /* Control-flow signals, returned instead of error codes. */
 enum {
-    PLAIN_SIGNAL_BREAK    = 0x300,
-    PLAIN_SIGNAL_RETURN   = 0x301,
-    PLAIN_SIGNAL_CONTINUE = 0x302
+    PLAIN_SIGNAL_BREAK    = 0x10000001,
+    PLAIN_SIGNAL_RETURN   = 0x10000002,
+    PLAIN_SIGNAL_CONTINUE = 0x10000003
 };
 
 /*

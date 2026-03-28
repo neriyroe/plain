@@ -1,18 +1,18 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus@signaintermedia.com>.
  * Date     05/09/2013.
- * Revision 09/02/2015.
+ * Revision 03/28/2026.
  *
- * Copyright 2015 Nerijus Ramanauskas.
+ * Copyright 2026 Nerijus Ramanauskas.
  */
 
-#include <Plain/Runtime.h>
+#include <Plain/Runtime/Context.h>
 
-PLAIN_WORD_DOUBLE PLAIN_WALK(void* context, PLAIN_SUBROUTINE function, struct PLAIN_LIST* node, struct PLAIN_VALUE* value) {
-    PLAIN_ASSERT(function != NULL);
+PLAIN_WORD_DOUBLE PLAIN_WALK(void* context, PLAIN_SUBROUTINE resolver, struct PLAIN_LIST* node, struct PLAIN_VALUE* value) {
+    PLAIN_ASSERT(resolver != NULL);
     PLAIN_ASSERT(node != NULL);
     /* PLAIN_ERROR_SYSTEM_WRONG_DATA. */
-    if(function == NULL || node == NULL) {
+    if(resolver == NULL || node == NULL) {
         return PLAIN_ERROR_SYSTEM_WRONG_DATA;
     }
     if(node->keyword.from == NULL) {
@@ -29,7 +29,7 @@ PLAIN_WORD_DOUBLE PLAIN_WALK(void* context, PLAIN_SUBROUTINE function, struct PL
                 continue;
             }
             /* Return as it is. */
-            PLAIN_WORD_DOUBLE error = function(context, keyword.from, PLAIN_TYPE_KEYWORD, argument);
+            PLAIN_WORD_DOUBLE error = resolver(context, keyword.from, PLAIN_TYPE_KEYWORD, argument);
             if(argument->data != keyword.from) { /* Data has been changed. */
                 PLAIN_RESIZE(keyword.from, 0, keyword.to - keyword.from);
             }
@@ -42,7 +42,7 @@ PLAIN_WORD_DOUBLE PLAIN_WALK(void* context, PLAIN_SUBROUTINE function, struct PL
                 continue;
             }
             /* Substitute. */
-            PLAIN_WORD_DOUBLE error = PLAIN_WALK(context, function, child, argument);
+            PLAIN_WORD_DOUBLE error = PLAIN_WALK(context, resolver, child, argument);
             if((struct PLAIN_LIST*)argument->data != child) { /* Data has been changed. */
                 PLAIN_UNLINK(child);
                 PLAIN_RESIZE(child, 0, sizeof(struct PLAIN_LIST));
@@ -60,7 +60,7 @@ PLAIN_WORD_DOUBLE PLAIN_WALK(void* context, PLAIN_SUBROUTINE function, struct PL
                 if(part->type == PLAIN_TYPE_LIST) {
                     struct PLAIN_LIST* child = (struct PLAIN_LIST*)part->data;
                     if(child == NULL || child->parent == NULL) continue;
-                    PLAIN_WORD_DOUBLE error = PLAIN_WALK(context, function, child, part);
+                    PLAIN_WORD_DOUBLE error = PLAIN_WALK(context, resolver, child, part);
                     if((struct PLAIN_LIST*)part->data != child) {
                         PLAIN_UNLINK(child);
                         PLAIN_RESIZE(child, 0, sizeof(struct PLAIN_LIST));
@@ -101,12 +101,12 @@ PLAIN_WORD_DOUBLE PLAIN_WALK(void* context, PLAIN_SUBROUTINE function, struct PL
             argument->owner  = 0;
         }
     }
-    PLAIN_WORD_DOUBLE error = function(context, node, PLAIN_TYPE_LIST, value);
+    PLAIN_WORD_DOUBLE error = resolver(context, node, PLAIN_TYPE_LIST, value);
     if(error != 0) {
         return error;
     }
     if(node->node != NULL) {
-        PLAIN_WORD_DOUBLE error = PLAIN_WALK(context, function, node->node, NULL);
+        PLAIN_WORD_DOUBLE error = PLAIN_WALK(context, resolver, node->node, NULL);
         if(error != 0) {
             return error;
         }

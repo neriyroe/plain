@@ -21,7 +21,7 @@ PLAIN_INLINE void PLAIN_KEYWORD_EXTRACT(struct PLAIN_LIST* node, PLAIN_BYTE* buf
 
 /* Resolves a raw argument (possibly a keyword) to its value for parameter binding.
  * Returns NIL for keywords not found in the frame. */
-static struct PLAIN_VALUE PLAIN_RESOLVE_FOR_BINDING(struct PLAIN_CONTEXT* context, struct PLAIN_VALUE* raw_argument) {
+static struct PLAIN_VALUE PLAIN_FRAME_RESOLVE(struct PLAIN_CONTEXT* context, struct PLAIN_VALUE* raw_argument) {
     if(raw_argument->type != PLAIN_TYPE_KEYWORD) return *raw_argument;
     struct PLAIN_BINDING* keyword_binding = PLAIN_FRAME_FIND(context->frame, raw_argument->data);
     if(keyword_binding == NULL) {
@@ -52,7 +52,7 @@ PLAIN_WORD_DOUBLE PLAIN_CALL(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* n
     for(PLAIN_WORD_DOUBLE i = 0; i < callable->parameter_count; i++) {
         struct PLAIN_VALUE* raw_argument = PLAIN_ARGUMENT(node, i);
         if(raw_argument != NULL) {
-            struct PLAIN_VALUE argument_value = PLAIN_RESOLVE_FOR_BINDING(context, raw_argument);
+            struct PLAIN_VALUE argument_value = PLAIN_FRAME_RESOLVE(context, raw_argument);
             PLAIN_FRAME_BIND(frame, callable->parameters[i], &argument_value, NULL, 0);
         }
     }
@@ -85,7 +85,7 @@ static PLAIN_WORD_DOUBLE PLAIN_CALL_OFFSET(struct PLAIN_CONTEXT* context, struct
     for(PLAIN_WORD_DOUBLE i = 0; i < callable->parameter_count; i++) {
         struct PLAIN_VALUE* raw_argument = PLAIN_ARGUMENT(node, offset + i);
         if(raw_argument != NULL) {
-            struct PLAIN_VALUE argument_value = PLAIN_RESOLVE_FOR_BINDING(context, raw_argument);
+            struct PLAIN_VALUE argument_value = PLAIN_FRAME_RESOLVE(context, raw_argument);
             PLAIN_FRAME_BIND(frame, callable->parameters[i], &argument_value, NULL, 0);
         }
     }

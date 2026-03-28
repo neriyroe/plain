@@ -21,4 +21,4 @@ PLAIN_WORD_DOUBLE PLAIN_VALUE_COPY(struct PLAIN_VALUE* destination, const struct
 
 /* Returns nonzero if <value> represents a logically true state:
  * yes, non-zero integer, non-zero real, or non-empty string. */
-PLAIN_WORD_DOUBLE PLAIN_IS_TRUE(const struct PLAIN_VALUE* value);
+PLAIN_WORD_DOUBLE PLAIN_VALUE_TRUTHY(const struct PLAIN_VALUE* value);

@@ -224,7 +224,7 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_IF(void* raw, void* data, PLAIN_WORD_DOUBLE ty
     while(i + 1 < arity) {
         struct PLAIN_VALUE condition = PLAIN_ARGUMENT_VALUE(context, node, i);
         struct PLAIN_VALUE* next = PLAIN_ARGUMENT(node, i + 1);
-        if(PLAIN_IS_TRUE(&condition))
+        if(PLAIN_VALUE_TRUTHY(&condition))
             return PLAIN_EVALUATE_BLOCK(context, (struct PLAIN_LIST*)next->data, value);
         i += 2;
         if(i >= arity) break;
@@ -257,7 +257,7 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_WHEN(void* raw, void* data, PLAIN_WORD_DOUBLE 
             struct PLAIN_VALUE candidate = PLAIN_ARGUMENT_VALUE(context, node, i);
             struct PLAIN_VALUE result = {NULL, 0, PLAIN_TYPE_NIL, 0};
             PLAIN_APPLY_COMPARISON(&target, &candidate, '=', &result);
-            if(PLAIN_IS_TRUE(&result)) {
+            if(PLAIN_VALUE_TRUTHY(&result)) {
                 PLAIN_VALUE_CLEAR(&result);
                 return PLAIN_EVALUATE_BLOCK(context, (struct PLAIN_LIST*)block->data, value);
             }
@@ -359,7 +359,7 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_REPEAT(void* raw, void* data, PLAIN_WORD_DOUBL
         for(;;) {
             struct PLAIN_VALUE test = {NULL, 0, PLAIN_TYPE_NIL, 0};
             PLAIN_WORD_DOUBLE error = PLAIN_EVALUATE_BLOCK(context, condition, &test);
-            PLAIN_WORD_DOUBLE ok = PLAIN_IS_TRUE(&test);
+            PLAIN_WORD_DOUBLE ok = PLAIN_VALUE_TRUTHY(&test);
             PLAIN_VALUE_CLEAR(&test);
             if(error != 0) return error;
             if(!ok) break;
@@ -546,7 +546,7 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_NOT(void* raw, void* data, PLAIN_WORD_DOUBLE t
     struct PLAIN_CONTEXT* context = (struct PLAIN_CONTEXT*)raw;
     struct PLAIN_LIST* node = (struct PLAIN_LIST*)data;
     struct PLAIN_VALUE a = PLAIN_ARGUMENT_VALUE(context, node, 0);
-    return PLAIN_SET_BOOLEAN(value, !PLAIN_IS_TRUE(&a));
+    return PLAIN_SET_BOOLEAN(value, !PLAIN_VALUE_TRUTHY(&a));
 }
 
 static PLAIN_WORD_DOUBLE PLAIN_FW_AND(void* raw, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
@@ -556,7 +556,7 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_AND(void* raw, void* data, PLAIN_WORD_DOUBLE t
     PLAIN_WORD_DOUBLE i;
     for(i = 0; i < arity; i++) {
         struct PLAIN_VALUE arg = PLAIN_ARGUMENT_VALUE(context, node, i);
-        if(!PLAIN_IS_TRUE(&arg)) return PLAIN_SET_BOOLEAN(value, 0);
+        if(!PLAIN_VALUE_TRUTHY(&arg)) return PLAIN_SET_BOOLEAN(value, 0);
     }
     return PLAIN_SET_BOOLEAN(value, 1);
 }
@@ -568,7 +568,7 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_OR(void* raw, void* data, PLAIN_WORD_DOUBLE ty
     PLAIN_WORD_DOUBLE i;
     for(i = 0; i < arity; i++) {
         struct PLAIN_VALUE arg = PLAIN_ARGUMENT_VALUE(context, node, i);
-        if(PLAIN_IS_TRUE(&arg)) return PLAIN_SET_BOOLEAN(value, 1);
+        if(PLAIN_VALUE_TRUTHY(&arg)) return PLAIN_SET_BOOLEAN(value, 1);
     }
     return PLAIN_SET_BOOLEAN(value, 0);
 }
@@ -624,7 +624,7 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_NOT_EQUAL(void* raw, void* data, PLAIN_WORD_DO
     struct PLAIN_VALUE b = PLAIN_ARGUMENT_VALUE(context, node, 1);
     struct PLAIN_VALUE temp = {NULL, 0, PLAIN_TYPE_NIL, 0};
     PLAIN_WORD_DOUBLE error = PLAIN_APPLY_COMPARISON(&a, &b, '=', &temp);
-    if(error == 0) error = PLAIN_SET_BOOLEAN(value, !PLAIN_IS_TRUE(&temp));
+    if(error == 0) error = PLAIN_SET_BOOLEAN(value, !PLAIN_VALUE_TRUTHY(&temp));
     PLAIN_VALUE_CLEAR(&temp);
     return error;
 }
@@ -636,7 +636,7 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_LESS_EQUAL(void* raw, void* data, PLAIN_WORD_D
     struct PLAIN_VALUE b = PLAIN_ARGUMENT_VALUE(context, node, 1);
     struct PLAIN_VALUE temp = {NULL, 0, PLAIN_TYPE_NIL, 0};
     PLAIN_WORD_DOUBLE error = PLAIN_APPLY_COMPARISON(&a, &b, '>', &temp);
-    if(error == 0) error = PLAIN_SET_BOOLEAN(value, !PLAIN_IS_TRUE(&temp));
+    if(error == 0) error = PLAIN_SET_BOOLEAN(value, !PLAIN_VALUE_TRUTHY(&temp));
     PLAIN_VALUE_CLEAR(&temp);
     return error;
 }
@@ -648,7 +648,7 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_GREATER_EQUAL(void* raw, void* data, PLAIN_WOR
     struct PLAIN_VALUE b = PLAIN_ARGUMENT_VALUE(context, node, 1);
     struct PLAIN_VALUE temp = {NULL, 0, PLAIN_TYPE_NIL, 0};
     PLAIN_WORD_DOUBLE error = PLAIN_APPLY_COMPARISON(&a, &b, '<', &temp);
-    if(error == 0) error = PLAIN_SET_BOOLEAN(value, !PLAIN_IS_TRUE(&temp));
+    if(error == 0) error = PLAIN_SET_BOOLEAN(value, !PLAIN_VALUE_TRUTHY(&temp));
     PLAIN_VALUE_CLEAR(&temp);
     return error;
 }

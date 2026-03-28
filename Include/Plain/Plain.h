@@ -16,6 +16,7 @@
 #include "Shared/Processing/List.h"
 #include "Shared/Processing/Value.h"
 #include "Shared/Processing/Delegate.h"
+#include "Shared/Processing/Subroutine.h"
 
 /* Returns argument at <position>. */
 PLAIN_INLINE struct PLAIN_VALUE* PLAIN_ARGUMENT(struct PLAIN_LIST* node, PLAIN_WORD_DOUBLE position) {
@@ -45,6 +46,9 @@ PLAIN_WORD_DOUBLE PLAIN_EXPORT(PLAIN_BYTE* data, PLAIN_WORD_DOUBLE length, PLAIN
 
 /* Compiles <segment> to nodes and arguments. Note that only <parent> can be NULL. */
 PLAIN_WORD_DOUBLE PLAIN_TOKENIZE(void* context, struct PLAIN_LIST* node, struct PLAIN_LIST* parent, const PLAIN_BYTE* delimiters, struct PLAIN_SEGMENT* segment, PLAIN_DELEGATE tracker);
+
+/* Evaluates the list given by <node>. Note that both <context> and <value> can be NULL. */
+PLAIN_WORD_DOUBLE PLAIN_WALK(void* context, PLAIN_SUBROUTINE resolver, struct PLAIN_LIST* node, struct PLAIN_VALUE* value);
 
 /* Frees all memory occupied by <node>. */
 void PLAIN_UNLINK(struct PLAIN_LIST* node);

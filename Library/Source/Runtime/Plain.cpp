@@ -77,7 +77,7 @@ namespace plain {
     }
 
     bool Value::is_nil()    const { return value.type == PLAIN_TYPE_NIL; }
-    bool Value::is_true()   const { return PLAIN_IS_TRUE(&value) != 0; }
+    bool Value::is_true()   const { return PLAIN_VALUE_TRUTHY(&value) != 0; }
     bool Value::is_object() const { return value.type == PLAIN_TYPE_OBJECT; }
 
     std::string Value::type_name() const {
@@ -95,7 +95,7 @@ namespace plain {
     }
 
     bool Value::as_boolean() const {
-        return PLAIN_IS_TRUE(&value) != 0;
+        return PLAIN_VALUE_TRUTHY(&value) != 0;
     }
 
     int Value::as_integer() const {
