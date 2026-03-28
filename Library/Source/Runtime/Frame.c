@@ -44,7 +44,8 @@ static void PLAIN_FRAME_BINDING_FREE(struct PLAIN_BINDING* binding) {
             PLAIN_RESIZE(binding->callable->parameters, 0, sizeof(PLAIN_BYTE*) * binding->callable->parameter_count);
         }
         if(binding->callable->body != NULL) {
-            PLAIN_RESIZE(binding->callable->body, 0, strlen((const char*)binding->callable->body) + 1);
+            PLAIN_UNLINK(binding->callable->body);
+            PLAIN_RESIZE(binding->callable->body, 0, sizeof(struct PLAIN_LIST));
         }
         PLAIN_RESIZE(binding->callable, 0, sizeof(struct PLAIN_CALLABLE));
     }
@@ -102,7 +103,8 @@ PLAIN_WORD_DOUBLE PLAIN_FRAME_BIND(struct PLAIN_FRAME* frame, const PLAIN_BYTE* 
                 PLAIN_RESIZE(binding->callable->parameters, 0, sizeof(PLAIN_BYTE*) * binding->callable->parameter_count);
             }
             if(binding->callable->body != NULL) {
-                PLAIN_RESIZE(binding->callable->body, 0, strlen((const char*)binding->callable->body) + 1);
+                PLAIN_UNLINK(binding->callable->body);
+                PLAIN_RESIZE(binding->callable->body, 0, sizeof(struct PLAIN_LIST));
             }
             PLAIN_RESIZE(binding->callable, 0, sizeof(struct PLAIN_CALLABLE));
             binding->callable = NULL;

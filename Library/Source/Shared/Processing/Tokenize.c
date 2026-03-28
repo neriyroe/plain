@@ -583,3 +583,61 @@ void PLAIN_UNLINK(struct PLAIN_LIST* node) {
         PLAIN_RESIZE(node->node, 0, sizeof(struct PLAIN_LIST));
     }
 }
+
+static struct PLAIN_LIST* PLAIN_LIST_COPY_NODE(const struct PLAIN_LIST* node, struct PLAIN_LIST* new_parent);
+
+struct PLAIN_LIST* PLAIN_LIST_COPY(const struct PLAIN_LIST* node) {
+    return PLAIN_LIST_COPY_NODE(node, NULL);
+}
+
+static struct PLAIN_LIST* PLAIN_LIST_COPY_NODE(const struct PLAIN_LIST* node, struct PLAIN_LIST* new_parent) {
+    if(node == NULL) return NULL;
+    struct PLAIN_LIST* copy = (struct PLAIN_LIST*)PLAIN_RESIZE(NULL, sizeof(struct PLAIN_LIST), 0);
+    if(copy == NULL) return NULL;
+    /* keyword and segment point into the original source buffer; not owned. */
+    copy->keyword      = node->keyword;
+    copy->segment.from = NULL;
+    copy->segment.to   = NULL;
+    copy->parent       = new_parent;
+    copy->node         = NULL;
+    copy->layout.from  = NULL;
+    copy->layout.to    = NULL;
+    PLAIN_WORD_DOUBLE lsize = node->layout.to - node->layout.from;
+    if(lsize > 0 && node->layout.from != NULL) {
+        copy->layout.from = (PLAIN_BYTE*)PLAIN_RESIZE(NULL, lsize, 0);
+        if(copy->layout.from == NULL) {
+            PLAIN_RESIZE(copy, 0, sizeof(struct PLAIN_LIST));
+            return NULL;
+        }
+        copy->layout.to = copy->layout.from + lsize;
+        for(PLAIN_WORD_DOUBLE off = 0; off < lsize; off += sizeof(struct PLAIN_VALUE)) {
+            const struct PLAIN_VALUE* sv = (const struct PLAIN_VALUE*)(node->layout.from + off);
+            struct PLAIN_VALUE* dv = (struct PLAIN_VALUE*)(copy->layout.from + off);
+            dv->type  = sv->type;
+            dv->owner = sv->owner;
+            if(sv->type == PLAIN_TYPE_LIST || sv->type == PLAIN_TYPE_INTERPOLATED) {
+                const struct PLAIN_LIST* child = (const struct PLAIN_LIST*)sv->data;
+                /* Preserve the parent != NULL distinction: inline expressions get the new
+                 * enclosing node as parent; deferred blocks keep parent == NULL. */
+                struct PLAIN_LIST* child_parent = (child != NULL && child->parent != NULL) ? copy : NULL;
+                dv->data   = (PLAIN_BYTE*)PLAIN_LIST_COPY_NODE(child, child_parent);
+                dv->length = sv->length;
+            } else if(sv->length > 0 && sv->data != NULL) {
+                dv->data = (PLAIN_BYTE*)PLAIN_RESIZE(NULL, sv->length, 0);
+                if(dv->data == NULL) {
+                    dv->length = 0;
+                    dv->type   = PLAIN_TYPE_NIL;
+                } else {
+                    memcpy(dv->data, sv->data, sv->length);
+                    dv->length = sv->length;
+                }
+            } else {
+                /* Boolean marker (NULL / 0xFF), nil, or zero-length data — shallow copy. */
+                dv->data   = sv->data;
+                dv->length = sv->length;
+            }
+        }
+    }
+    copy->node = PLAIN_LIST_COPY_NODE(node->node, NULL);
+    return copy;
+}

@@ -45,8 +45,8 @@ PLAIN_WORD_DOUBLE PLAIN_CALL(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* n
     if(callable->native != NULL) {
         return callable->native((void*)context, (void*)node, PLAIN_TYPE_LIST, value);
     }
-    /* User-defined callable — resolve keyword arguments, bind parameters, evaluate body.
-     * The child frame parents the closure frame (lexical scope). */
+    /* User-defined callable — resolve keyword arguments, bind parameters, walk body.
+     * A fresh copy of the body tree is made so the stored canonical tree is not consumed. */
     struct PLAIN_FRAME* frame = PLAIN_FRAME_CREATE(callable->closure != NULL ? callable->closure : context->frame);
     if(frame == NULL) return PLAIN_ERROR_SYSTEM;
     for(PLAIN_WORD_DOUBLE i = 0; i < callable->parameter_count; i++) {
@@ -58,19 +58,25 @@ PLAIN_WORD_DOUBLE PLAIN_CALL(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* n
     }
     struct PLAIN_FRAME* saved = context->frame;
     context->frame = frame;
-    struct PLAIN_VALUE body = {NULL, 0, PLAIN_TYPE_NIL, 0};
-    PLAIN_WORD_DOUBLE error = PLAIN_EVALUATE(context, (PLAIN_SUBROUTINE)PLAIN_RESOLVE, callable->body, context->tracker, &body);
+    struct PLAIN_VALUE result = {NULL, 0, PLAIN_TYPE_NIL, 0};
+    struct PLAIN_LIST* body_copy = PLAIN_LIST_COPY(callable->body);
+    PLAIN_WORD_DOUBLE error = PLAIN_ERROR_SYSTEM;
+    if(body_copy != NULL) {
+        error = PLAIN_WALK(context, PLAIN_RESOLVE, body_copy, &result);
+        PLAIN_UNLINK(body_copy);
+        PLAIN_RESIZE(body_copy, 0, sizeof(struct PLAIN_LIST));
+    }
     context->frame = saved;
 
     PLAIN_FRAME_RELEASE(frame);
     if(error == PLAIN_SIGNAL_RETURN) {
         if(value != NULL) { *value = context->result; context->result = (struct PLAIN_VALUE){NULL, 0, PLAIN_TYPE_NIL, 0}; }
         else { PLAIN_VALUE_CLEAR(&context->result); }
-        PLAIN_VALUE_CLEAR(&body);
+        PLAIN_VALUE_CLEAR(&result);
         return 0;
     }
-    if(error == 0 && value != NULL) { *value = body; }
-    else { PLAIN_VALUE_CLEAR(&body); }
+    if(error == 0 && value != NULL) { *value = result; }
+    else { PLAIN_VALUE_CLEAR(&result); }
     return error;
 }
 
@@ -91,18 +97,24 @@ static PLAIN_WORD_DOUBLE PLAIN_CALL_OFFSET(struct PLAIN_CONTEXT* context, struct
     }
     struct PLAIN_FRAME* saved = context->frame;
     context->frame = frame;
-    struct PLAIN_VALUE body = {NULL, 0, PLAIN_TYPE_NIL, 0};
-    PLAIN_WORD_DOUBLE error = PLAIN_EVALUATE(context, (PLAIN_SUBROUTINE)PLAIN_RESOLVE, callable->body, context->tracker, &body);
+    struct PLAIN_VALUE result = {NULL, 0, PLAIN_TYPE_NIL, 0};
+    struct PLAIN_LIST* body_copy = PLAIN_LIST_COPY(callable->body);
+    PLAIN_WORD_DOUBLE error = PLAIN_ERROR_SYSTEM;
+    if(body_copy != NULL) {
+        error = PLAIN_WALK(context, PLAIN_RESOLVE, body_copy, &result);
+        PLAIN_UNLINK(body_copy);
+        PLAIN_RESIZE(body_copy, 0, sizeof(struct PLAIN_LIST));
+    }
     context->frame = saved;
     PLAIN_FRAME_RELEASE(frame);
     if(error == PLAIN_SIGNAL_RETURN) {
         if(value != NULL) { *value = context->result; context->result = (struct PLAIN_VALUE){NULL, 0, PLAIN_TYPE_NIL, 0}; }
         else { PLAIN_VALUE_CLEAR(&context->result); }
-        PLAIN_VALUE_CLEAR(&body);
+        PLAIN_VALUE_CLEAR(&result);
         return 0;
     }
-    if(error == 0 && value != NULL) { *value = body; }
-    else { PLAIN_VALUE_CLEAR(&body); }
+    if(error == 0 && value != NULL) { *value = result; }
+    else { PLAIN_VALUE_CLEAR(&result); }
     return error;
 }
 
@@ -176,14 +188,14 @@ PLAIN_WORD_DOUBLE PLAIN_RESOLVE(struct PLAIN_CONTEXT* context, void* data, PLAIN
             }
             /* C++ managed object — dispatch via context->handler. */
             if(context->handler != NULL) {
-                return context->handler(raw, data, PLAIN_TYPE_OBJECT, value);
+                return context->handler((void*)context, data, PLAIN_TYPE_OBJECT, value);
             }
         }
     }
 
     /* Host-provided extension. */
     if(context->handler != NULL) {
-        return context->handler(raw, data, type, value);
+        return context->handler((void*)context, data, type, value);
     }
 
     return 0;

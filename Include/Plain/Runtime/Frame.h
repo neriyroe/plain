@@ -21,16 +21,16 @@ enum {
 
 /*
  * PLAIN_CALLABLE — a user-defined function or procedure, captured at
- * definition time and re-evaluated on each call. Parameters are extracted
- * once from the parsed tree; the body is stored as source text for
- * re-evaluation. For built-in commands, native is set and all other
- * fields are NULL/zero.
+ * definition time and walked on each call. Parameters are extracted
+ * once from the parsed tree; the body is stored as a pre-parsed PLAIN_LIST
+ * tree and deep-copied before each walk. For built-in commands, native is
+ * set and all other fields are NULL/zero.
  */
 struct PLAIN_CALLABLE {
     PLAIN_BYTE** parameters;            /* Array of parameter name strings. NULL for native callables. */
     PLAIN_WORD_DOUBLE parameter_count;  /* Number of parameters. 0 for native callables. */
-    PLAIN_BYTE* body;                   /* Source text of the body to evaluate on each call. NULL for native callables. */
-    PLAIN_SUBROUTINE native;            /* C implementation. NULL for user-defined callables. */
+    struct PLAIN_LIST* body;            /* Pre-parsed body tree walked on each call. NULL for native callables. */
+    PLAIN_SUBROUTINE native;              /* C implementation. NULL for user-defined callables. */
     struct PLAIN_FRAME* closure;        /* Frame captured at definition time (closure). NULL for native callables. */
     PLAIN_WORD_DOUBLE flags;
 };

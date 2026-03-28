@@ -53,3 +53,8 @@ PLAIN_WORD_DOUBLE PLAIN_WALK(void* context, PLAIN_SUBROUTINE resolver, struct PL
 /* Frees all memory occupied by <node>. */
 void PLAIN_UNLINK(struct PLAIN_LIST* node);
 
+/* Deep-copies <node> and its entire sibling/child tree into freshly allocated memory.
+ * keyword and segment fields borrow pointers into the original source buffer, which
+ * must remain alive for the lifetime of the copy. Returns NULL on allocation failure. */
+struct PLAIN_LIST* PLAIN_LIST_COPY(const struct PLAIN_LIST* node);
+
