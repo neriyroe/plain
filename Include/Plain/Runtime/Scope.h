@@ -12,7 +12,7 @@
 
 #include <uthash.h>
 #include <Plain/Plain.h>
-#include <Plain/Framework/Host/Environment.h>
+#include <Plain/Runtime/Host/Environment.h>
 
 /* Control-flow signals, returned instead of error codes. */
 enum {
@@ -21,38 +21,31 @@ enum {
     PLAIN_SIGNAL_CONTINUE = 0x302
 };
 
-/* Flags for PLAIN_CALLABLE. */
-enum {
-    PLAIN_CALLABLE_IMMUTABLE = 0x01,  /* Callable was created with function (not procedure); binding should be immutable. */
-    PLAIN_CALLABLE_CLASS     = 0x02   /* Constructor: wrap the evaluation frame as an object instance instead of discarding it. */
-};
-
-/* Flags for PLAIN_BINDING. */
-enum {
-    PLAIN_BINDING_IMMUTABLE = 0x01  /* Binding cannot be reassigned (functions). */
-};
-
-/* Flags for PLAIN_VALUE. */
+/* Owner flags for PLAIN_VALUE. */
 enum {
     /* Set on PLAIN_TYPE_OBJECT values whose data pointer is a PLAIN_FRAME*
      * (Plain-native instance created with object { ... }).
      * PLAIN_VALUE_CLEAR will call PLAIN_FRAME_RELEASE; PLAIN_VALUE_COPY will
      * call PLAIN_FRAME_RETAIN. Without this flag, data is an externally managed
      * C/C++ pointer and the runtime never frees or retains it. */
-    PLAIN_VALUE_USER_DEFINED = 0x01
+    PLAIN_OWNER_INTERNAL = 0x00,
+    PLAIN_OWNER_USER = 0x01
 };
 
 /*
- * PLAIN_CALLABLE — the stored source text of a user-defined function or
- * procedure, captured at definition time and re-evaluated on each call.
- * For built-in commands, body and parameters are NULL and native is set.
+ * PLAIN_CALLABLE — a user-defined function or procedure, captured at
+ * definition time and re-evaluated on each call. Parameters are extracted
+ * once from the parsed tree; the body is stored as source text for
+ * re-evaluation. For built-in commands, native is set and all other
+ * fields are NULL/zero.
  */
 struct PLAIN_CALLABLE {
-    PLAIN_BYTE* parameters;       /* Source text of the parameter list. NULL for native callables. */
-    PLAIN_BYTE* body;             /* Source text of the body to evaluate on each call. NULL for native callables. */
-    PLAIN_SUBROUTINE native;      /* C implementation. NULL for user-defined callables. */
-    struct PLAIN_FRAME* closure;  /* Frame captured at definition time (closure). NULL for native callables. */
-    PLAIN_WORD_DOUBLE flags;      /* PLAIN_CALLABLE_IMMUTABLE etc. */
+    PLAIN_BYTE** parameters;            /* Array of parameter name strings. NULL for native callables. */
+    PLAIN_WORD_DOUBLE parameter_count;  /* Number of parameters. 0 for native callables. */
+    PLAIN_BYTE* body;                   /* Source text of the body to evaluate on each call. NULL for native callables. */
+    PLAIN_SUBROUTINE native;            /* C implementation. NULL for user-defined callables. */
+    struct PLAIN_FRAME* closure;        /* Frame captured at definition time (closure). NULL for native callables. */
+    PLAIN_WORD_DOUBLE flags;            /* PLAIN_CALLABLE_IMMUTABLE etc. */
 };
 
 /*

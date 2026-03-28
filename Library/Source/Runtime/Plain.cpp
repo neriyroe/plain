@@ -5,7 +5,7 @@
  * Copyright 2026 Nerijus Ramanauskas.
  */
 
-#include <Plain/Plain.hpp>
+#include <Plain/Runtime.hpp>
 
 #include <cstdio>
 #include <cstring>
@@ -391,13 +391,13 @@ namespace plain {
         auto* ptr = owned.get();
         objects.push_back(std::move(owned));
 
-        /* Store the raw pointer in data. length = 0 and flags = 0 (no PLAIN_VALUE_USER_DEFINED)
+        /* Store the raw pointer in data. length = 0 and owner = 0 (no PLAIN_OWNER_USER)
          * so PLAIN_VALUE_CLEAR never frees it and PLAIN_VALUE_COPY only copies the pointer —
          * the Runtime owns the object lifetime, not individual Plain values. */
         Value result;
         result.native().data   = reinterpret_cast<PLAIN_BYTE*>(ptr);
         result.native().length = 0;
-        result.native().flags  = 0;
+        result.native().owner  = 0;
         result.native().type   = PLAIN_TYPE_OBJECT;
         return result;
     }

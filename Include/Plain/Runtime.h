@@ -18,9 +18,9 @@ extern "C" {
 #endif
 
 #include "Plain.h"
-#include "Framework/Host/Environment.h"
-#include "Framework/Object.h"
-#include "Framework/Scope.h"
+#include "Runtime/Host/Environment.h"
+#include "Runtime/Object.h"
+#include "Runtime/Scope.h"
 
 typedef struct PLAIN_ENVIRONMENT  PLAIN_ENVIRONMENT;
 typedef struct PLAIN_LIST         PLAIN_LIST;

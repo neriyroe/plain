@@ -6,7 +6,7 @@
  * Copyright 2015 Nerijus Ramanauskas.
  */
 
-#include <Plain/VM.h>
+#include <Plain/Runtime.h>
 
 PLAIN_WORD_DOUBLE PLAIN_VERSION(PLAIN_ENVIRONMENT* environment) {
     if(environment != NULL) {

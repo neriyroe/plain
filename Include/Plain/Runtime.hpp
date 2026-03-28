@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include <Plain/VM.h>
+#include <Plain/Runtime.h>
 
 #include <cassert>
 #include <functional>

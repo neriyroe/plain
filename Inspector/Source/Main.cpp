@@ -8,7 +8,7 @@
  * See Samples/ for extended demos (object bridge, class binding, etc.).
  */
 
-#include <Plain/Plain.hpp>
+#include <Plain/Runtime.hpp>
 
 #include <iostream>
 #include <string>

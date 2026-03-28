@@ -6,8 +6,8 @@
  * Copyright 2026 Nerijus Ramanauskas.
  */
 
-#include <Plain/VM.h>
-#include <Plain/Framework/Scope.h>
+#include <Plain/Runtime.h>
+#include <Plain/Runtime/Scope.h>
 #include <uthash.h>
 #include <stdio.h>   /* sprintf — string formatting only, no output */
 
@@ -51,6 +51,31 @@ static PLAIN_BYTE* PLAIN_SEGMENT_COPY(struct PLAIN_LIST* block) {
     PLAIN_BYTE* data = (PLAIN_BYTE*)PLAIN_RESIZE(NULL, length + 1, 0);
     if(data) { memcpy(data, block->segment.from, length); data[length] = '\0'; }
     return data;
+}
+
+static PLAIN_BYTE** PLAIN_PARAMETERS_EXTRACT(struct PLAIN_LIST* block, PLAIN_WORD_DOUBLE* count) {
+    *count = 0;
+    if(block == NULL || block->keyword.from == NULL) return NULL;
+    struct PLAIN_LIST* cursor = block;
+    PLAIN_WORD_DOUBLE n = 0;
+    while(cursor != NULL && cursor->keyword.from != NULL) { n++; cursor = cursor->node; }
+    PLAIN_BYTE** names = (PLAIN_BYTE**)PLAIN_RESIZE(NULL, sizeof(PLAIN_BYTE*) * n, 0);
+    if(names == NULL) return NULL;
+    cursor = block;
+    for(PLAIN_WORD_DOUBLE i = 0; i < n; i++) {
+        PLAIN_WORD_DOUBLE length = cursor->keyword.to - cursor->keyword.from;
+        names[i] = (PLAIN_BYTE*)PLAIN_RESIZE(NULL, length + 1, 0);
+        if(names[i] == NULL) {
+            for(PLAIN_WORD_DOUBLE j = 0; j < i; j++) PLAIN_RESIZE(names[j], 0, strlen((const char*)names[j]) + 1);
+            PLAIN_RESIZE(names, 0, sizeof(PLAIN_BYTE*) * n);
+            return NULL;
+        }
+        memcpy(names[i], cursor->keyword.from, length);
+        names[i][length] = '\0';
+        cursor = cursor->node;
+    }
+    *count = n;
+    return names;
 }
 
 PLAIN_INLINE PLAIN_WORD_DOUBLE PLAIN_SET_INTEGER(struct PLAIN_VALUE* value, PLAIN_WORD_DOUBLE number) {
@@ -178,10 +203,16 @@ static struct PLAIN_CALLABLE* PLAIN_CALLABLE_DUPLICATE(struct PLAIN_CALLABLE* so
     copy->closure = source->closure;
     copy->flags   = source->flags;
     if(copy->closure != NULL) PLAIN_FRAME_RETAIN(copy->closure);
-    if(source->parameters != NULL) {
-        PLAIN_WORD_DOUBLE length = strlen((const char*)source->parameters) + 1;
-        copy->parameters = (PLAIN_BYTE*)PLAIN_RESIZE(NULL, length, 0);
-        if(copy->parameters) memcpy(copy->parameters, source->parameters, length);
+    copy->parameter_count = source->parameter_count;
+    if(source->parameters != NULL && source->parameter_count > 0) {
+        copy->parameters = (PLAIN_BYTE**)PLAIN_RESIZE(NULL, sizeof(PLAIN_BYTE*) * source->parameter_count, 0);
+        if(copy->parameters != NULL) {
+            for(PLAIN_WORD_DOUBLE i = 0; i < source->parameter_count; i++) {
+                PLAIN_WORD_DOUBLE length = strlen((const char*)source->parameters[i]) + 1;
+                copy->parameters[i] = (PLAIN_BYTE*)PLAIN_RESIZE(NULL, length, 0);
+                if(copy->parameters[i]) memcpy(copy->parameters[i], source->parameters[i], length);
+            }
+        }
     }
     if(source->body != NULL) {
         PLAIN_WORD_DOUBLE length = strlen((const char*)source->body) + 1;
@@ -217,23 +248,12 @@ PLAIN_WORD_DOUBLE PLAIN_CALL(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* n
      * The child frame parents the closure frame (lexical scope). */
     struct PLAIN_FRAME* frame = PLAIN_FRAME_CREATE(callable->closure != NULL ? callable->closure : context->frame);
     if(frame == NULL) return PLAIN_ERROR_SYSTEM;
-    const PLAIN_BYTE* pointer = callable->parameters;
-    PLAIN_WORD_DOUBLE index = 0;
-    while(pointer != NULL && *pointer != '\0') {
-        while(*pointer == ' ' || *pointer == '\t' || *pointer == ',' || *pointer == ';' || *pointer == '\n' || *pointer == '\r') pointer++;
-        if(*pointer == '\0') break;
-        const PLAIN_BYTE* start = pointer;
-        while(*pointer != '\0' && *pointer != ' ' && *pointer != '\t' && *pointer != ',' && *pointer != ';' && *pointer != '\n' && *pointer != '\r') pointer++;
-        PLAIN_WORD_DOUBLE length = pointer - start;
-        PLAIN_BYTE* name = (PLAIN_BYTE*)PLAIN_AUTO(length + 1);
-        memcpy(name, start, length);
-        name[length] = '\0';
-        struct PLAIN_VALUE* raw_argument = PLAIN_ARGUMENT(node, index);
+    for(PLAIN_WORD_DOUBLE i = 0; i < callable->parameter_count; i++) {
+        struct PLAIN_VALUE* raw_argument = PLAIN_ARGUMENT(node, i);
         if(raw_argument != NULL) {
             struct PLAIN_VALUE argument_value = PLAIN_RESOLVE_FOR_BINDING(context, raw_argument);
-            PLAIN_FRAME_BIND(frame, name, &argument_value, NULL, 0);
+            PLAIN_FRAME_BIND(frame, callable->parameters[i], &argument_value, NULL, 0);
         }
-        index++;
     }
     struct PLAIN_FRAME* saved = context->frame;
     context->frame = frame;
@@ -261,23 +281,12 @@ static PLAIN_WORD_DOUBLE PLAIN_CALL_OFFSET(struct PLAIN_CONTEXT* context, struct
     }
     struct PLAIN_FRAME* frame = PLAIN_FRAME_CREATE(callable->closure != NULL ? callable->closure : context->frame);
     if(frame == NULL) return PLAIN_ERROR_SYSTEM;
-    const PLAIN_BYTE* pointer = callable->parameters;
-    PLAIN_WORD_DOUBLE index = 0;
-    while(pointer != NULL && *pointer != '\0') {
-        while(*pointer == ' ' || *pointer == '\t' || *pointer == ',' || *pointer == ';' || *pointer == '\n' || *pointer == '\r') pointer++;
-        if(*pointer == '\0') break;
-        const PLAIN_BYTE* start = pointer;
-        while(*pointer != '\0' && *pointer != ' ' && *pointer != '\t' && *pointer != ',' && *pointer != ';' && *pointer != '\n' && *pointer != '\r') pointer++;
-        PLAIN_WORD_DOUBLE length = pointer - start;
-        PLAIN_BYTE* name = (PLAIN_BYTE*)PLAIN_AUTO(length + 1);
-        memcpy(name, start, length);
-        name[length] = '\0';
-        struct PLAIN_VALUE* raw_argument = PLAIN_ARGUMENT(node, offset + index);
+    for(PLAIN_WORD_DOUBLE i = 0; i < callable->parameter_count; i++) {
+        struct PLAIN_VALUE* raw_argument = PLAIN_ARGUMENT(node, offset + i);
         if(raw_argument != NULL) {
             struct PLAIN_VALUE argument_value = PLAIN_RESOLVE_FOR_BINDING(context, raw_argument);
-            PLAIN_FRAME_BIND(frame, name, &argument_value, NULL, 0);
+            PLAIN_FRAME_BIND(frame, callable->parameters[i], &argument_value, NULL, 0);
         }
-        index++;
     }
     struct PLAIN_FRAME* saved = context->frame;
     context->frame = frame;
@@ -562,7 +571,7 @@ static PLAIN_WORD_DOUBLE PLAIN_NATIVE_DEFINE(void* raw, void* data, PLAIN_WORD_D
         struct PLAIN_CALLABLE* callable = (struct PLAIN_CALLABLE*)PLAIN_RESIZE(NULL, sizeof(struct PLAIN_CALLABLE), 0);
         if(callable == NULL) return PLAIN_ERROR_SYSTEM;
         memset(callable, 0, sizeof(struct PLAIN_CALLABLE));
-        callable->parameters = PLAIN_SEGMENT_COPY(parameters);
+        callable->parameters = PLAIN_PARAMETERS_EXTRACT(parameters, &callable->parameter_count);
         callable->body       = PLAIN_SEGMENT_COPY(body);
         callable->closure    = context->frame;
         PLAIN_FRAME_RETAIN(context->frame);
@@ -575,7 +584,7 @@ static PLAIN_WORD_DOUBLE PLAIN_NATIVE_DEFINE(void* raw, void* data, PLAIN_WORD_D
         struct PLAIN_CALLABLE* callable = (struct PLAIN_CALLABLE*)PLAIN_RESIZE(NULL, sizeof(struct PLAIN_CALLABLE), 0);
         if(callable == NULL) return PLAIN_ERROR_SYSTEM;
         memset(callable, 0, sizeof(struct PLAIN_CALLABLE));
-        callable->parameters = PLAIN_SEGMENT_COPY(parameters);
+        callable->parameters = PLAIN_PARAMETERS_EXTRACT(parameters, &callable->parameter_count);
         callable->body       = PLAIN_SEGMENT_COPY(body);
         callable->closure    = context->frame;
         PLAIN_FRAME_RETAIN(context->frame);
@@ -641,7 +650,7 @@ static PLAIN_WORD_DOUBLE PLAIN_NATIVE_OBJECT(void* raw, void* data, PLAIN_WORD_D
             self_binding->value.type   = PLAIN_TYPE_OBJECT;
             self_binding->value.data   = (PLAIN_BYTE*)frame;
             self_binding->value.length = 0;
-            self_binding->value.flags  = PLAIN_VALUE_USER_DEFINED;
+            self_binding->value.owner  = PLAIN_OWNER_USER;
             self_binding->flags        = PLAIN_BINDING_IMMUTABLE;
         }
     }
@@ -649,7 +658,7 @@ static PLAIN_WORD_DOUBLE PLAIN_NATIVE_OBJECT(void* raw, void* data, PLAIN_WORD_D
         value->type   = PLAIN_TYPE_OBJECT;
         value->data   = (PLAIN_BYTE*)frame;
         value->length = 0;
-        value->flags  = PLAIN_VALUE_USER_DEFINED;
+        value->owner  = PLAIN_OWNER_USER;
     }
     PLAIN_FRAME_RELEASE(frame);
     return 0;
@@ -890,7 +899,7 @@ PLAIN_WORD_DOUBLE PLAIN_RESOLVE(void* raw, void* data, PLAIN_WORD_DOUBLE type, s
         /* Object dispatch. */
         if(binding->value.type == PLAIN_TYPE_OBJECT) {
             /* Plain-native instance — dispatch via frame lookup. */
-            if((binding->value.flags & PLAIN_VALUE_USER_DEFINED) && binding->value.data != NULL) {
+            if((binding->value.owner & PLAIN_OWNER_USER) && binding->value.data != NULL) {
                 struct PLAIN_FRAME* instance = (struct PLAIN_FRAME*)binding->value.data;
                 PLAIN_WORD_DOUBLE arity = PLAIN_ARITY(node);
                 if(arity == 0) {
