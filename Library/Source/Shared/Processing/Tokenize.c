@@ -125,40 +125,16 @@ static PLAIN_WORD_DOUBLE PLAIN_INTERPOLATE(void* context, struct PLAIN_LIST* nod
         }
         PLAIN_WORD_DOUBLE content_end = scan;
         if(content_start < content_end) {
-            if(data[content_start] == '[') {
-                PLAIN_WORD_DOUBLE bracket_depth = 1;
-                PLAIN_WORD_DOUBLE bracket_scan = content_start + 1;
-                while(bracket_scan < content_end) {
-                    if(data[bracket_scan] == '\\' && bracket_scan + 1 < content_end) { bracket_scan += 2; continue; }
-                    if(data[bracket_scan] == '"' || data[bracket_scan] == '\'') {
-                        PLAIN_BYTE quote = data[bracket_scan++];
-                        while(bracket_scan < content_end) {
-                            if(data[bracket_scan] == '\\' && bracket_scan + 1 < content_end) { bracket_scan += 2; continue; }
-                            if(data[bracket_scan] == quote) { bracket_scan++; break; }
-                            bracket_scan++;
-                        }
-                        continue;
-                    }
-                    if(data[bracket_scan] == '[') bracket_depth++;
-                    else if(data[bracket_scan] == ']') { bracket_depth--; if(bracket_depth == 0) break; }
-                    bracket_scan++;
-                }
-                struct PLAIN_SEGMENT subsegment = {
-                    (PLAIN_BYTE*)&data[content_start + 1],
-                    (PLAIN_BYTE*)&data[bracket_scan]
-                };
-                struct PLAIN_LIST* expression = (struct PLAIN_LIST*)PLAIN_AUTO(sizeof(struct PLAIN_LIST));
-                if(expression == NULL) return PLAIN_ERROR_SYSTEM;
-                PLAIN_WORD_DOUBLE error = PLAIN_TOKENIZE(context, expression, subnode, delimiters, &subsegment, tracker);
-                if(error != 0) return error;
-                error = PLAIN_JOIN((PLAIN_BYTE*)expression, sizeof(struct PLAIN_LIST), subnode, PLAIN_TYPE_LIST);
-                if(error != 0) return error;
-            } else {
-                PLAIN_WORD_DOUBLE name_length = content_end - content_start;
-                PLAIN_WORD_DOUBLE error = PLAIN_JOIN((PLAIN_BYTE*)&data[content_start],
-                    name_length + 1, subnode, PLAIN_TYPE_KEYWORD);
-                if(error != 0) return error;
-            }
+            struct PLAIN_SEGMENT subsegment = {
+                (PLAIN_BYTE*)&data[content_start],
+                (PLAIN_BYTE*)&data[content_end]
+            };
+            struct PLAIN_LIST* expression = (struct PLAIN_LIST*)PLAIN_AUTO(sizeof(struct PLAIN_LIST));
+            if(expression == NULL) return PLAIN_ERROR_SYSTEM;
+            PLAIN_WORD_DOUBLE error = PLAIN_TOKENIZE(context, expression, subnode, delimiters, &subsegment, tracker);
+            if(error != 0) return error;
+            error = PLAIN_JOIN((PLAIN_BYTE*)expression, sizeof(struct PLAIN_LIST), subnode, PLAIN_TYPE_LIST);
+            if(error != 0) return error;
         }
         position = content_end + 1;
         literal_start = position;
