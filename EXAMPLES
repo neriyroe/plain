@@ -118,7 +118,7 @@ STRINGS
     set name, "world";
     print "Hello, {name}!"                  ` Hello, world!
 
-    ` Expressions inside interpolation use {[...]}
+    ` Expressions inside interpolation use {...}
     set x, 6;
     print "{x} * 7 = {* x, 7}"           ` 6 * 7 = 42
 

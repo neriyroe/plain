@@ -6,7 +6,7 @@
  * Copyright 2026 Nerijus Ramanauskas.
  */
 
-#include <Plain/Runtime/Context.h>
+#include <Plain/Plain.h>
 
 PLAIN_WORD_DOUBLE PLAIN_WALK(void* context, PLAIN_SUBROUTINE resolver, struct PLAIN_LIST* node, struct PLAIN_VALUE* value) {
     PLAIN_ASSERT(resolver != NULL);
@@ -68,23 +68,25 @@ PLAIN_WORD_DOUBLE PLAIN_WALK(void* context, PLAIN_SUBROUTINE resolver, struct PL
                     if(error != 0) return error;
                 }
             }
-            /* Build the result string from all parts, resolving keywords via PLAIN_RESOLVE_ARGUMENT. */
-            struct PLAIN_CONTEXT* ctx = (struct PLAIN_CONTEXT*)context;
+            /* Build the result string from all parts, resolving keywords via the resolver. */
             struct PLAIN_SEGMENT result = {NULL, NULL};
             for(PLAIN_WORD_DOUBLE p = 0; p < count; p++) {
-                struct PLAIN_VALUE part = PLAIN_RESOLVE_ARGUMENT(ctx, parts, p);
+                struct PLAIN_VALUE* part = PLAIN_ARGUMENT(parts, p);
+                if(part->type == PLAIN_TYPE_KEYWORD && part->data != NULL) {
+                    resolver(context, part->data, PLAIN_TYPE_KEYWORD, part);
+                }
                 PLAIN_BYTE buffer[64];
                 const PLAIN_BYTE* str = (const PLAIN_BYTE*)"";
                 PLAIN_WORD_DOUBLE len = 0;
-                switch(part.type) {
+                switch(part->type) {
                     case PLAIN_TYPE_STRING:
-                        str = part.data; len = (PLAIN_WORD_DOUBLE)strlen((const char*)str); break;
+                        str = part->data; len = (PLAIN_WORD_DOUBLE)strlen((const char*)str); break;
                     case PLAIN_TYPE_INTEGER:
-                        len = sprintf((char*)buffer, "%d", (int)*(PLAIN_WORD_DOUBLE*)part.data); str = buffer; break;
+                        len = sprintf((char*)buffer, "%d", (int)*(PLAIN_WORD_DOUBLE*)part->data); str = buffer; break;
                     case PLAIN_TYPE_REAL:
-                        len = sprintf((char*)buffer, "%g", (PLAIN_REAL_DOUBLE)*(PLAIN_REAL*)part.data); str = buffer; break;
+                        len = sprintf((char*)buffer, "%g", (PLAIN_REAL_DOUBLE)*(PLAIN_REAL*)part->data); str = buffer; break;
                     case PLAIN_TYPE_BOOLEAN:
-                        str = part.data != NULL ? (const PLAIN_BYTE*)"yes" : (const PLAIN_BYTE*)"no";
+                        str = part->data != NULL ? (const PLAIN_BYTE*)"yes" : (const PLAIN_BYTE*)"no";
                         len = (PLAIN_WORD_DOUBLE)strlen((const char*)str); break;
                     default:
                         str = (const PLAIN_BYTE*)"none"; len = 4; break;
