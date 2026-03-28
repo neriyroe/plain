@@ -6,6 +6,7 @@
  */
 
 #include <Plain/Runtime.hpp>
+#include <Plain/Framework.h>
 
 #include <cstdio>
 #include <cstring>
@@ -251,7 +252,7 @@ namespace plain {
         context.tracker   = &error_delegate;
         context.handler   = &object_method_handler;
         context.user_data = this;
-        PLAIN_CONTEXT_REGISTER_RUNTIME(&context);
+        PLAIN_FRAMEWORK_REGISTER(&context);
         register_builtins();
     }
 

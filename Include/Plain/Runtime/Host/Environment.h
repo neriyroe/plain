@@ -10,7 +10,7 @@
 
 struct PLAIN_ENVIRONMENT {
     struct { 
-        const char* pattern; 
+        const char* delimiters; 
         const char* version;
     } meta;
 };

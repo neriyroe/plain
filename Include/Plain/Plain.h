@@ -50,7 +50,7 @@ PLAIN_INLINE PLAIN_WORD_DOUBLE PLAIN_ARITY(const struct PLAIN_LIST* node) {
 PLAIN_WORD_DOUBLE PLAIN_EXPORT(PLAIN_BYTE* data, PLAIN_WORD_DOUBLE length, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value);
 
 /* Compiles <segment> to nodes and arguments. Note that only <parent> can be NULL. */
-PLAIN_WORD_DOUBLE PLAIN_TOKENIZE(void* context, struct PLAIN_LIST* node, struct PLAIN_LIST* parent, const PLAIN_BYTE* pattern, struct PLAIN_SEGMENT* segment, PLAIN_DELEGATE tracker);
+PLAIN_WORD_DOUBLE PLAIN_TOKENIZE(void* context, struct PLAIN_LIST* node, struct PLAIN_LIST* parent, const PLAIN_BYTE* delimiters, struct PLAIN_SEGMENT* segment, PLAIN_DELEGATE tracker);
 
 /* Frees all memory occupied by <node>. */
 void PLAIN_UNLINK(struct PLAIN_LIST* node);

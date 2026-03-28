@@ -17,7 +17,7 @@ extern "C" {
 #include "Shared/Segment.h"
 
 /* Appends <source> to <destination>. Note that <destination> will be reallocated. */
-PLAIN_WORD_DOUBLE PLAIN_CONCAT(struct PLAIN_SEGMENT* destination, PLAIN_WORD_DOUBLE length, const PLAIN_BYTE* source);
+PLAIN_WORD_DOUBLE PLAIN_CONCATENATE(struct PLAIN_SEGMENT* destination, PLAIN_WORD_DOUBLE length, const PLAIN_BYTE* source);
 
 /* Returns 32-bit hash of <data>. */
 PLAIN_WORD_DOUBLE PLAIN_HASH(const PLAIN_BYTE* data, PLAIN_WORD_DOUBLE length);

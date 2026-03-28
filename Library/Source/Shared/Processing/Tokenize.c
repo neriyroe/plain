@@ -16,6 +16,7 @@ PLAIN_WORD_DOUBLE PLAIN_EXPORT(PLAIN_BYTE* data, PLAIN_WORD_DOUBLE length, PLAIN
     }
     switch(type) {
         case PLAIN_TYPE_INTEGER:
+        case PLAIN_TYPE_INTERPOLATED:
         case PLAIN_TYPE_KEYWORD:
         case PLAIN_TYPE_LIST:
         case PLAIN_TYPE_POINTER:
@@ -77,16 +78,15 @@ PLAIN_INLINE PLAIN_WORD_DOUBLE PLAIN_JOIN(PLAIN_BYTE* data, PLAIN_WORD_DOUBLE le
 
 static PLAIN_WORD_DOUBLE PLAIN_INTERPOLATE(void* context, struct PLAIN_LIST* node,
     const PLAIN_BYTE* data, PLAIN_WORD_DOUBLE length,
-    const PLAIN_BYTE* pattern, PLAIN_DELEGATE tracker) {
-    static const PLAIN_BYTE join_keyword[] = "join";
+    const PLAIN_BYTE* delimiters, PLAIN_DELEGATE tracker) {
     struct PLAIN_LIST* subnode = (struct PLAIN_LIST*)PLAIN_AUTO(sizeof(struct PLAIN_LIST));
     if(subnode == NULL) return PLAIN_ERROR_SYSTEM;
-    subnode->keyword.from = (PLAIN_BYTE*)join_keyword;
-    subnode->keyword.to   = (PLAIN_BYTE*)(join_keyword + 4);
+    subnode->keyword.from = NULL;
+    subnode->keyword.to   = NULL;
     subnode->layout.from  = NULL;
     subnode->layout.to    = NULL;
     subnode->node         = NULL;
-    subnode->parent       = node;
+    subnode->parent       = NULL;
     subnode->segment.from = (PLAIN_BYTE*)data;
     subnode->segment.to   = (PLAIN_BYTE*)(data + length);
     PLAIN_WORD_DOUBLE position = 0;
@@ -149,7 +149,7 @@ static PLAIN_WORD_DOUBLE PLAIN_INTERPOLATE(void* context, struct PLAIN_LIST* nod
                 };
                 struct PLAIN_LIST* expression = (struct PLAIN_LIST*)PLAIN_AUTO(sizeof(struct PLAIN_LIST));
                 if(expression == NULL) return PLAIN_ERROR_SYSTEM;
-                PLAIN_WORD_DOUBLE error = PLAIN_TOKENIZE(context, expression, subnode, pattern, &subsegment, tracker);
+                PLAIN_WORD_DOUBLE error = PLAIN_TOKENIZE(context, expression, subnode, delimiters, &subsegment, tracker);
                 if(error != 0) return error;
                 error = PLAIN_JOIN((PLAIN_BYTE*)expression, sizeof(struct PLAIN_LIST), subnode, PLAIN_TYPE_LIST);
                 if(error != 0) return error;
@@ -168,15 +168,15 @@ static PLAIN_WORD_DOUBLE PLAIN_INTERPOLATE(void* context, struct PLAIN_LIST* nod
             (position - literal_start) + 1, subnode, PLAIN_TYPE_STRING);
         if(error != 0) return error;
     }
-    return PLAIN_JOIN((PLAIN_BYTE*)subnode, sizeof(struct PLAIN_LIST), node, PLAIN_TYPE_LIST);
+    return PLAIN_JOIN((PLAIN_BYTE*)subnode, sizeof(struct PLAIN_LIST), node, PLAIN_TYPE_INTERPOLATED);
 }
 
-PLAIN_WORD_DOUBLE PLAIN_TOKENIZE(void* context, struct PLAIN_LIST* node, struct PLAIN_LIST* parent, const PLAIN_BYTE* pattern, struct PLAIN_SEGMENT* segment, PLAIN_DELEGATE tracker) {
+PLAIN_WORD_DOUBLE PLAIN_TOKENIZE(void* context, struct PLAIN_LIST* node, struct PLAIN_LIST* parent, const PLAIN_BYTE* delimiters, struct PLAIN_SEGMENT* segment, PLAIN_DELEGATE tracker) {
     PLAIN_ASSERT(node != NULL);
-    PLAIN_ASSERT(pattern != NULL);
+    PLAIN_ASSERT(delimiters != NULL);
     PLAIN_ASSERT(segment != NULL);
     /* PLAIN_ERROR_SYSTEM_WRONG_DATA. */
-    if(node == NULL || pattern == NULL || segment == NULL) {
+    if(node == NULL || delimiters == NULL || segment == NULL) {
         return PLAIN_ERROR_SYSTEM_WRONG_DATA;
     }
     /* Range. */
@@ -231,7 +231,7 @@ PLAIN_WORD_DOUBLE PLAIN_TOKENIZE(void* context, struct PLAIN_LIST* node, struct 
     node->segment.from = &segment->from[i];
     node->segment.to = &segment->from[j];
     for(; i < j; i++) {
-        if(strchr((const char*)pattern, (char)segment->from[i]) != NULL) {
+        if(strchr((const char*)delimiters, (char)segment->from[i]) != NULL) {
             break;
         }
     }
@@ -295,7 +295,7 @@ PLAIN_WORD_DOUBLE PLAIN_TOKENIZE(void* context, struct PLAIN_LIST* node, struct 
             /* String with interpolation. */
             if(m) {
                 PLAIN_WORD_DOUBLE error = PLAIN_INTERPOLATE(context, node,
-                    &segment->from[i], l - i, pattern, tracker);
+                    &segment->from[i], l - i, delimiters, tracker);
                 if(error != 0) {
                     return error;
                 }
@@ -346,7 +346,7 @@ PLAIN_WORD_DOUBLE PLAIN_TOKENIZE(void* context, struct PLAIN_LIST* node, struct 
             if(subnode == NULL) {
                 return PLAIN_ERROR_SYSTEM;
             }
-            PLAIN_WORD_DOUBLE error = PLAIN_TOKENIZE(context, subnode, NULL, pattern, &subsegment, tracker);
+            PLAIN_WORD_DOUBLE error = PLAIN_TOKENIZE(context, subnode, NULL, delimiters, &subsegment, tracker);
             if(error != 0) {
                 return error;
             }
@@ -414,10 +414,10 @@ PLAIN_WORD_DOUBLE PLAIN_TOKENIZE(void* context, struct PLAIN_LIST* node, struct 
             PLAIN_WORD_DOUBLE error = 0;
             /* Node. */
             if(k == '[') {
-                error = PLAIN_TOKENIZE(context, subnode, node, pattern, &subsegment, tracker);
+                error = PLAIN_TOKENIZE(context, subnode, node, delimiters, &subsegment, tracker);
             /* List. */
             } else {
-                error = PLAIN_TOKENIZE(context, subnode, NULL, pattern, &subsegment, tracker);
+                error = PLAIN_TOKENIZE(context, subnode, NULL, delimiters, &subsegment, tracker);
             }
             PLAIN_JOIN((PLAIN_BYTE*)subnode, sizeof(struct PLAIN_LIST), node, PLAIN_TYPE_LIST);
             if(error != 0) {
@@ -504,7 +504,7 @@ PLAIN_WORD_DOUBLE PLAIN_TOKENIZE(void* context, struct PLAIN_LIST* node, struct 
             /* Keyword. */
             } else {
                 for(m = i - 1; m < j; m++) {
-                    if(strchr((const char*)pattern, (char)segment->from[m]) != NULL) {
+                    if(strchr((const char*)delimiters, (char)segment->from[m]) != NULL) {
                         break;
                     }
                 }
@@ -527,7 +527,7 @@ PLAIN_WORD_DOUBLE PLAIN_TOKENIZE(void* context, struct PLAIN_LIST* node, struct 
         } else {
             PLAIN_WORD_DOUBLE identifier = 2166136261U;
             for(k = i; i < j; i++) {
-                if(strchr((const char*)pattern, (char)segment->from[i]) != NULL) {
+                if(strchr((const char*)delimiters, (char)segment->from[i]) != NULL) {
                     break;
                 }
                 identifier ^= segment->from[i];
@@ -581,7 +581,7 @@ PLAIN_WORD_DOUBLE PLAIN_TOKENIZE(void* context, struct PLAIN_LIST* node, struct 
     if(node->node == NULL) {
         return PLAIN_ERROR_SYSTEM;
     }
-    return PLAIN_TOKENIZE(context, node->node, NULL, pattern, &subsegment, tracker);
+    return PLAIN_TOKENIZE(context, node->node, NULL, delimiters, &subsegment, tracker);
 }
 
 void PLAIN_UNLINK(struct PLAIN_LIST* node) {
@@ -592,7 +592,7 @@ void PLAIN_UNLINK(struct PLAIN_LIST* node) {
     PLAIN_BYTE* to = node->layout.to;
     for(; from != to; from += sizeof(struct PLAIN_VALUE)) {
         struct PLAIN_VALUE* value = (struct PLAIN_VALUE*)from;
-        if(value->type == PLAIN_TYPE_LIST) {
+        if(value->type == PLAIN_TYPE_LIST || value->type == PLAIN_TYPE_INTERPOLATED) {
             PLAIN_UNLINK((struct PLAIN_LIST*)value->data);
         }
         if(value->type != PLAIN_TYPE_OBJECT && value->length > 0) {

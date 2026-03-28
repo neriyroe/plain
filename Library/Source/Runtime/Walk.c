@@ -6,7 +6,7 @@
  * Copyright 2015 Nerijus Ramanauskas.
  */
 
-#include <Plain/Plain.h>
+#include <Plain/Runtime.h>
 
 PLAIN_WORD_DOUBLE PLAIN_WALK(void* context, PLAIN_SUBROUTINE function, struct PLAIN_LIST* node, struct PLAIN_VALUE* value) {
     PLAIN_ASSERT(function != NULL);
@@ -50,6 +50,55 @@ PLAIN_WORD_DOUBLE PLAIN_WALK(void* context, PLAIN_SUBROUTINE function, struct PL
             if(error != 0) {
                 return error;
             }
+        } else if(argument->type == PLAIN_TYPE_INTERPOLATED) { /* String interpolation — fully resolve to string. */
+            struct PLAIN_LIST* parts = (struct PLAIN_LIST*)argument->data;
+            if(parts == NULL) continue;
+            /* Pre-resolve sub-expression parts first. */
+            PLAIN_WORD_DOUBLE count = PLAIN_ARITY(parts);
+            for(PLAIN_WORD_DOUBLE p = 0; p < count; p++) {
+                struct PLAIN_VALUE* part = PLAIN_ARGUMENT(parts, p);
+                if(part->type == PLAIN_TYPE_LIST) {
+                    struct PLAIN_LIST* child = (struct PLAIN_LIST*)part->data;
+                    if(child == NULL || child->parent == NULL) continue;
+                    PLAIN_WORD_DOUBLE error = PLAIN_WALK(context, function, child, part);
+                    if((struct PLAIN_LIST*)part->data != child) {
+                        PLAIN_UNLINK(child);
+                        PLAIN_RESIZE(child, 0, sizeof(struct PLAIN_LIST));
+                    }
+                    if(error != 0) return error;
+                }
+            }
+            /* Build the result string from all parts, resolving keywords via PLAIN_ARGUMENT_VALUE. */
+            struct PLAIN_CONTEXT* ctx = (struct PLAIN_CONTEXT*)context;
+            struct PLAIN_SEGMENT result = {NULL, NULL};
+            for(PLAIN_WORD_DOUBLE p = 0; p < count; p++) {
+                struct PLAIN_VALUE part = PLAIN_ARGUMENT_VALUE(ctx, parts, p);
+                PLAIN_BYTE buffer[64];
+                const PLAIN_BYTE* str = (const PLAIN_BYTE*)"";
+                PLAIN_WORD_DOUBLE len = 0;
+                switch(part.type) {
+                    case PLAIN_TYPE_STRING:
+                        str = part.data; len = (PLAIN_WORD_DOUBLE)strlen((const char*)str); break;
+                    case PLAIN_TYPE_INTEGER:
+                        len = sprintf((char*)buffer, "%d", (int)*(PLAIN_WORD_DOUBLE*)part.data); str = buffer; break;
+                    case PLAIN_TYPE_REAL:
+                        len = sprintf((char*)buffer, "%g", (PLAIN_REAL_DOUBLE)*(PLAIN_REAL*)part.data); str = buffer; break;
+                    case PLAIN_TYPE_BOOLEAN:
+                        str = part.data != NULL ? (const PLAIN_BYTE*)"yes" : (const PLAIN_BYTE*)"no";
+                        len = (PLAIN_WORD_DOUBLE)strlen((const char*)str); break;
+                    default:
+                        str = (const PLAIN_BYTE*)"none"; len = 4; break;
+                }
+                if(len > 0) PLAIN_CONCATENATE(&result, len, str);
+            }
+            PLAIN_BYTE zero = 0;
+            PLAIN_CONCATENATE(&result, 1, &zero);
+            PLAIN_UNLINK(parts);
+            PLAIN_RESIZE(parts, 0, sizeof(struct PLAIN_LIST));
+            argument->data   = result.from;
+            argument->length = result.to - result.from;
+            argument->type   = PLAIN_TYPE_STRING;
+            argument->owner  = 0;
         }
     }
     PLAIN_WORD_DOUBLE error = function(context, node, PLAIN_TYPE_LIST, value);

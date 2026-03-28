@@ -125,14 +125,29 @@ PLAIN_WORD_DOUBLE PLAIN_VALUE_COPY(struct PLAIN_VALUE* destination, const struct
  * yes, non-zero integer, non-zero real, or non-empty string. */
 PLAIN_WORD_DOUBLE PLAIN_IS_TRUE(const struct PLAIN_VALUE* value);
 
+/* Resolves argument <index> from <node> inside <context>:
+ * keywords are looked up in the frame and their bound value is returned;
+ * all other types are returned by copy as-is.
+ * Returned values borrow data pointers — do not call PLAIN_VALUE_CLEAR on them. */
+PLAIN_INLINE struct PLAIN_VALUE PLAIN_ARGUMENT_VALUE(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* node, PLAIN_WORD_DOUBLE index) {
+    struct PLAIN_VALUE* argument = PLAIN_ARGUMENT(node, index);
+    if(argument == NULL) {
+        struct PLAIN_VALUE nil = {NULL, 0, PLAIN_TYPE_NIL, 0};
+        return nil;
+    }
+    if(argument->type != PLAIN_TYPE_KEYWORD) return *argument;
+    struct PLAIN_BINDING* binding = PLAIN_FRAME_FIND(context->frame, argument->data);
+    if(binding == NULL) return *argument;
+    if(binding->callable != NULL) {
+        struct PLAIN_VALUE callable_value = {(PLAIN_BYTE*)binding->callable, 0, PLAIN_TYPE_CALLABLE, 0};
+        return callable_value;
+    }
+    return binding->value;
+}
+
 /* Evaluates all recognised built-in commands and substitutes variables from
  * the current frame. Delegates unrecognised commands to context->handler. */
 PLAIN_WORD_DOUBLE PLAIN_RESOLVE(void* context, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value);
-
-/* Registers all standard built-in procedures in the root frame of <context>.
- * Call once after PLAIN_FRAME_CREATE, before any evaluation. Built-ins are
- * mutable bindings — the user may freely override any of them. */
-PLAIN_WORD_DOUBLE PLAIN_CONTEXT_REGISTER_RUNTIME(struct PLAIN_CONTEXT* context);
 
 /* Registers a single native procedure in the current frame of <context> as a
  * mutable callable. Use this to extend Plain from the host application.

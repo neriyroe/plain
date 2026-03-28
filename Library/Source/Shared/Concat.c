@@ -8,7 +8,7 @@
 
 #include <Plain/Plain.h>
 
-PLAIN_WORD_DOUBLE PLAIN_CONCAT(struct PLAIN_SEGMENT* destination, PLAIN_WORD_DOUBLE length, const PLAIN_BYTE* source) {
+PLAIN_WORD_DOUBLE PLAIN_CONCATENATE(struct PLAIN_SEGMENT* destination, PLAIN_WORD_DOUBLE length, const PLAIN_BYTE* source) {
     PLAIN_ASSERT(destination != NULL);
     PLAIN_ASSERT(source != NULL);
     /* PLAIN_ERROR_SYSTEM_WRONG_DATA. */

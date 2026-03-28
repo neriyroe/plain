@@ -10,7 +10,7 @@
 
 PLAIN_WORD_DOUBLE PLAIN_VERSION(PLAIN_ENVIRONMENT* environment) {
     if(environment != NULL) {
-        environment->meta.pattern = "`\"'[{]},;: \t\r\n";
+        environment->meta.delimiters = "`\"'[{]},;: \t\r\n";
         environment->meta.version = "2015.3";
     }
     return PLAIN_API;

@@ -34,7 +34,7 @@ PLAIN_WORD_DOUBLE PLAIN_EVALUATE(PLAIN_ENVIRONMENT* environment, PLAIN_SUBROUTIN
     PLAIN_WORD_DOUBLE error = PLAIN_TOKENIZE(environment,
                                              &object.segment.structure,
                                              NULL,
-                                             (const PLAIN_BYTE*)environment->meta.pattern,
+                                             (const PLAIN_BYTE*)environment->meta.delimiters,
                                              &object.segment.data,
                                              tracker);
     /* Only system failures, no runtime dependencies. */
