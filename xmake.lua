@@ -9,14 +9,9 @@ set_languages("c11", "cxx17")
 
 option("debugging", { description = "Enable debug assertions and symbols.", default = false })
 option("embedded",  { description = "Build plain as a shared (dynamic) library.",  default = false })
-option("tetris",    { description = "Build the Tetris demo (requires SFML).",      default = false })
 
 if is_plat("linux", "macosx") then
     add_requires("readline")
-end
-
-if has_config("tetris") then
-    add_requires("sfml ~2.6", { configs = { graphics = true, window = true, system = true } })
 end
 
 -- Library.
@@ -57,13 +52,3 @@ target("inspector")
     else
         set_optimize("fastest")
     end
-
--- Tetris demo (opt-in: xmake config --tetris=y; xmake build tetris).
-if has_config("tetris") then
-target("tetris")
-    set_kind("binary")
-    add_deps("plain")
-    add_files("Samples/Tetris/Main.cpp")
-    add_packages("sfml")
-    set_optimize("fastest")
-end
