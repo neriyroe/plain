@@ -1,11 +1,13 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus@signaintermedia.com>.
  * Date     03/22/2026.
+ * Revision 03/28/2026.
  *
  * Copyright 2026 Nerijus Ramanauskas.
  */
 
-#include <Plain/Runtime/Scope.h>
+#include <Plain/Runtime/Context.h>
+#include <uthash.h>
 
 struct PLAIN_FRAME* PLAIN_FRAME_CREATE(struct PLAIN_FRAME* parent) {
     struct PLAIN_FRAME* frame = (struct PLAIN_FRAME*)PLAIN_RESIZE(NULL, sizeof(struct PLAIN_FRAME), 0);

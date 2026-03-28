@@ -7,7 +7,6 @@
  */
 
 #include <Plain/Runtime.h>
-#include <Plain/Runtime/Scope.h>
 
 /* ------------------------------------------------------------------ */
 /*  Private helpers                                                   */
@@ -60,7 +59,7 @@ PLAIN_WORD_DOUBLE PLAIN_CALL(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* n
     struct PLAIN_FRAME* saved = context->frame;
     context->frame = frame;
     struct PLAIN_VALUE body = {NULL, 0, PLAIN_TYPE_NIL, 0};
-    PLAIN_WORD_DOUBLE error = PLAIN_EVALUATE(&context->environment, &PLAIN_RESOLVE, callable->body, context->tracker, &body);
+    PLAIN_WORD_DOUBLE error = PLAIN_EVALUATE(&context->environment, (PLAIN_SUBROUTINE)PLAIN_RESOLVE, callable->body, context->tracker, &body);
     context->frame = saved;
 
     PLAIN_FRAME_RELEASE(frame);
@@ -93,7 +92,7 @@ static PLAIN_WORD_DOUBLE PLAIN_CALL_OFFSET(struct PLAIN_CONTEXT* context, struct
     struct PLAIN_FRAME* saved = context->frame;
     context->frame = frame;
     struct PLAIN_VALUE body = {NULL, 0, PLAIN_TYPE_NIL, 0};
-    PLAIN_WORD_DOUBLE error = PLAIN_EVALUATE(&context->environment, &PLAIN_RESOLVE, callable->body, context->tracker, &body);
+    PLAIN_WORD_DOUBLE error = PLAIN_EVALUATE(&context->environment, (PLAIN_SUBROUTINE)PLAIN_RESOLVE, callable->body, context->tracker, &body);
     context->frame = saved;
     PLAIN_FRAME_RELEASE(frame);
     if(error == PLAIN_SIGNAL_RETURN) {
@@ -123,9 +122,7 @@ PLAIN_WORD_DOUBLE PLAIN_CONTEXT_REGISTER(struct PLAIN_CONTEXT* context, const PL
 /*  Main resolver                                                     */
 /* ------------------------------------------------------------------ */
 
-PLAIN_WORD_DOUBLE PLAIN_RESOLVE(void* raw, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
-    struct PLAIN_CONTEXT* context = (struct PLAIN_CONTEXT*)raw;
-
+PLAIN_WORD_DOUBLE PLAIN_RESOLVE(struct PLAIN_CONTEXT* context, void* data, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
     /* Keyword arguments are intentionally left unresolved here. Each callable
      * receives them as PLAIN_TYPE_KEYWORD and decides whether to treat the text
      * as a name (e.g. set, define, class) or resolve it to a value via

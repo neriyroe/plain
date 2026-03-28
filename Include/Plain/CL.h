@@ -8,11 +8,6 @@
 
 #pragma once
 
-/* C++. */
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "System/Platform.h"
 #include "Shared/Segment.h"
 
@@ -27,8 +22,3 @@ PLAIN_WORD_DOUBLE PLAIN_RESERVE(PLAIN_WORD_DOUBLE number, struct PLAIN_SEGMENT* 
 
 /* Allocates <destination> bytes of memory. Note that <data> will be reallocated if <source> > 0, released if <destination> = 0. */
 void* PLAIN_RESIZE(void* data, PLAIN_WORD_DOUBLE destination, PLAIN_WORD_DOUBLE source);
-
-/* C++. */
-#ifdef __cplusplus
-}
-#endif

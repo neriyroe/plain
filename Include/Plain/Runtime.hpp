@@ -20,7 +20,9 @@
 
 #pragma once
 
-#include <Plain/Runtime.h>
+extern "C" {
+    #include <Plain/Runtime.h>
+}
 
 #include <cassert>
 #include <functional>

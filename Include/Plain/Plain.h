@@ -8,11 +8,6 @@
 
 #pragma once
 
-/* C++. */
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define PLAIN_API 20153 /* API version. */
 
 #include "CL.h"
@@ -21,7 +16,6 @@ extern "C" {
 #include "Shared/Processing/List.h"
 #include "Shared/Processing/Value.h"
 #include "Shared/Processing/Delegate.h"
-#include "Runtime/Subroutine.h"
 
 /* Returns argument at <position>. */
 PLAIN_INLINE struct PLAIN_VALUE* PLAIN_ARGUMENT(struct PLAIN_LIST* node, PLAIN_WORD_DOUBLE position) {
@@ -55,10 +49,3 @@ PLAIN_WORD_DOUBLE PLAIN_TOKENIZE(void* context, struct PLAIN_LIST* node, struct 
 /* Frees all memory occupied by <node>. */
 void PLAIN_UNLINK(struct PLAIN_LIST* node);
 
-/* Evaluates the list given by <node>. Note that both <context> and <value> can be NULL. */
-PLAIN_WORD_DOUBLE PLAIN_WALK(void* context, PLAIN_SUBROUTINE function, struct PLAIN_LIST* node, struct PLAIN_VALUE* value);
-
-/* C++. */
-#ifdef __cplusplus
-}
-#endif
