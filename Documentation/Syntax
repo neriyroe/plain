@@ -5,7 +5,7 @@ Nerijus Ramanauskas <nerijus@signaintermedia.com>
 KEYWORD
 
     Any sequence of bytes that is not a reserved character.
-    Reserved characters (see Library/Source/Framework/Host/Version.c):
+    Reserved characters (see Library/Source/Runtime/Host/Version.c):
 
         ` " ' [ { ] } , ; : space tab CR LF
 

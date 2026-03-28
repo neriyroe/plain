@@ -219,11 +219,11 @@ namespace plain {
 
         /* First argument must be the method name (string). */
         if(PLAIN_ARITY(node) < 1) return 0;
-        PLAIN_VALUE* method_arg = PLAIN_ARGUMENT(node, 0);
-        if(!method_arg || !method_arg->data) return 0;
-        if(method_arg->type != PLAIN_TYPE_STRING && method_arg->type != PLAIN_TYPE_KEYWORD) return 0;
+        PLAIN_VALUE* method_argument = PLAIN_ARGUMENT(node, 0);
+        if(!method_argument || !method_argument->data) return 0;
+        if(method_argument->type != PLAIN_TYPE_STRING && method_argument->type != PLAIN_TYPE_KEYWORD) return 0;
 
-        std::string method_name((const char*)method_arg->data);
+        std::string method_name((const char*)method_argument->data);
         auto mit = entry->dispatch->methods.find(method_name);
         if(mit == entry->dispatch->methods.end()) return 0;
 

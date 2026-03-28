@@ -120,11 +120,11 @@ STRINGS
 
     ` Expressions inside interpolation use {[...]}
     set x, 6;
-    print "{x} * 7 = {[* x, 7]}"           ` 6 * 7 = 42
+    print "{x} * 7 = {* x, 7}"           ` 6 * 7 = 42
 
     ` Multiple interpolations in one string
     set a, 10; set b, 20;
-    print "{a} + {b} = {[+ a, b]}"          ` 10 + 20 = 30
+    print "{a} + {b} = {+ a, b}"          ` 10 + 20 = 30
 
     ` Strings without braces are unchanged (zero overhead)
     print "no interpolation here"           ` no interpolation here

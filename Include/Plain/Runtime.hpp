@@ -15,7 +15,7 @@
  *   5. runtime.run()        evaluates Plain source code.
  *   6. runtime.call()       calls a Plain procedure from C++.
  *
- * Include this header from C++ code instead of <Plain/VM.h>.
+ * Include this header from C++ code instead of <Plain/Runtime.h>.
  */
 
 #pragma once

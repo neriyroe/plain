@@ -41,7 +41,7 @@ static struct PLAIN_VALUE PLAIN_FRAME_RESOLVE(struct PLAIN_CONTEXT* context, str
 
 PLAIN_WORD_DOUBLE PLAIN_CALL(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* node, struct PLAIN_CALLABLE* callable, struct PLAIN_VALUE* value) {
     /* Native callable — call it directly. Keyword arguments are unresolved;
-     * each native callable resolves the arguments it needs via PLAIN_ARGUMENT_VALUE. */
+     * each native callable resolves the arguments it needs via PLAIN_RESOLVE_ARGUMENT. */
     if(callable->native != NULL) {
         return callable->native((void*)context, (void*)node, PLAIN_TYPE_LIST, value);
     }
@@ -70,9 +70,8 @@ PLAIN_WORD_DOUBLE PLAIN_CALL(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* n
 
     PLAIN_FRAME_RELEASE(frame);
     if(error == PLAIN_SIGNAL_RETURN) {
-        if(value != NULL) { *value = context->result; context->result = (struct PLAIN_VALUE){NULL, 0, PLAIN_TYPE_NIL, 0}; }
-        else { PLAIN_VALUE_CLEAR(&context->result); }
-        PLAIN_VALUE_CLEAR(&result);
+        if(value != NULL) *value = result;
+        else PLAIN_VALUE_CLEAR(&result);
         return 0;
     }
     if(error == 0 && value != NULL) { *value = result; }
@@ -108,9 +107,8 @@ static PLAIN_WORD_DOUBLE PLAIN_CALL_OFFSET(struct PLAIN_CONTEXT* context, struct
     context->frame = saved;
     PLAIN_FRAME_RELEASE(frame);
     if(error == PLAIN_SIGNAL_RETURN) {
-        if(value != NULL) { *value = context->result; context->result = (struct PLAIN_VALUE){NULL, 0, PLAIN_TYPE_NIL, 0}; }
-        else { PLAIN_VALUE_CLEAR(&context->result); }
-        PLAIN_VALUE_CLEAR(&result);
+        if(value != NULL) *value = result;
+        else PLAIN_VALUE_CLEAR(&result);
         return 0;
     }
     if(error == 0 && value != NULL) { *value = result; }
@@ -138,7 +136,7 @@ PLAIN_WORD_DOUBLE PLAIN_RESOLVE(struct PLAIN_CONTEXT* context, void* data, PLAIN
     /* Keyword arguments are intentionally left unresolved here. Each callable
      * receives them as PLAIN_TYPE_KEYWORD and decides whether to treat the text
      * as a name (e.g. set, define, class) or resolve it to a value via
-     * PLAIN_ARGUMENT_VALUE. Sub-expressions [...] and interpolated strings are
+     * PLAIN_RESOLVE_ARGUMENT. Sub-expressions [...] and interpolated strings are
      * fully resolved by the walker before dispatch reaches here. */
     if(type == PLAIN_TYPE_KEYWORD) return 0;
     if(type != PLAIN_TYPE_LIST) return 0;
@@ -169,15 +167,15 @@ PLAIN_WORD_DOUBLE PLAIN_RESOLVE(struct PLAIN_CONTEXT* context, void* data, PLAIN
                     if(value != NULL) PLAIN_VALUE_COPY(value, &binding->value);
                     return 0;
                 }
-                struct PLAIN_VALUE* method_arg = PLAIN_ARGUMENT(node, 0);
-                if(method_arg == NULL) return 0;
+                struct PLAIN_VALUE* method_argument = PLAIN_ARGUMENT(node, 0);
+                if(method_argument == NULL) return 0;
                 /* Allow an already-resolved callable as the method (edge case). */
-                if(method_arg->type == PLAIN_TYPE_CALLABLE && method_arg->data != NULL) {
-                    return PLAIN_CALL_OFFSET(context, node, (struct PLAIN_CALLABLE*)method_arg->data, value, 1);
+                if(method_argument->type == PLAIN_TYPE_CALLABLE && method_argument->data != NULL) {
+                    return PLAIN_CALL_OFFSET(context, node, (struct PLAIN_CALLABLE*)method_argument->data, value, 1);
                 }
                 const PLAIN_BYTE* method_name = NULL;
-                if(method_arg->type == PLAIN_TYPE_KEYWORD || method_arg->type == PLAIN_TYPE_STRING)
-                    method_name = method_arg->data;
+                if(method_argument->type == PLAIN_TYPE_KEYWORD || method_argument->type == PLAIN_TYPE_STRING)
+                    method_name = method_argument->data;
                 if(method_name == NULL) return 0;
                 struct PLAIN_BINDING* member = PLAIN_FRAME_FIND(instance, method_name);
                 if(member == NULL) return 0;

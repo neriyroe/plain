@@ -7,7 +7,7 @@
  */
 
 enum {
-    PLAIN_TYPE_CALLABLE,  /* User-defined or native callable value.                      */
+    PLAIN_TYPE_CALLABLE,  /* User-defined or native callable value. */
     PLAIN_TYPE_BOOLEAN,
     PLAIN_TYPE_INTEGER,
     PLAIN_TYPE_INTERPOLATED, /* Unresolved string interpolation — ephemeral, internal use. */

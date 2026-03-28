@@ -124,13 +124,13 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_APPLY_COMPARISON(struct PLAIN_VALUE* a, struct
 static PLAIN_WORD_DOUBLE PLAIN_FW_ARITHMETIC_FOLD(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* node, PLAIN_BYTE operation, struct PLAIN_VALUE* value) {
     PLAIN_WORD_DOUBLE arity = PLAIN_ARITY(node);
     if(arity == 0) return 0;
-    struct PLAIN_VALUE first = PLAIN_ARGUMENT_VALUE(context, node, 0);
+    struct PLAIN_VALUE first = PLAIN_RESOLVE_ARGUMENT(context, node, 0);
     if(arity == 1) { return value != NULL ? PLAIN_VALUE_COPY(value, &first) : 0; }
     struct PLAIN_VALUE accumulator = {NULL, 0, PLAIN_TYPE_NIL, 0};
     PLAIN_VALUE_COPY(&accumulator, &first);
     PLAIN_WORD_DOUBLE i;
     for(i = 1; i < arity; i++) {
-        struct PLAIN_VALUE next = PLAIN_ARGUMENT_VALUE(context, node, i);
+        struct PLAIN_VALUE next = PLAIN_RESOLVE_ARGUMENT(context, node, i);
         struct PLAIN_VALUE result = {NULL, 0, PLAIN_TYPE_NIL, 0};
         PLAIN_WORD_DOUBLE error = PLAIN_FW_APPLY_ARITHMETIC(&accumulator, &next, operation, &result);
         PLAIN_VALUE_CLEAR(&accumulator);
@@ -180,7 +180,7 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_SET(struct PLAIN_CONTEXT* context, struct PLAI
     PLAIN_BYTE* name = (PLAIN_BYTE*)PLAIN_AUTO(name_length + 1);
     memcpy(name, name_arg->data, name_length);
     name[name_length] = '\0';
-    struct PLAIN_VALUE assignment_value = PLAIN_ARGUMENT_VALUE(context, node, 1);
+    struct PLAIN_VALUE assignment_value = PLAIN_RESOLVE_ARGUMENT(context, node, 1);
     if(assignment_value.type == PLAIN_TYPE_CALLABLE && assignment_value.data != NULL) {
         struct PLAIN_CALLABLE* source = (struct PLAIN_CALLABLE*)assignment_value.data;
         struct PLAIN_CALLABLE* copy = PLAIN_FW_CALLABLE_DUPLICATE(source);
@@ -199,7 +199,7 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_IF(struct PLAIN_CONTEXT* context, struct PLAIN
      * "else {block}"           — final else branch.
      * "else condition {block}" — elseif: any non-block value is the condition. */
     while(i + 1 < arity) {
-        struct PLAIN_VALUE condition = PLAIN_ARGUMENT_VALUE(context, node, i);
+        struct PLAIN_VALUE condition = PLAIN_RESOLVE_ARGUMENT(context, node, i);
         struct PLAIN_VALUE* next = PLAIN_ARGUMENT(node, i + 1);
         if(PLAIN_VALUE_TRUTHY(&condition))
             return PLAIN_FW_WALK_BLOCK(context, (struct PLAIN_LIST*)next->data, value);
@@ -219,7 +219,7 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_IF(struct PLAIN_CONTEXT* context, struct PLAIN
 static PLAIN_WORD_DOUBLE PLAIN_FW_WHEN(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* node, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
     PLAIN_WORD_DOUBLE arity = PLAIN_ARITY(node);
     if(arity < 3) return 0;
-    struct PLAIN_VALUE target = PLAIN_ARGUMENT_VALUE(context, node, 0);
+    struct PLAIN_VALUE target = PLAIN_RESOLVE_ARGUMENT(context, node, 0);
     PLAIN_WORD_DOUBLE i = 1;
     while(i + 1 < arity) {
         struct PLAIN_VALUE* block = PLAIN_ARGUMENT(node, i + 1);
@@ -229,7 +229,7 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_WHEN(struct PLAIN_CONTEXT* context, struct PLA
             break;
         }
         if(block != NULL && block->type == PLAIN_TYPE_LIST) {
-            struct PLAIN_VALUE candidate = PLAIN_ARGUMENT_VALUE(context, node, i);
+            struct PLAIN_VALUE candidate = PLAIN_RESOLVE_ARGUMENT(context, node, i);
             struct PLAIN_VALUE result = {NULL, 0, PLAIN_TYPE_NIL, 0};
             PLAIN_FW_APPLY_COMPARISON(&target, &candidate, '=', &result);
             if(PLAIN_VALUE_TRUTHY(&result)) {
@@ -244,7 +244,7 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_WHEN(struct PLAIN_CONTEXT* context, struct PLA
 }
 
 /* Counted loop with a scoped iteration variable: repeat {x} times 10 { ... }. */
-static PLAIN_WORD_DOUBLE PLAIN_REPEAT_COUNTED_BINDING(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* variable, PLAIN_WORD_DOUBLE count, struct PLAIN_LIST* body) {
+static PLAIN_WORD_DOUBLE PLAIN_REPEAT_COUNTED_BINDING(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* variable, PLAIN_WORD_DOUBLE count, struct PLAIN_LIST* body, struct PLAIN_VALUE* value) {
     const PLAIN_BYTE* from = variable->segment.from;
     const PLAIN_BYTE* to   = variable->segment.to;
     while(from < to && (*from == ' ' || *from == '\t' || *from == '\n' || *from == '\r')) from++;
@@ -266,9 +266,13 @@ static PLAIN_WORD_DOUBLE PLAIN_REPEAT_COUNTED_BINDING(struct PLAIN_CONTEXT* cont
     struct PLAIN_BINDING* binding = PLAIN_FRAME_FIND(frame, name);
     for(PLAIN_WORD_DOUBLE index = 0; index < count; index++) {
         *(PLAIN_WORD_DOUBLE*)binding->value.data = index;
-        struct PLAIN_VALUE result = {NULL, 0, PLAIN_TYPE_NIL, 0};
-        PLAIN_WORD_DOUBLE error = PLAIN_FW_WALK_BLOCK(context, body, &result);
-        PLAIN_VALUE_CLEAR(&result);
+        struct PLAIN_VALUE iter = {NULL, 0, PLAIN_TYPE_NIL, 0};
+        PLAIN_WORD_DOUBLE error = PLAIN_FW_WALK_BLOCK(context, body, &iter);
+        if(error == PLAIN_SIGNAL_RETURN) {
+            if(value != NULL) *value = iter; else PLAIN_VALUE_CLEAR(&iter);
+            context->frame = saved; PLAIN_FRAME_RELEASE(frame); return PLAIN_SIGNAL_RETURN;
+        }
+        PLAIN_VALUE_CLEAR(&iter);
         if(error == PLAIN_SIGNAL_BREAK) break;
         if(error == PLAIN_SIGNAL_CONTINUE) continue;
         if(error != 0) { context->frame = saved; PLAIN_FRAME_RELEASE(frame); return error; }
@@ -286,9 +290,13 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_REPEAT(struct PLAIN_CONTEXT* context, struct P
     if(arity == 1 && first->type == PLAIN_TYPE_LIST) {
         struct PLAIN_LIST* body = (struct PLAIN_LIST*)first->data;
         for(;;) {
-            struct PLAIN_VALUE result = {NULL, 0, PLAIN_TYPE_NIL, 0};
-            PLAIN_WORD_DOUBLE error = PLAIN_FW_WALK_BLOCK(context, body, &result);
-            PLAIN_VALUE_CLEAR(&result);
+            struct PLAIN_VALUE iter = {NULL, 0, PLAIN_TYPE_NIL, 0};
+            PLAIN_WORD_DOUBLE error = PLAIN_FW_WALK_BLOCK(context, body, &iter);
+            if(error == PLAIN_SIGNAL_RETURN) {
+                if(value != NULL) *value = iter; else PLAIN_VALUE_CLEAR(&iter);
+                return PLAIN_SIGNAL_RETURN;
+            }
+            PLAIN_VALUE_CLEAR(&iter);
             if(error == PLAIN_SIGNAL_BREAK) break;
             if(error == PLAIN_SIGNAL_CONTINUE) continue;
             if(error != 0) return error;
@@ -298,27 +306,32 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_REPEAT(struct PLAIN_CONTEXT* context, struct P
     /* repeat {variable} times count {body} — counted with automatic binding. */
     if(arity >= 4 && first->type == PLAIN_TYPE_LIST &&
        PLAIN_FW_KEYWORD_EQ(PLAIN_ARGUMENT(node, 1), (const PLAIN_BYTE*)"times")) {
-           struct PLAIN_VALUE counter = PLAIN_ARGUMENT_VALUE(context, node, 2);
+           struct PLAIN_VALUE counter = PLAIN_RESOLVE_ARGUMENT(context, node, 2);
            struct PLAIN_VALUE* fourth  = PLAIN_ARGUMENT(node, 3);
            if(counter.type == PLAIN_TYPE_INTEGER && fourth  != NULL && fourth->type  == PLAIN_TYPE_LIST) {
                return PLAIN_REPEAT_COUNTED_BINDING(context,
                    (struct PLAIN_LIST*)first->data,
                    *(PLAIN_WORD_DOUBLE*)counter.data,
-                   (struct PLAIN_LIST*)fourth->data);
+                   (struct PLAIN_LIST*)fourth->data,
+                   value);
            }
     }
     struct PLAIN_VALUE* second = PLAIN_ARGUMENT(node, 1);
     if(arity < 2 || second == NULL || second->type != PLAIN_TYPE_LIST) return 0;
     struct PLAIN_LIST* body = (struct PLAIN_LIST*)second->data;
     /* repeat count {body} — counted. */
-    struct PLAIN_VALUE first_value = PLAIN_ARGUMENT_VALUE(context, node, 0);
+    struct PLAIN_VALUE first_value = PLAIN_RESOLVE_ARGUMENT(context, node, 0);
     if(first_value.type == PLAIN_TYPE_INTEGER) {
         PLAIN_WORD_DOUBLE count = *(PLAIN_WORD_DOUBLE*)first_value.data;
         PLAIN_WORD_DOUBLE i = 0;
         for(; i < count; i++) {
-            struct PLAIN_VALUE result = {NULL, 0, PLAIN_TYPE_NIL, 0};
-            PLAIN_WORD_DOUBLE error = PLAIN_FW_WALK_BLOCK(context, body, &result);
-            PLAIN_VALUE_CLEAR(&result);
+            struct PLAIN_VALUE iter = {NULL, 0, PLAIN_TYPE_NIL, 0};
+            PLAIN_WORD_DOUBLE error = PLAIN_FW_WALK_BLOCK(context, body, &iter);
+            if(error == PLAIN_SIGNAL_RETURN) {
+                if(value != NULL) *value = iter; else PLAIN_VALUE_CLEAR(&iter);
+                return PLAIN_SIGNAL_RETURN;
+            }
+            PLAIN_VALUE_CLEAR(&iter);
             if(error == PLAIN_SIGNAL_BREAK) break;
             if(error == PLAIN_SIGNAL_CONTINUE) continue;
             if(error != 0) return error;
@@ -335,9 +348,13 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_REPEAT(struct PLAIN_CONTEXT* context, struct P
             PLAIN_VALUE_CLEAR(&test);
             if(error != 0) return error;
             if(!ok) break;
-            struct PLAIN_VALUE result = {NULL, 0, PLAIN_TYPE_NIL, 0};
-            error = PLAIN_FW_WALK_BLOCK(context, body, &result);
-            PLAIN_VALUE_CLEAR(&result);
+            struct PLAIN_VALUE iter = {NULL, 0, PLAIN_TYPE_NIL, 0};
+            error = PLAIN_FW_WALK_BLOCK(context, body, &iter);
+            if(error == PLAIN_SIGNAL_RETURN) {
+                if(value != NULL) *value = iter; else PLAIN_VALUE_CLEAR(&iter);
+                return PLAIN_SIGNAL_RETURN;
+            }
+            PLAIN_VALUE_CLEAR(&iter);
             if(error == PLAIN_SIGNAL_BREAK) break;
             if(error == PLAIN_SIGNAL_CONTINUE) continue;
             if(error != 0) return error;
@@ -348,10 +365,11 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_REPEAT(struct PLAIN_CONTEXT* context, struct P
 }
 
 static PLAIN_WORD_DOUBLE PLAIN_FW_RETURN(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* node, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
-    PLAIN_VALUE_CLEAR(&context->result);
     if(PLAIN_ARITY(node) > 0) {
-        struct PLAIN_VALUE resolved = PLAIN_ARGUMENT_VALUE(context, node, 0);
-        PLAIN_VALUE_COPY(&context->result, &resolved);
+        struct PLAIN_VALUE resolved = PLAIN_RESOLVE_ARGUMENT(context, node, 0);
+        if(value != NULL) PLAIN_VALUE_COPY(value, &resolved);
+    } else {
+        if(value != NULL) PLAIN_VALUE_CLEAR(value);
     }
     return PLAIN_SIGNAL_RETURN;
 }
@@ -375,16 +393,12 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_DO(struct PLAIN_CONTEXT* context, struct PLAIN
     PLAIN_WORD_DOUBLE error = PLAIN_FW_WALK_BLOCK(context, (struct PLAIN_LIST*)first->data, value);
     context->frame = saved;
     PLAIN_FRAME_RELEASE(frame);
-    if(error == PLAIN_SIGNAL_RETURN) {
-        if(value != NULL) { *value = context->result; context->result = (struct PLAIN_VALUE){NULL, 0, PLAIN_TYPE_NIL, 0}; }
-        else { PLAIN_VALUE_CLEAR(&context->result); }
-        return 0;
-    }
+    if(error == PLAIN_SIGNAL_RETURN) return 0;
     return error;
 }
 
 static PLAIN_WORD_DOUBLE PLAIN_FW_TYPE(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* node, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
-    struct PLAIN_VALUE argument = PLAIN_ARGUMENT_VALUE(context, node, 0);
+    struct PLAIN_VALUE argument = PLAIN_RESOLVE_ARGUMENT(context, node, 0);
     const char* name = "none";
     switch(argument.type) {
         case PLAIN_TYPE_BOOLEAN:  name = "boolean";  break;
@@ -452,7 +466,7 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_OBJECT(struct PLAIN_CONTEXT* context, struct P
     PLAIN_VALUE_CLEAR(&body);
     if(error == PLAIN_SIGNAL_RETURN) {
         /* return inside an object block exits early; discard the return value. */
-        PLAIN_VALUE_CLEAR(&context->result);
+        PLAIN_VALUE_CLEAR(&body);
     } else if(error != 0) {
         PLAIN_FRAME_RELEASE(frame);
         return error;
@@ -505,7 +519,7 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_OBJECT(struct PLAIN_CONTEXT* context, struct P
 }
 
 static PLAIN_WORD_DOUBLE PLAIN_FW_NOT(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* node, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
-    struct PLAIN_VALUE a = PLAIN_ARGUMENT_VALUE(context, node, 0);
+    struct PLAIN_VALUE a = PLAIN_RESOLVE_ARGUMENT(context, node, 0);
     return PLAIN_FW_SET_BOOLEAN(value, !PLAIN_VALUE_TRUTHY(&a));
 }
 
@@ -513,7 +527,7 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_AND(struct PLAIN_CONTEXT* context, struct PLAI
     PLAIN_WORD_DOUBLE arity = PLAIN_ARITY(node);
     PLAIN_WORD_DOUBLE i;
     for(i = 0; i < arity; i++) {
-        struct PLAIN_VALUE arg = PLAIN_ARGUMENT_VALUE(context, node, i);
+        struct PLAIN_VALUE arg = PLAIN_RESOLVE_ARGUMENT(context, node, i);
         if(!PLAIN_VALUE_TRUTHY(&arg)) return PLAIN_FW_SET_BOOLEAN(value, 0);
     }
     return PLAIN_FW_SET_BOOLEAN(value, 1);
@@ -523,7 +537,7 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_OR(struct PLAIN_CONTEXT* context, struct PLAIN
     PLAIN_WORD_DOUBLE arity = PLAIN_ARITY(node);
     PLAIN_WORD_DOUBLE i;
     for(i = 0; i < arity; i++) {
-        struct PLAIN_VALUE arg = PLAIN_ARGUMENT_VALUE(context, node, i);
+        struct PLAIN_VALUE arg = PLAIN_RESOLVE_ARGUMENT(context, node, i);
         if(PLAIN_VALUE_TRUTHY(&arg)) return PLAIN_FW_SET_BOOLEAN(value, 1);
     }
     return PLAIN_FW_SET_BOOLEAN(value, 0);
@@ -550,26 +564,26 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_MODULO(struct PLAIN_CONTEXT* context, struct P
 }
 
 static PLAIN_WORD_DOUBLE PLAIN_FW_EQUAL(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* node, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
-    struct PLAIN_VALUE a = PLAIN_ARGUMENT_VALUE(context, node, 0);
-    struct PLAIN_VALUE b = PLAIN_ARGUMENT_VALUE(context, node, 1);
+    struct PLAIN_VALUE a = PLAIN_RESOLVE_ARGUMENT(context, node, 0);
+    struct PLAIN_VALUE b = PLAIN_RESOLVE_ARGUMENT(context, node, 1);
     return PLAIN_FW_APPLY_COMPARISON(&a, &b, '=', value);
 }
 
 static PLAIN_WORD_DOUBLE PLAIN_FW_LESS(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* node, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
-    struct PLAIN_VALUE a = PLAIN_ARGUMENT_VALUE(context, node, 0);
-    struct PLAIN_VALUE b = PLAIN_ARGUMENT_VALUE(context, node, 1);
+    struct PLAIN_VALUE a = PLAIN_RESOLVE_ARGUMENT(context, node, 0);
+    struct PLAIN_VALUE b = PLAIN_RESOLVE_ARGUMENT(context, node, 1);
     return PLAIN_FW_APPLY_COMPARISON(&a, &b, '<', value);
 }
 
 static PLAIN_WORD_DOUBLE PLAIN_FW_GREATER(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* node, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
-    struct PLAIN_VALUE a = PLAIN_ARGUMENT_VALUE(context, node, 0);
-    struct PLAIN_VALUE b = PLAIN_ARGUMENT_VALUE(context, node, 1);
+    struct PLAIN_VALUE a = PLAIN_RESOLVE_ARGUMENT(context, node, 0);
+    struct PLAIN_VALUE b = PLAIN_RESOLVE_ARGUMENT(context, node, 1);
     return PLAIN_FW_APPLY_COMPARISON(&a, &b, '>', value);
 }
 
 static PLAIN_WORD_DOUBLE PLAIN_FW_NOT_EQUAL(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* node, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
-    struct PLAIN_VALUE a = PLAIN_ARGUMENT_VALUE(context, node, 0);
-    struct PLAIN_VALUE b = PLAIN_ARGUMENT_VALUE(context, node, 1);
+    struct PLAIN_VALUE a = PLAIN_RESOLVE_ARGUMENT(context, node, 0);
+    struct PLAIN_VALUE b = PLAIN_RESOLVE_ARGUMENT(context, node, 1);
     struct PLAIN_VALUE temp = {NULL, 0, PLAIN_TYPE_NIL, 0};
     PLAIN_WORD_DOUBLE error = PLAIN_FW_APPLY_COMPARISON(&a, &b, '=', &temp);
     if(error == 0) error = PLAIN_FW_SET_BOOLEAN(value, !PLAIN_VALUE_TRUTHY(&temp));
@@ -578,8 +592,8 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_NOT_EQUAL(struct PLAIN_CONTEXT* context, struc
 }
 
 static PLAIN_WORD_DOUBLE PLAIN_FW_LESS_EQUAL(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* node, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
-    struct PLAIN_VALUE a = PLAIN_ARGUMENT_VALUE(context, node, 0);
-    struct PLAIN_VALUE b = PLAIN_ARGUMENT_VALUE(context, node, 1);
+    struct PLAIN_VALUE a = PLAIN_RESOLVE_ARGUMENT(context, node, 0);
+    struct PLAIN_VALUE b = PLAIN_RESOLVE_ARGUMENT(context, node, 1);
     struct PLAIN_VALUE temp = {NULL, 0, PLAIN_TYPE_NIL, 0};
     PLAIN_WORD_DOUBLE error = PLAIN_FW_APPLY_COMPARISON(&a, &b, '>', &temp);
     if(error == 0) error = PLAIN_FW_SET_BOOLEAN(value, !PLAIN_VALUE_TRUTHY(&temp));
@@ -588,8 +602,8 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_LESS_EQUAL(struct PLAIN_CONTEXT* context, stru
 }
 
 static PLAIN_WORD_DOUBLE PLAIN_FW_GREATER_EQUAL(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* node, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
-    struct PLAIN_VALUE a = PLAIN_ARGUMENT_VALUE(context, node, 0);
-    struct PLAIN_VALUE b = PLAIN_ARGUMENT_VALUE(context, node, 1);
+    struct PLAIN_VALUE a = PLAIN_RESOLVE_ARGUMENT(context, node, 0);
+    struct PLAIN_VALUE b = PLAIN_RESOLVE_ARGUMENT(context, node, 1);
     struct PLAIN_VALUE temp = {NULL, 0, PLAIN_TYPE_NIL, 0};
     PLAIN_WORD_DOUBLE error = PLAIN_FW_APPLY_COMPARISON(&a, &b, '<', &temp);
     if(error == 0) error = PLAIN_FW_SET_BOOLEAN(value, !PLAIN_VALUE_TRUTHY(&temp));
@@ -597,13 +611,13 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_GREATER_EQUAL(struct PLAIN_CONTEXT* context, s
     return error;
 }
 
-static PLAIN_WORD_DOUBLE PLAIN_FW_CONCAT(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* node, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
+static PLAIN_WORD_DOUBLE PLAIN_FW_CONCATENATE(struct PLAIN_CONTEXT* context, struct PLAIN_LIST* node, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
     if(value == NULL) return 0;
     struct PLAIN_SEGMENT result = {NULL, NULL};
     PLAIN_WORD_DOUBLE arity = PLAIN_ARITY(node);
     PLAIN_WORD_DOUBLE i;
     for(i = 0; i < arity; i++) {
-        struct PLAIN_VALUE argument = PLAIN_ARGUMENT_VALUE(context, node, i);
+        struct PLAIN_VALUE argument = PLAIN_RESOLVE_ARGUMENT(context, node, i);
         PLAIN_BYTE buffer[64];
         const PLAIN_BYTE* str = (const PLAIN_BYTE*)"";
         PLAIN_WORD_DOUBLE length = 0;
@@ -673,7 +687,7 @@ PLAIN_WORD_DOUBLE PLAIN_FRAMEWORK_REGISTER(struct PLAIN_CONTEXT* context) {
     PLAIN_INTERNAL_REGISTER("<=",            PLAIN_FW_LESS_EQUAL);
     PLAIN_INTERNAL_REGISTER("greater_equal", PLAIN_FW_GREATER_EQUAL);
     PLAIN_INTERNAL_REGISTER(">=",            PLAIN_FW_GREATER_EQUAL);
-    PLAIN_INTERNAL_REGISTER("join",          PLAIN_FW_CONCAT);
+    PLAIN_INTERNAL_REGISTER("join",          PLAIN_FW_CONCATENATE);
     #undef PLAIN_INTERNAL_REGISTER
     return 0;
 }

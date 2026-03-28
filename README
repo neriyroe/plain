@@ -95,19 +95,21 @@ TARGETS
 
 INCLUDE
 
-    Include/Plain/Plain.h    Core parsing API: tokenizer, walker, types.
-    Include/Plain/VM.h       Full runtime: PLAIN_EVALUATE, PLAIN_CONTEXT,
-                             PLAIN_RESOLVE, PLAIN_REGISTER_RUNTIME, and everything
-                             from Plain.h. This is the only header a host
-                             application needs.
-    Include/Plain/Plain.hpp  C++ interface: plain::Runtime, plain::Value,
-                             bind(), bind_class<T>(), run(), call().
-                             Includes VM.h automatically.
+    Include/Plain/Plain.h      Core parsing API: tokenizer, walker, types.
+    Include/Plain/Runtime.h    Full runtime: PLAIN_EVALUATE, PLAIN_CONTEXT,
+                               PLAIN_RESOLVE, and everything from Plain.h.
+    Include/Plain/Framework.h  Standard library: PLAIN_FRAMEWORK_REGISTER.
+                               Include alongside Runtime.h to get if, repeat,
+                               define, arithmetic, etc. Omit for a bare runtime
+                               with only host-supplied callables.
+    Include/Plain/Runtime.hpp  C++ interface: plain::Runtime, plain::Value,
+                               bind(), bind_class<T>(), run(), call().
+                               Includes Runtime.h automatically.
 
 
 C++ INTERFACE
 
-    For C++ hosts, include <Plain/Plain.hpp> instead of <Plain/VM.h>.
+    For C++ hosts, include <Plain/Runtime.hpp> instead of <Plain/Runtime.h>.
     It provides:
 
         plain::Runtime   Wraps a PLAIN_CONTEXT with automatic init/cleanup.

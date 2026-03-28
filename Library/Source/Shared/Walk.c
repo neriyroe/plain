@@ -68,11 +68,11 @@ PLAIN_WORD_DOUBLE PLAIN_WALK(void* context, PLAIN_SUBROUTINE resolver, struct PL
                     if(error != 0) return error;
                 }
             }
-            /* Build the result string from all parts, resolving keywords via PLAIN_ARGUMENT_VALUE. */
+            /* Build the result string from all parts, resolving keywords via PLAIN_RESOLVE_ARGUMENT. */
             struct PLAIN_CONTEXT* ctx = (struct PLAIN_CONTEXT*)context;
             struct PLAIN_SEGMENT result = {NULL, NULL};
             for(PLAIN_WORD_DOUBLE p = 0; p < count; p++) {
-                struct PLAIN_VALUE part = PLAIN_ARGUMENT_VALUE(ctx, parts, p);
+                struct PLAIN_VALUE part = PLAIN_RESOLVE_ARGUMENT(ctx, parts, p);
                 PLAIN_BYTE buffer[64];
                 const PLAIN_BYTE* str = (const PLAIN_BYTE*)"";
                 PLAIN_WORD_DOUBLE len = 0;

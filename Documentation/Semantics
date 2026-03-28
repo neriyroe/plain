@@ -78,7 +78,7 @@ STRING INTERPOLATION
     from the literal parts and interpolated values:
 
         "Score: {score}"         ` equivalent to [join "Score: " score]
-        "{a} + {b} = {[+ a, b]}" ` equivalent to [join a " + " b " = " [+ a, b]]
+        "{a} + {b} = {+ a, b}"   ` equivalent to [join a " + " b " = " [+ a, b]]
 
     {name} inserts the value of a variable. {[expression]} inserts
     the result of an arbitrary expression. Both forms convert values
