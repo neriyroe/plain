@@ -32,7 +32,7 @@ static PLAIN_WORD_DOUBLE PLAIN_EVALUATE_BLOCK(struct PLAIN_CONTEXT* context, str
     if(source == NULL) return PLAIN_ERROR_SYSTEM;
     memcpy(source, block->segment.from, length);
     source[length] = '\0';
-    return PLAIN_EVALUATE(&context->environment, (PLAIN_SUBROUTINE)PLAIN_RESOLVE, source, context->tracker, value);
+    return PLAIN_EVALUATE(context, (PLAIN_SUBROUTINE)PLAIN_RESOLVE, source, context->tracker, value);
 }
 
 static PLAIN_BYTE* PLAIN_SEGMENT_COPY(struct PLAIN_LIST* block) {

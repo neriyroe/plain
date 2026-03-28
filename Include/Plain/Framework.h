@@ -15,9 +15,7 @@
 
 #include <Plain/Runtime.h>
 
-
-
 /* Registers all standard built-in procedures in the root frame of <context>.
  * Call once after PLAIN_FRAME_CREATE, before any evaluation. Built-ins are
  * mutable bindings — Plain code may freely override any of them. */
-PLAIN_WORD_DOUBLE PLAIN_FRAMEWORK_REGISTER(struct PLAIN_CONTEXT* context);
+PLAIN_WORD_DOUBLE PLAIN_FRAMEWORK_REGISTER(PLAIN_CONTEXT* context);

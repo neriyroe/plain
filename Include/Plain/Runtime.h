@@ -11,28 +11,19 @@
 
 #pragma once
 
-/* C++. */
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "Plain.h"
 #include "Runtime/Host/Environment.h"
 #include "Runtime/Frame.h"
 #include "Runtime/Context.h"
 
+typedef struct PLAIN_CONTEXT      PLAIN_CONTEXT;
 typedef struct PLAIN_ENVIRONMENT  PLAIN_ENVIRONMENT;
 typedef struct PLAIN_LIST         PLAIN_LIST;
 typedef struct PLAIN_SEGMENT      PLAIN_SEGMENT;
 typedef struct PLAIN_VALUE        PLAIN_VALUE;
 
 /* Compiles and evaluates <source>. */
-PLAIN_WORD_DOUBLE PLAIN_EVALUATE(PLAIN_ENVIRONMENT* environment, PLAIN_SUBROUTINE resolver, const PLAIN_BYTE* source, PLAIN_DELEGATE tracker, PLAIN_VALUE* value);
+PLAIN_WORD_DOUBLE PLAIN_EVALUATE(struct PLAIN_CONTEXT* context, PLAIN_SUBROUTINE resolver, const PLAIN_BYTE* source, PLAIN_DELEGATE tracker, PLAIN_VALUE* value);
 
 /* Returns library version. Other version-specific information will be stored in <environment>. */
-PLAIN_WORD_DOUBLE PLAIN_VERSION(PLAIN_ENVIRONMENT* environment);
-
-/* C++. */
-#ifdef __cplusplus
-}
-#endif
+PLAIN_WORD_DOUBLE PLAIN_VERSION(struct PLAIN_ENVIRONMENT* environment);
