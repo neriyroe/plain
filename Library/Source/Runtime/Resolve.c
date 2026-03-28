@@ -122,7 +122,7 @@ static PLAIN_WORD_DOUBLE PLAIN_CALL_OFFSET(struct PLAIN_CONTEXT* context, struct
 /*  Host extension                                                    */
 /* ------------------------------------------------------------------ */
 
-PLAIN_WORD_DOUBLE PLAIN_CONTEXT_REGISTER(struct PLAIN_CONTEXT* context, const PLAIN_BYTE* name, PLAIN_SUBROUTINE native) {
+PLAIN_WORD_DOUBLE PLAIN_REGISTER(struct PLAIN_CONTEXT* context, const PLAIN_BYTE* name, PLAIN_SUBROUTINE native) {
     struct PLAIN_CALLABLE* callable = (struct PLAIN_CALLABLE*)PLAIN_RESIZE(NULL, sizeof(struct PLAIN_CALLABLE), 0);
     if(callable == NULL) return PLAIN_ERROR_SYSTEM;
     memset(callable, 0, sizeof(struct PLAIN_CALLABLE));

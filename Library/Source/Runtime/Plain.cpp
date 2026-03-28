@@ -306,7 +306,7 @@ namespace plain {
 
     Runtime& Runtime::bind(const std::string& name, Handler handler) {
         handlers[name] = std::move(handler);
-        PLAIN_CONTEXT_REGISTER(&context,
+        PLAIN_REGISTER(&context,
             reinterpret_cast<const PLAIN_BYTE*>(name.c_str()), &trampoline);
         return *this;
     }

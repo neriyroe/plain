@@ -52,7 +52,7 @@ PLAIN_WORD_DOUBLE PLAIN_RESOLVE(struct PLAIN_CONTEXT* context, void* data, PLAIN
 /* Registers a single native procedure in the current frame of <context> as a
  * mutable callable. Use this to extend Plain from the host application.
  * The binding is mutable, so Plain code can override it at any time. */
-PLAIN_WORD_DOUBLE PLAIN_CONTEXT_REGISTER(struct PLAIN_CONTEXT* context, const PLAIN_BYTE* name, PLAIN_SUBROUTINE native);
+PLAIN_WORD_DOUBLE PLAIN_REGISTER(struct PLAIN_CONTEXT* context, const PLAIN_BYTE* name, PLAIN_SUBROUTINE native);
 
 /* Calls <callable> with arguments from <node>, writing the result into <value>.
  * Handles both native callables (via the native pointer) and user-defined ones
