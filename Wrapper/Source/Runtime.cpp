@@ -6,6 +6,7 @@
  */
 
 #include <Plain/Runtime.hpp>
+#include "Framework/List.hpp"
 
 extern "C" {
     #include <Plain/Framework.h>
@@ -116,47 +117,9 @@ namespace plain {
         context.handler   = &object_method_handler;
         context.user_data = this;
         PLAIN_FRAMEWORK_REGISTER(&context);
-        register_builtins();
-    }
 
-    void Runtime::register_builtins() {
-        bind_class<detail::List>("list",
-            [](const Arguments& arguments) {
-                auto list = std::make_shared<detail::List>();
-                list->items.reserve(arguments.size());
-                for(const auto& argument : arguments) list->items.push_back(argument);
-                return list;
-            },
-            {
-                { "get", [](detail::List& list, const Arguments& arguments) -> Value {
-                    if(arguments.empty()) return Value{};
-                    int index = arguments[0].as_integer();
-                    if(index < 0 || index >= static_cast<int>(list.items.size())) return Value{};
-                    return list.items[index];
-                }},
-                { "set", [](detail::List& list, const Arguments& arguments) -> Value {
-                    if(arguments.size() < 2) return Value{};
-                    int index = arguments[0].as_integer();
-                    if(index < 0 || index >= static_cast<int>(list.items.size())) return Value{};
-                    list.items[index] = arguments[1];
-                    return Value{};
-                }},
-                { "length", [](detail::List& list, const Arguments&) -> Value {
-                    return Value(static_cast<int>(list.items.size()));
-                }},
-                { "append", [](detail::List& list, const Arguments& arguments) -> Value {
-                    for(const auto& value : arguments) list.items.push_back(value);
-                    return Value{};
-                }},
-                { "remove", [](detail::List& list, const Arguments& arguments) -> Value {
-                    if(arguments.empty()) return Value{};
-                    int index = arguments[0].as_integer();
-                    if(index < 0 || index >= static_cast<int>(list.items.size())) return Value{};
-                    list.items.erase(list.items.begin() + index);
-                    return Value{};
-                }}
-            }
-        );
+        // Register framework classes.
+        framework::List::bind(*this);
     }
 
     Runtime::~Runtime() {

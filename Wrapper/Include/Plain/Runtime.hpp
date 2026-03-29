@@ -46,14 +46,6 @@ namespace plain {
             std::shared_ptr<DispatchTable> dispatch;
         };
 
-        /* Built-in list type — the C++ backing for Plain's list object. */
-        struct List {
-            std::vector<Value> items;
-
-            List() = default;
-            List(std::vector<Value> initial_items) : items(std::move(initial_items)) {}
-        };
-
         /* Automatic argument conversion: Value -> C++ type. */
         template<typename T>
         decltype(auto) convert_argument(const Value& value, Runtime& runtime) {
@@ -164,8 +156,6 @@ namespace plain {
         std::vector<std::unique_ptr<detail::ObjectEntry>>                           objects;
         std::unordered_map<std::type_index, std::shared_ptr<detail::DispatchTable>> dispatch_tables;
 
-        void register_builtins();
-
         Value register_object(std::shared_ptr<void> instance,
                         std::shared_ptr<detail::DispatchTable> dispatch);
 
@@ -235,6 +225,20 @@ namespace plain {
         ClassBinding& constructor() {
             return register_constructor<ConstructorArguments...>(
                 std::index_sequence_for<ConstructorArguments...>{});
+        }
+
+        /* Bind a factory lambda as the constructor.
+         *   .constructor([](const Arguments& args){ return std::make_shared<T>(...); })
+         */
+        ClassBinding& constructor(std::function<std::shared_ptr<T>(const Arguments&)> factory) {
+            Runtime* rt = runtime;
+            auto disp   = dispatch;
+            rt->bind(name, [rt, disp, factory = std::move(factory)](const Arguments& arguments) -> Value {
+                auto instance = factory(arguments);
+                if(!instance) return Value{};
+                return rt->register_object(std::static_pointer_cast<void>(instance), disp);
+            });
+            return *this;
         }
 
         /* Bind a const member function.
