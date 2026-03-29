@@ -3,6 +3,15 @@
  * Date     03/22/2026.
  *
  * Copyright 2026 Nerijus Ramanauskas.
+ *
+ * Runtime — C++ wrapper implementation.
+ *
+ * Bridges the C runtime (PLAIN_CONTEXT) with a C++ API.  Provides:
+ *   - Static callbacks (trampoline, object_method_handler, error_delegate)
+ *     that the C runtime calls, which dispatch to C++ handlers/lambdas.
+ *   - Public API methods (bind, run, call, invoke, get, set, on_error).
+ *   - Object wrapping: register_object stores C++ objects as Plain values
+ *     with method dispatch via a DispatchTable.
  */
 
 #include <Plain/Runtime.hpp>
@@ -18,11 +27,12 @@ extern "C" {
 namespace plain {
 
     /* -----------------------------------------------------------------------
-     * Runtime — static callbacks
+     * Runtime — static callbacks (called by the C runtime)
      * --------------------------------------------------------------------- */
 
-    /* context is PLAIN_ENVIRONMENT*, which is the first member of PLAIN_CONTEXT,
-     * so casting to PLAIN_CONTEXT* gives access to user_data. */
+    /* Error reporting callback.  PLAIN_CONTEXT is layout-compatible such
+     * that the environment field is first — casting from the environment
+     * pointer gives access to user_data (which points to this Runtime). */
     void Runtime::error_delegate(void* context, const PLAIN_BYTE* data,
                                  PLAIN_WORD_DOUBLE length, PLAIN_WORD_DOUBLE) {
         auto* runtime = reinterpret_cast<Runtime*>(
@@ -33,20 +43,28 @@ namespace plain {
         }
     }
 
-    /* Called for every procedure that was bound with bind().
-     * Extracts the keyword from the node, looks up the handler, builds arguments. */
+    /* Trampoline for procedures registered via bind().
+     *
+     * The C runtime calls this for every native callable.  It extracts the
+     * keyword from the node, looks up the corresponding C++ Handler in the
+     * handlers map, builds a plain::Arguments vector, and invokes it. */
     PLAIN_WORD_DOUBLE Runtime::trampoline(void* raw_context, void* data,
                                          PLAIN_WORD_DOUBLE, PLAIN_VALUE* value) {
         auto* context = reinterpret_cast<PLAIN_CONTEXT*>(raw_context);
         auto* runtime = reinterpret_cast<Runtime*>(context->user_data);
         auto* node    = reinterpret_cast<PLAIN_LIST*>(data);
 
-        std::string keyword(reinterpret_cast<const char*>(node->keyword.from),
-                            static_cast<size_t>(node->keyword.to - node->keyword.from));
+        /* Extract the keyword text. */
+        std::string keyword(
+            reinterpret_cast<const char*>(node->keyword.from),
+            static_cast<size_t>(node->keyword.to - node->keyword.from));
 
         auto iterator = runtime->handlers.find(keyword);
-        if(iterator == runtime->handlers.end()) return 0;
+        if(iterator == runtime->handlers.end()) {
+            return 0;
+        }
 
+        /* Build the arguments vector from the node's raw arguments. */
         Arguments arguments;
         PLAIN_WORD_DOUBLE arity = PLAIN_ARITY(node);
         arguments.reserve(arity);
@@ -54,6 +72,7 @@ namespace plain {
             arguments.emplace_back(PLAIN_ARGUMENT(node, index));
         }
 
+        /* Invoke the handler and copy the result. */
         Value result = iterator->second(arguments);
         if(value != nullptr && !result.is_nil()) {
             PLAIN_VALUE_COPY(value, &result.native());
@@ -61,37 +80,58 @@ namespace plain {
         return 0;
     }
 
-    /* Called by PLAIN_RESOLVE when a keyword resolves to a PLAIN_TYPE_OBJECT value.
-     * Dispatches to the method named by the node keyword.
-     * Also serves as a fallback for unknown keywords (type == PLAIN_TYPE_LIST);
-     * in that case it does nothing and returns 0. */
+    /* Method dispatch for C++ objects registered via bind_class<T>().
+     *
+     * Called by PLAIN_RESOLVE when a keyword resolves to a PLAIN_TYPE_OBJECT
+     * that is not a Plain-native frame (no PLAIN_OWNER_USER flag).  Looks up
+     * the method name (first argument) in the object's DispatchTable and
+     * invokes the corresponding C++ function. */
     PLAIN_WORD_DOUBLE Runtime::object_method_handler(void* raw_context, void* data,
                                                      PLAIN_WORD_DOUBLE type, PLAIN_VALUE* value) {
-        if(type != PLAIN_TYPE_OBJECT) return 0;
+        if(type != PLAIN_TYPE_OBJECT) {
+            return 0;
+        }
 
         auto* context = reinterpret_cast<PLAIN_CONTEXT*>(raw_context);
         auto* node    = reinterpret_cast<PLAIN_LIST*>(data);
 
+        /* Find the object binding by keyword. */
         size_t keyword_length = static_cast<size_t>(node->keyword.to - node->keyword.from);
         std::string keyword((const char*)node->keyword.from, keyword_length);
 
-        PLAIN_BINDING* binding = PLAIN_FRAME_FIND(context->frame,
-                                                  reinterpret_cast<const PLAIN_BYTE*>(keyword.c_str()));
-        if(!binding || binding->value.type != PLAIN_TYPE_OBJECT || !binding->value.data) return 0;
+        PLAIN_BINDING* binding = PLAIN_FRAME_FIND(
+            context->frame,
+            reinterpret_cast<const PLAIN_BYTE*>(keyword.c_str()));
+        if(!binding || binding->value.type != PLAIN_TYPE_OBJECT || !binding->value.data) {
+            return 0;
+        }
 
         auto* entry = reinterpret_cast<detail::ObjectEntry*>(binding->value.data);
-        if(!entry->dispatch) return 0;
+        if(!entry->dispatch) {
+            return 0;
+        }
 
-        if(PLAIN_ARITY(node) < 1) return 0;
+        /* First argument is the method name. */
+        if(PLAIN_ARITY(node) < 1) {
+            return 0;
+        }
         PLAIN_VALUE* method_argument = PLAIN_ARGUMENT(node, 0);
-        if(!method_argument || !method_argument->data) return 0;
+        if(!method_argument || !method_argument->data) {
+            return 0;
+        }
         if(method_argument->type != PLAIN_TYPE_STRING &&
-           method_argument->type != PLAIN_TYPE_KEYWORD) return 0;
+           method_argument->type != PLAIN_TYPE_KEYWORD) {
+            return 0;
+        }
 
+        /* Look up the method in the dispatch table. */
         std::string method_name((const char*)method_argument->data);
         auto method_iterator = entry->dispatch->methods.find(method_name);
-        if(method_iterator == entry->dispatch->methods.end()) return 0;
+        if(method_iterator == entry->dispatch->methods.end()) {
+            return 0;
+        }
 
+        /* Build arguments (skipping the method name at index 0). */
         Arguments arguments;
         PLAIN_WORD_DOUBLE arity = PLAIN_ARITY(node);
         arguments.reserve(arity - 1);
@@ -99,6 +139,7 @@ namespace plain {
             arguments.emplace_back(PLAIN_ARGUMENT(node, index));
         }
 
+        /* Invoke the method and copy the result. */
         Value result = method_iterator->second(entry->instance.get(), arguments);
         if(value && !result.is_nil()) {
             PLAIN_VALUE_COPY(value, &result.native());
@@ -116,42 +157,58 @@ namespace plain {
         context.tracker   = &error_delegate;
         context.handler   = &object_method_handler;
         context.user_data = this;
+
+        /* Register the built-in framework (if, repeat, set, define, etc.). */
         PLAIN_FRAMEWORK_REGISTER(&context);
 
-        // Register framework classes.
+        /* Register built-in data structure classes. */
         framework::List::bind(*this);
     }
 
     Runtime::~Runtime() {
-        if(context.frame) PLAIN_FRAME_DESTROY(context.frame);
+        if(context.frame) {
+            PLAIN_FRAME_DESTROY(context.frame);
+        }
     }
 
     /* -----------------------------------------------------------------------
      * Runtime — public API
      * --------------------------------------------------------------------- */
 
+    /* Register a C++ lambda/function as a mutable Plain procedure. */
     Runtime& Runtime::bind(const std::string& name, Handler handler) {
         handlers[name] = std::move(handler);
-        PLAIN_REGISTER(&context,
-            reinterpret_cast<const PLAIN_BYTE*>(name.c_str()), &trampoline);
+        PLAIN_REGISTER(
+            &context,
+            reinterpret_cast<const PLAIN_BYTE*>(name.c_str()),
+            &trampoline);
         return *this;
     }
 
+    /* Evaluate a string of Plain source code. */
     Runtime& Runtime::run(const std::string& source) {
-        PLAIN_EVALUATE(&context, &PLAIN_RESOLVE,
-                       reinterpret_cast<const PLAIN_BYTE*>(source.c_str()),
-                       context.tracker, nullptr);
+        PLAIN_EVALUATE(
+            &context,
+            &PLAIN_RESOLVE,
+            reinterpret_cast<const PLAIN_BYTE*>(source.c_str()),
+            context.tracker,
+            nullptr);
         return *this;
     }
 
-    /* Build a synthetic PLAIN_LIST node on the stack and call PLAIN_CALL directly.
-     * This avoids source-string generation and handles any value type as an argument. */
+    /* Internal helper: builds a synthetic PLAIN_LIST node from the given
+     * arguments and calls a callable directly.  Avoids going through source
+     * string generation and re-parsing. */
     static Value perform_call(PLAIN_CONTEXT* context, const std::string& name,
-                           PLAIN_CALLABLE* callable, const Arguments& arguments) {
+                              PLAIN_CALLABLE* callable, const Arguments& arguments) {
+        /* Convert Arguments to a raw PLAIN_VALUE array. */
         std::vector<PLAIN_VALUE> raw;
         raw.reserve(arguments.size());
-        for(const auto& argument : arguments) raw.push_back(argument.native());
+        for(const auto& argument : arguments) {
+            raw.push_back(argument.native());
+        }
 
+        /* Build a synthetic node with the keyword and argument layout. */
         PLAIN_LIST node = {};
         node.keyword.from = reinterpret_cast<PLAIN_BYTE*>(const_cast<char*>(name.c_str()));
         node.keyword.to   = node.keyword.from + name.size();
@@ -165,40 +222,59 @@ namespace plain {
         return result;
     }
 
+    /* Call a named Plain procedure from C++. */
     Value Runtime::call(const std::string& name, const Arguments& arguments) {
-        PLAIN_BINDING* binding = PLAIN_FRAME_FIND(context.frame,
+        PLAIN_BINDING* binding = PLAIN_FRAME_FIND(
+            context.frame,
             reinterpret_cast<const PLAIN_BYTE*>(name.c_str()));
-        if(!binding) return Value{};
+        if(!binding) {
+            return Value{};
+        }
 
+        /* Check both callable slots: the binding's own callable, and a
+         * callable stored as a value (from set fn, [define ...]). */
         PLAIN_CALLABLE* callable = binding->callable;
-        if(!callable && binding->value.type == PLAIN_TYPE_CALLABLE && binding->value.data)
+        if(!callable && binding->value.type == PLAIN_TYPE_CALLABLE && binding->value.data) {
             callable = reinterpret_cast<PLAIN_CALLABLE*>(binding->value.data);
-        if(!callable) return Value{};
+        }
+        if(!callable) {
+            return Value{};
+        }
 
         return perform_call(&context, name, callable, arguments);
     }
 
+    /* Invoke a callable Value directly (e.g. a stored closure). */
     Value Runtime::invoke(const Value& callable_value, const Arguments& arguments) {
-        if(callable_value.native().type != PLAIN_TYPE_CALLABLE || !callable_value.native().data)
+        if(callable_value.native().type != PLAIN_TYPE_CALLABLE || !callable_value.native().data) {
             return Value{};
+        }
         auto* callable = reinterpret_cast<PLAIN_CALLABLE*>(callable_value.native().data);
         return perform_call(&context, "", callable, arguments);
     }
 
+    /* Read the value of a Plain variable from the current frame. */
     Value Runtime::get(const std::string& name) const {
-        PLAIN_BINDING* binding = PLAIN_FRAME_FIND(context.frame,
+        PLAIN_BINDING* binding = PLAIN_FRAME_FIND(
+            context.frame,
             reinterpret_cast<const PLAIN_BYTE*>(name.c_str()));
-        if(!binding) return Value{};
+        if(!binding) {
+            return Value{};
+        }
         return Value(&binding->value);
     }
 
+    /* Write a variable into the current frame. */
     Runtime& Runtime::set(const std::string& name, const Value& value) {
-        PLAIN_FRAME_SET(context.frame,
+        PLAIN_FRAME_SET(
+            context.frame,
             reinterpret_cast<const PLAIN_BYTE*>(name.c_str()),
-            const_cast<PLAIN_VALUE*>(&value.native()), nullptr, 0);
+            const_cast<PLAIN_VALUE*>(&value.native()),
+            nullptr, 0);
         return *this;
     }
 
+    /* Install an error callback. */
     Runtime& Runtime::on_error(std::function<void(const std::string&)> callback) {
         error_callback = std::move(callback);
         return *this;
@@ -208,19 +284,19 @@ namespace plain {
      * Runtime — object wrapping
      * --------------------------------------------------------------------- */
 
+    /* Wraps a C++ object (via shared_ptr) into a Plain value.
+     *
+     * The ObjectEntry is heap-allocated and stored in the Runtime's objects
+     * vector so it lives as long as the Runtime.  The PLAIN_VALUE stores a
+     * raw pointer to the ObjectEntry with length=0 and no PLAIN_OWNER_USER,
+     * so PLAIN_VALUE_CLEAR/COPY treat it as a non-owning shallow copy. */
     Value Runtime::register_object(std::shared_ptr<void> instance,
-                             std::shared_ptr<detail::DispatchTable> dispatch) {
-        /* Allocate a stable ObjectEntry on the heap; objects holds unique_ptrs
-         * so the pointer is valid for the lifetime of the Runtime regardless of
-         * how many objects are registered. */
+                                   std::shared_ptr<detail::DispatchTable> dispatch) {
         auto owned = std::make_unique<detail::ObjectEntry>(
             detail::ObjectEntry{std::move(instance), std::move(dispatch)});
         auto* pointer = owned.get();
         objects.push_back(std::move(owned));
 
-        /* Store the raw pointer in data. length = 0 and owner = 0 (no PLAIN_OWNER_USER)
-         * so PLAIN_VALUE_CLEAR never frees it and PLAIN_VALUE_COPY only copies the pointer —
-         * the Runtime owns the object lifetime, not individual Plain values. */
         Value result;
         result.native().data   = reinterpret_cast<PLAIN_BYTE*>(pointer);
         result.native().length = 0;

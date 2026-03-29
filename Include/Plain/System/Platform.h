@@ -4,27 +4,38 @@
  * Revision 09/02/2015.
  *
  * Copyright 2015 Nerijus Ramanauskas.
+ *
+ * Platform — target detection, compiler intrinsics, and fundamental types.
+ *
+ * This is the lowest-level header in the include chain.  Everything else
+ * in the library ultimately includes this.  It provides:
+ *   - PLAIN_TARGET detection (POSIX, Windows, or standard C fallback).
+ *   - Compiler-specific macros: PLAIN_ALIGN, PLAIN_ASSERT, PLAIN_INLINE,
+ *     PLAIN_RESTRICT, PLAIN_AUTO (stack allocation).
+ *   - Fundamental type aliases used throughout the runtime.
  */
+
+#pragma once
+
+/* ---- Target detection -------------------------------------------- */
 
 #define PLAIN_TARGET_STANDARD     0x00
 #define PLAIN_TARGET_POSIX        0x01
 #define PLAIN_TARGET_WINDOWS      0x02
 
-/* GNU/Linux. */
 #if defined(__linux) || defined(__linux__) || defined(linux)
     #define PLAIN_TARGET PLAIN_TARGET_POSIX
-/* Darwin. */
 #elif defined(__APPLE__)
     #define PLAIN_TARGET PLAIN_TARGET_POSIX
-/* Microsoft Windows. */
 #elif defined(_MSC_VER) || defined(_WIN32)
     #define PLAIN_TARGET PLAIN_TARGET_WINDOWS
-/* Standard. */
 #else
     #define PLAIN_TARGET PLAIN_TARGET_STANDARD
 #endif
 
-/* PLAIN_ALIGN. */
+/* ---- Compiler intrinsics ----------------------------------------- */
+
+/* Structure alignment. */
 #if PLAIN_TARGET & PLAIN_TARGET_POSIX
     #define PLAIN_ALIGN(number) __attribute__((aligned(number)))
 #elif PLAIN_TARGET & PLAIN_TARGET_WINDOWS
@@ -33,14 +44,14 @@
     #define PLAIN_ALIGN(number)
 #endif
 
-/* PLAIN_ASSERT. */
+/* Debug assertion — compiles to nothing unless PLAIN_DEBUGGING is defined. */
 #ifdef PLAIN_DEBUGGING
     #define PLAIN_ASSERT(condition) assert(condition)
 #else
     #define PLAIN_ASSERT(condition)
 #endif
 
-/* PLAIN_INLINE. */
+/* Forced inlining. */
 #if PLAIN_TARGET & PLAIN_TARGET_POSIX
     #if defined(__cplusplus)
         #define PLAIN_INLINE static inline __attribute__((always_inline))
@@ -53,7 +64,7 @@
     #define PLAIN_INLINE static inline
 #endif
 
-/* PLAIN_RESTRICT. */
+/* Restrict qualifier. */
 #if PLAIN_TARGET & PLAIN_TARGET_POSIX
     #define PLAIN_RESTRICT __restrict__
 #elif PLAIN_TARGET & PLAIN_TARGET_WINDOWS
@@ -62,14 +73,15 @@
     #define PLAIN_RESTRICT restrict
 #endif
 
-/* PLAIN_AUTO. */
+/* Stack allocation (alloca). */
 #if PLAIN_TARGET & PLAIN_TARGET_WINDOWS
     #define PLAIN_AUTO(number) _alloca(number)
 #else
     #define PLAIN_AUTO(number) alloca(number)
 #endif
 
- /* Standard. */
+/* ---- Standard headers -------------------------------------------- */
+
 #ifdef PLAIN_DEBUGGING
     #include <assert.h>
 #endif
@@ -80,9 +92,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define PLAIN_BYTE                unsigned char
-#define PLAIN_REAL                float
-#define PLAIN_REAL_DOUBLE         double
-#define PLAIN_WORD                unsigned short int
-#define PLAIN_WORD_DOUBLE         unsigned int
-#define PLAIN_WORD_QUADRUPLE      unsigned long long int
+/* ---- Fundamental type aliases ------------------------------------ */
+
+#define PLAIN_BYTE                unsigned char       /* Byte — used for all raw data and strings. */
+#define PLAIN_REAL                double              /* Double-precision real — storage type for Plain real values. */
+#define PLAIN_REAL_DOUBLE         double              /* Alias kept for source compatibility; same as PLAIN_REAL. */
+#define PLAIN_WORD                unsigned short int   /* 16-bit unsigned — not currently used in the runtime. */
+#define PLAIN_WORD_DOUBLE         unsigned int         /* 32-bit unsigned — internal lengths, error codes, counters. */
+#define PLAIN_WORD_QUADRUPLE      unsigned long long int  /* 64-bit unsigned — storage type for Plain integer values. */

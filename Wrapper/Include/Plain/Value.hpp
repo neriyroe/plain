@@ -36,7 +36,7 @@ namespace plain {
     public:
         Value();                                     /* none (nil) */
         explicit Value(bool boolean);
-        explicit Value(int number);
+        explicit Value(long long number);
         explicit Value(double number);
         Value(const std::string& text);              /* implicit: convenient for return "..." */
         Value(const char* text);                     /* implicit: convenient for return "..." */
@@ -57,7 +57,7 @@ namespace plain {
 
         /* Conversions — safe for any type; return zero/false/empty on mismatch. */
         bool        as_boolean() const;
-        int         as_integer() const;
+        long long   as_integer() const;
         double      as_real()    const;
         std::string as_string()  const;   /* always produces a human-readable representation */
 

@@ -64,7 +64,7 @@ namespace plain {
             using Bare = std::remove_cv_t<std::remove_reference_t<T>>;
             if constexpr (std::is_same_v<Bare, Value>)              return std::forward<T>(result);
             else if constexpr (std::is_same_v<Bare, bool>)          return Value(result);
-            else if constexpr (std::is_integral_v<Bare>)            return Value(static_cast<int>(result));
+            else if constexpr (std::is_integral_v<Bare>)            return Value(static_cast<long long>(result));
             else if constexpr (std::is_floating_point_v<Bare>)      return Value(static_cast<double>(result));
             else if constexpr (std::is_same_v<Bare, std::string>)   return Value(result);
             else if constexpr (std::is_same_v<Bare, const char*>)   return Value(result);
