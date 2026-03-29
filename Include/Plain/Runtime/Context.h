@@ -12,6 +12,11 @@
 #include <Plain/Runtime/Frame.h>
 #include <Plain/Runtime/Host/Environment.h>
 
+/* For internal use only. */
+#define PLAIN_INTERNAL_REGISTER(name, native) \
+    if(PLAIN_REGISTER(context, (const PLAIN_BYTE*)(name), (PLAIN_SUBROUTINE)native) != 0) \
+        return PLAIN_ERROR_SYSTEM
+
 /*
  * PLAIN_CONTEXT — the full runtime state passed through every evaluation.
  * Cast freely to PLAIN_ENVIRONMENT* since environment is the first member.

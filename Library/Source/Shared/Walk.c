@@ -6,7 +6,7 @@
  * Copyright 2026 Nerijus Ramanauskas.
  */
 
-#include <Plain/Plain.h>
+#include <Plain/Parser.h>
 
 PLAIN_WORD_DOUBLE PLAIN_WALK(void* context, PLAIN_SUBROUTINE resolver, struct PLAIN_LIST* node, struct PLAIN_VALUE* value) {
     PLAIN_ASSERT(resolver != NULL);

@@ -6,7 +6,7 @@
  * Copyright 2015 Nerijus Ramanauskas.
  */
 
-#include <Plain/Plain.h>
+#include <Plain/Parser.h>
 
 PLAIN_WORD_DOUBLE PLAIN_CONCATENATE(struct PLAIN_SEGMENT* destination, PLAIN_WORD_DOUBLE length, const PLAIN_BYTE* source) {
     PLAIN_ASSERT(destination != NULL);

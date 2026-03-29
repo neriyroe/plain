@@ -9,7 +9,7 @@ OVERVIEW
     I/O of its own — all input/output is the host application's concern.
 
     The library provides:
-        - Tokenization and tree walking (Plain.h)
+        - Tokenization and tree walking (Parser.h)
         - A full runtime: variable frames, callables, built-in procedures,
           prefix operators, control flow (VM.h)
 
@@ -95,9 +95,9 @@ TARGETS
 
 INCLUDE
 
-    Include/Plain/Plain.h      Core parsing API: tokenizer, walker, types.
+    Include/Plain/Parser.h      Core parsing API: tokenizer, walker, types.
     Include/Plain/Runtime.h    Full runtime: PLAIN_EVALUATE, PLAIN_CONTEXT,
-                               PLAIN_RESOLVE, and everything from Plain.h.
+                               PLAIN_RESOLVE, and everything from Parser.h.
     Include/Plain/Framework.h  Standard library: PLAIN_FRAMEWORK_REGISTER.
                                Include alongside Runtime.h to get if, repeat,
                                define, arithmetic, etc. Omit for a bare runtime

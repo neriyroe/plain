@@ -6,7 +6,7 @@
  * Copyright 2015 Nerijus Ramanauskas.
  */
 
-#include <Plain/Plain.h>
+#include <Plain/Parser.h>
 
 PLAIN_WORD_DOUBLE PLAIN_HASH(const PLAIN_BYTE* data, PLAIN_WORD_DOUBLE length) {
     PLAIN_WORD_DOUBLE identifier = 2166136261U;

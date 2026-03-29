@@ -7,7 +7,7 @@
  */
 
 #include <stdio.h>
-#include <Plain/Plain.h>
+#include <Plain/Parser.h>
 
 /* Printing to the global stream. */
 void report(void* context, const PLAIN_BYTE* data, PLAIN_WORD_DOUBLE length, PLAIN_WORD_DOUBLE type) {

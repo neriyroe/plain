@@ -6,7 +6,7 @@
  * Copyright 2015 Nerijus Ramanauskas.
  */
 
-#include <Plain/Plain.h>
+#include <Plain/Parser.h>
 
 PLAIN_WORD_DOUBLE PLAIN_EXPORT(PLAIN_BYTE* data, PLAIN_WORD_DOUBLE length, PLAIN_WORD_DOUBLE type, struct PLAIN_VALUE* value) {
     PLAIN_ASSERT(value != NULL);

@@ -6,12 +6,12 @@
  * Copyright 2026 Nerijus Ramanauskas.
  *
  * Runtime — the complete runtime API. Include this to embed Plain.
- * For the bare parsing layer only, include <Plain/Plain.h> instead.
+ * For the bare parsing layer only, include <Plain/Parser.h> instead.
  */
 
 #pragma once
 
-#include "Plain.h"
+#include "Parser.h"
 #include "Runtime/Host/Environment.h"
 #include "Runtime/Frame.h"
 #include "Runtime/Context.h"

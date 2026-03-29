@@ -14,7 +14,7 @@ if is_plat("linux", "macosx") then
     add_requires("readline")
 end
 
--- Library.
+-- Core C library.
 target("plain")
     if has_config("embedded") then
         set_kind("shared")
@@ -22,9 +22,22 @@ target("plain")
         set_kind("static")
     end
     add_files("Library/Source/**.c")
-    add_files("Library/Source/**.cpp")
     add_includedirs("Include", { public = true })
     add_includedirs("Vendor",  { public = true })
+    if has_config("debugging") then
+        add_defines("PLAIN_DEBUGGING")
+        set_symbols("debug")
+        set_optimize("none")
+    else
+        set_optimize("fastest")
+    end
+
+-- C++ wrapper library.
+target("plain_wrapper")
+    set_kind("static")
+    add_deps("plain")
+    add_files("Wrapper/Source/**.cpp")
+    add_includedirs("Wrapper/Include", { public = true })
     if has_config("debugging") then
         add_defines("PLAIN_DEBUGGING")
         set_symbols("debug")
@@ -36,7 +49,7 @@ target("plain")
 -- Inspector (REPL).
 target("inspector")
     set_kind("binary")
-    add_deps("plain")
+    add_deps("plain_wrapper")
     add_files("Inspector/Source/Main.cpp")
     add_files("Inspector/Source/Plain/Runtime/Report.c")
     if is_plat("linux", "macosx") then

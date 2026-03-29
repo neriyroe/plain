@@ -16,8 +16,8 @@
 extern "C" int prompt(void* context, const char* identifier,
                       int (*listener)(void*, const char*));
 
-static int evaluate(void* raw, const char* source) {
-    reinterpret_cast<plain::Runtime*>(raw)->run(source);
+static int evaluate(void* context, const char* source) {
+    reinterpret_cast<plain::Runtime*>(context)->run(source);
     return 0;
 }
 
@@ -28,10 +28,10 @@ int main() {
         std::cerr << message << '\n';
     });
 
-    runtime.bind("print", [](const plain::Args& args) -> plain::Value {
-        for(size_t i = 0; i < args.size(); i++) {
-            if(i > 0) std::cout << ' ';
-            std::cout << args[i].as_string();
+    runtime.bind("print", [](const plain::Arguments& arguments) -> plain::Value {
+        for(size_t index = 0; index < arguments.size(); index++) {
+            if(index > 0) std::cout << ' ';
+            std::cout << arguments[index].as_string();
         }
         std::cout << '\n';
         return {};

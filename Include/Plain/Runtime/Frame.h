@@ -10,7 +10,7 @@
 #pragma once
 
 #include <uthash.h>
-#include <Plain/Plain.h>
+#include <Plain/Parser.h>
 
 /* Control-flow signals, returned instead of error codes. */
 enum {
@@ -62,6 +62,11 @@ struct PLAIN_FRAME {
     struct PLAIN_FRAME* parent;
     struct PLAIN_BINDING* bindings;    /* uthash table head; NULL = empty */
     PLAIN_WORD_DOUBLE references;      /* reference count; 0 = owned by call stack */
+};
+
+/* Flags for PLAIN_BINDING.flags. */
+enum {
+    PLAIN_BINDING_IMMUTABLE = 0x01  /* Binding may not be overwritten by Plain code. */
 };
 
 /* Allocates a new frame with reference count 0. Only <parent> can be NULL (root frame). */

@@ -6,7 +6,7 @@
  * Copyright 2015 Nerijus Ramanauskas.
  */
 
-#include <Plain/Plain.h>
+#include <Plain/Parser.h>
 
 void* PLAIN_RESIZE(void* data, PLAIN_WORD_DOUBLE destination, PLAIN_WORD_DOUBLE source) {
     if(destination == source) {

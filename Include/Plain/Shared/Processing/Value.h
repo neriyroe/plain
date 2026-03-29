@@ -13,6 +13,11 @@ struct PLAIN_VALUE {
     PLAIN_WORD_DOUBLE owner;
 };
 
+/* Flags for PLAIN_VALUE.owner. */
+enum {
+    PLAIN_OWNER_USER = 0x01  /* data is a PLAIN_FRAME* owned by the Plain runtime and reference-counted. */
+};
+
 /* Frees data owned by <value> and resets it to nil. */
 void PLAIN_VALUE_CLEAR(struct PLAIN_VALUE* value);
 

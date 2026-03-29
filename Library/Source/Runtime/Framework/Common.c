@@ -649,8 +649,6 @@ static PLAIN_WORD_DOUBLE PLAIN_FW_CONCATENATE(struct PLAIN_CONTEXT* context, str
 /* ------------------------------------------------------------------ */
 
 PLAIN_WORD_DOUBLE PLAIN_FRAMEWORK_REGISTER(struct PLAIN_CONTEXT* context) {
-    #define PLAIN_INTERNAL_REGISTER(name, fn) \
-        if(PLAIN_REGISTER(context, (const PLAIN_BYTE*)(name), (PLAIN_SUBROUTINE)fn) != 0) return PLAIN_ERROR_SYSTEM
     PLAIN_INTERNAL_REGISTER("if",            PLAIN_FW_IF);
     PLAIN_INTERNAL_REGISTER("when",          PLAIN_FW_WHEN);
     PLAIN_INTERNAL_REGISTER("repeat",        PLAIN_FW_REPEAT);
@@ -688,6 +686,5 @@ PLAIN_WORD_DOUBLE PLAIN_FRAMEWORK_REGISTER(struct PLAIN_CONTEXT* context) {
     PLAIN_INTERNAL_REGISTER("greater_equal", PLAIN_FW_GREATER_EQUAL);
     PLAIN_INTERNAL_REGISTER(">=",            PLAIN_FW_GREATER_EQUAL);
     PLAIN_INTERNAL_REGISTER("join",          PLAIN_FW_CONCATENATE);
-    #undef PLAIN_INTERNAL_REGISTER
     return 0;
 }
