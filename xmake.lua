@@ -55,12 +55,11 @@ target("inspector")
     set_kind("binary")
     add_deps("plain_wrapper")
     add_files("Inspector/Source/Main.cpp")
-    add_files("Inspector/Source/Plain/Runtime/Report.c")
     if is_plat("linux", "macosx") then
-        add_files("Inspector/Source/GNU/Prompt.c")
+        add_files("Inspector/Source/Platform/GNU/Prompt.cpp")
         add_packages("readline")
     else
-        add_files("Inspector/Source/Windows/Prompt.c")
+        add_files("Inspector/Source/Platform/Windows/Prompt.cpp")
     end
     if has_config("debugging") then
         add_defines("PLAIN_DEBUGGING")
