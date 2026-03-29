@@ -26,8 +26,8 @@ namespace plain {
                                  PLAIN_WORD_DOUBLE length, PLAIN_WORD_DOUBLE) {
         auto* runtime = reinterpret_cast<Runtime*>(
             reinterpret_cast<PLAIN_CONTEXT*>(context)->user_data);
-        if(runtime && runtime->_error_callback && data) {
-            runtime->_error_callback(
+        if(runtime && runtime->error_callback && data) {
+            runtime->error_callback(
                 std::string((const char*)data, static_cast<size_t>(length)));
         }
     }
@@ -43,8 +43,8 @@ namespace plain {
         std::string keyword(reinterpret_cast<const char*>(node->keyword.from),
                             static_cast<size_t>(node->keyword.to - node->keyword.from));
 
-        auto iterator = runtime->_handlers.find(keyword);
-        if(iterator == runtime->_handlers.end()) return 0;
+        auto iterator = runtime->handlers.find(keyword);
+        if(iterator == runtime->handlers.end()) return 0;
 
         Arguments arguments;
         PLAIN_WORD_DOUBLE arity = PLAIN_ARITY(node);
@@ -110,12 +110,12 @@ namespace plain {
      * --------------------------------------------------------------------- */
 
     Runtime::Runtime() {
-        _context.frame = PLAIN_FRAME_CREATE(nullptr);
-        PLAIN_VERSION(&_context.environment);
-        _context.tracker   = &error_delegate;
-        _context.handler   = &object_method_handler;
-        _context.user_data = this;
-        PLAIN_FRAMEWORK_REGISTER(&_context);
+        context.frame = PLAIN_FRAME_CREATE(nullptr);
+        PLAIN_VERSION(&context.environment);
+        context.tracker   = &error_delegate;
+        context.handler   = &object_method_handler;
+        context.user_data = this;
+        PLAIN_FRAMEWORK_REGISTER(&context);
         register_builtins();
     }
 
@@ -160,7 +160,7 @@ namespace plain {
     }
 
     Runtime::~Runtime() {
-        if(_context.frame) PLAIN_FRAME_DESTROY(_context.frame);
+        if(context.frame) PLAIN_FRAME_DESTROY(context.frame);
     }
 
     /* -----------------------------------------------------------------------
@@ -168,22 +168,22 @@ namespace plain {
      * --------------------------------------------------------------------- */
 
     Runtime& Runtime::bind(const std::string& name, Handler handler) {
-        _handlers[name] = std::move(handler);
-        PLAIN_REGISTER(&_context,
+        handlers[name] = std::move(handler);
+        PLAIN_REGISTER(&context,
             reinterpret_cast<const PLAIN_BYTE*>(name.c_str()), &trampoline);
         return *this;
     }
 
     Runtime& Runtime::run(const std::string& source) {
-        PLAIN_EVALUATE(&_context, &PLAIN_RESOLVE,
+        PLAIN_EVALUATE(&context, &PLAIN_RESOLVE,
                        reinterpret_cast<const PLAIN_BYTE*>(source.c_str()),
-                       _context.tracker, nullptr);
+                       context.tracker, nullptr);
         return *this;
     }
 
     /* Build a synthetic PLAIN_LIST node on the stack and call PLAIN_CALL directly.
      * This avoids source-string generation and handles any value type as an argument. */
-    static Value call_impl(PLAIN_CONTEXT* context, const std::string& name,
+    static Value perform_call(PLAIN_CONTEXT* context, const std::string& name,
                            PLAIN_CALLABLE* callable, const Arguments& arguments) {
         std::vector<PLAIN_VALUE> raw;
         raw.reserve(arguments.size());
@@ -203,7 +203,7 @@ namespace plain {
     }
 
     Value Runtime::call(const std::string& name, const Arguments& arguments) {
-        PLAIN_BINDING* binding = PLAIN_FRAME_FIND(_context.frame,
+        PLAIN_BINDING* binding = PLAIN_FRAME_FIND(context.frame,
             reinterpret_cast<const PLAIN_BYTE*>(name.c_str()));
         if(!binding) return Value{};
 
@@ -212,32 +212,32 @@ namespace plain {
             callable = reinterpret_cast<PLAIN_CALLABLE*>(binding->value.data);
         if(!callable) return Value{};
 
-        return call_impl(&_context, name, callable, arguments);
+        return perform_call(&context, name, callable, arguments);
     }
 
     Value Runtime::invoke(const Value& callable_value, const Arguments& arguments) {
         if(callable_value.native().type != PLAIN_TYPE_CALLABLE || !callable_value.native().data)
             return Value{};
         auto* callable = reinterpret_cast<PLAIN_CALLABLE*>(callable_value.native().data);
-        return call_impl(&_context, "", callable, arguments);
+        return perform_call(&context, "", callable, arguments);
     }
 
     Value Runtime::get(const std::string& name) const {
-        PLAIN_BINDING* binding = PLAIN_FRAME_FIND(_context.frame,
+        PLAIN_BINDING* binding = PLAIN_FRAME_FIND(context.frame,
             reinterpret_cast<const PLAIN_BYTE*>(name.c_str()));
         if(!binding) return Value{};
         return Value(&binding->value);
     }
 
     Runtime& Runtime::set(const std::string& name, const Value& value) {
-        PLAIN_FRAME_SET(_context.frame,
+        PLAIN_FRAME_SET(context.frame,
             reinterpret_cast<const PLAIN_BYTE*>(name.c_str()),
             const_cast<PLAIN_VALUE*>(&value.native()), nullptr, 0);
         return *this;
     }
 
     Runtime& Runtime::on_error(std::function<void(const std::string&)> callback) {
-        _error_callback = std::move(callback);
+        error_callback = std::move(callback);
         return *this;
     }
 
@@ -245,15 +245,15 @@ namespace plain {
      * Runtime — object wrapping
      * --------------------------------------------------------------------- */
 
-    Value Runtime::wrap_impl(std::shared_ptr<void> instance,
+    Value Runtime::register_object(std::shared_ptr<void> instance,
                              std::shared_ptr<detail::DispatchTable> dispatch) {
-        /* Allocate a stable ObjectEntry on the heap; _objects holds unique_ptrs
+        /* Allocate a stable ObjectEntry on the heap; objects holds unique_ptrs
          * so the pointer is valid for the lifetime of the Runtime regardless of
          * how many objects are registered. */
         auto owned = std::make_unique<detail::ObjectEntry>(
             detail::ObjectEntry{std::move(instance), std::move(dispatch)});
         auto* pointer = owned.get();
-        _objects.push_back(std::move(owned));
+        objects.push_back(std::move(owned));
 
         /* Store the raw pointer in data. length = 0 and owner = 0 (no PLAIN_OWNER_USER)
          * so PLAIN_VALUE_CLEAR never frees it and PLAIN_VALUE_COPY only copies the pointer —

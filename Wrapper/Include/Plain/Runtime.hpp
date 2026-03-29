@@ -58,11 +58,11 @@ namespace plain {
         template<typename T>
         decltype(auto) convert_argument(const Value& value, Runtime& runtime) {
             using Bare = std::remove_cv_t<std::remove_reference_t<T>>;
-            if constexpr (std::is_same_v<Bare, bool>)              return value.as_boolean();
-            else if constexpr (std::is_integral_v<Bare>)           return static_cast<Bare>(value.as_integer());
-            else if constexpr (std::is_floating_point_v<Bare>)     return static_cast<Bare>(value.as_real());
-            else if constexpr (std::is_same_v<Bare, std::string>)  return value.as_string();
-            else if constexpr (std::is_same_v<Bare, Value>)        return value;
+            if constexpr (std::is_same_v<Bare, bool>)               return value.as_boolean();
+            else if constexpr (std::is_integral_v<Bare>)            return static_cast<Bare>(value.as_integer());
+            else if constexpr (std::is_floating_point_v<Bare>)      return static_cast<Bare>(value.as_real());
+            else if constexpr (std::is_same_v<Bare, std::string>)   return value.as_string();
+            else if constexpr (std::is_same_v<Bare, Value>)         return value;
             else                                                    return runtime.as_object<Bare>(value);
         }
 
@@ -155,26 +155,23 @@ namespace plain {
         T& as_object(const Value& value);
 
         /* Low-level access to the underlying C context — use sparingly. */
-        PLAIN_CONTEXT* raw() { return &_context; }
+        PLAIN_CONTEXT* raw() { return &context; }
 
     private:
-        PLAIN_CONTEXT                                                               _context       = {};
-        std::unordered_map<std::string, Handler>                                   _handlers;
-        std::function<void(const std::string&)>                                    _error_callback;
-        std::vector<std::unique_ptr<detail::ObjectEntry>>                          _objects;
-        std::unordered_map<std::type_index, std::shared_ptr<detail::DispatchTable>> _dispatch_tables;
+        PLAIN_CONTEXT                                                               context = {};
+        std::unordered_map<std::string, Handler>                                    handlers;
+        std::function<void(const std::string&)>                                     error_callback;
+        std::vector<std::unique_ptr<detail::ObjectEntry>>                           objects;
+        std::unordered_map<std::type_index, std::shared_ptr<detail::DispatchTable>> dispatch_tables;
 
         void register_builtins();
 
-        Value wrap_impl(std::shared_ptr<void> instance,
+        Value register_object(std::shared_ptr<void> instance,
                         std::shared_ptr<detail::DispatchTable> dispatch);
 
-        static void              error_delegate(void* context, const PLAIN_BYTE* data,
-                                                PLAIN_WORD_DOUBLE length, PLAIN_WORD_DOUBLE type);
-        static PLAIN_WORD_DOUBLE trampoline(void* raw_context, void* data,
-                                            PLAIN_WORD_DOUBLE type, PLAIN_VALUE* value);
-        static PLAIN_WORD_DOUBLE object_method_handler(void* raw_context, void* data,
-                                                       PLAIN_WORD_DOUBLE type, PLAIN_VALUE* value);
+        static void error_delegate(void* context, const PLAIN_BYTE* data, PLAIN_WORD_DOUBLE length, PLAIN_WORD_DOUBLE type);
+        static PLAIN_WORD_DOUBLE trampoline(void* raw_context, void* data, PLAIN_WORD_DOUBLE type, PLAIN_VALUE* value);
+        static PLAIN_WORD_DOUBLE object_method_handler(void* raw_context, void* data, PLAIN_WORD_DOUBLE type, PLAIN_VALUE* value);
     };
 
     /* -----------------------------------------------------------------------
@@ -194,12 +191,12 @@ namespace plain {
             };
             dispatch->methods.emplace(entry.first, std::move(function));
         }
-        _dispatch_tables[std::type_index(typeid(T))] = dispatch;
+        dispatch_tables[std::type_index(typeid(T))] = dispatch;
 
         bind(name, [this, constructor = std::move(constructor), dispatch](const Arguments& arguments) -> Value {
             auto instance = constructor(arguments);
             if(!instance) return Value{};
-            return wrap_impl(std::static_pointer_cast<void>(instance), dispatch);
+            return register_object(std::static_pointer_cast<void>(instance), dispatch);
         });
 
         return *this;
@@ -207,10 +204,10 @@ namespace plain {
 
     template<typename T>
     Value Runtime::wrap(std::shared_ptr<T> object) {
-        auto iterator = _dispatch_tables.find(std::type_index(typeid(T)));
+        auto iterator = dispatch_tables.find(std::type_index(typeid(T)));
         std::shared_ptr<detail::DispatchTable> dispatch;
-        if(iterator != _dispatch_tables.end()) dispatch = iterator->second;
-        return wrap_impl(std::static_pointer_cast<void>(object), dispatch);
+        if(iterator != dispatch_tables.end()) dispatch = iterator->second;
+        return register_object(std::static_pointer_cast<void>(object), dispatch);
     }
 
     template<typename T>
@@ -228,7 +225,7 @@ namespace plain {
     public:
         ClassBinding(Runtime* runtime, const std::string& name,
                      std::shared_ptr<detail::DispatchTable> dispatch)
-            : _runtime(runtime), _name(name), _dispatch(dispatch) {}
+            : runtime(runtime), name(name), dispatch(dispatch) {}
 
         /* Register the constructor with auto-converted arguments.
          *   .constructor<double, double>()
@@ -236,7 +233,7 @@ namespace plain {
          */
         template<typename... ConstructorArguments>
         ClassBinding& constructor() {
-            return constructor_impl<ConstructorArguments...>(
+            return register_constructor<ConstructorArguments...>(
                 std::index_sequence_for<ConstructorArguments...>{});
         }
 
@@ -246,7 +243,7 @@ namespace plain {
         template<typename ReturnType, typename... MethodArguments>
         ClassBinding& method(const std::string& method_name,
                              ReturnType(T::*member_function)(MethodArguments...) const) {
-            return method_impl(method_name, member_function,
+            return register_method(method_name, member_function,
                                std::index_sequence_for<MethodArguments...>{});
         }
 
@@ -254,35 +251,35 @@ namespace plain {
         template<typename ReturnType, typename... MethodArguments>
         ClassBinding& method(const std::string& method_name,
                              ReturnType(T::*member_function)(MethodArguments...)) {
-            return method_impl(method_name, member_function,
+            return register_method(method_name, member_function,
                                std::index_sequence_for<MethodArguments...>{});
         }
 
     private:
-        Runtime*                               _runtime;
-        std::string                            _name;
-        std::shared_ptr<detail::DispatchTable> _dispatch;
+        Runtime*                               runtime;
+        std::string                            name;
+        std::shared_ptr<detail::DispatchTable> dispatch;
 
         template<typename... ConstructorArguments, size_t... Indices>
-        ClassBinding& constructor_impl(std::index_sequence<Indices...>) {
-            Runtime* runtime = _runtime;
-            auto dispatch = _dispatch;
-            runtime->bind(_name, [runtime, dispatch](const Arguments& arguments) -> Value {
+        ClassBinding& register_constructor(std::index_sequence<Indices...>) {
+            Runtime* runtime = this->runtime;
+            auto dispatch = this->dispatch;
+            runtime->bind(this->name, [runtime, dispatch](const Arguments& arguments) -> Value {
                 auto instance = std::make_shared<T>(
                     detail::convert_argument<ConstructorArguments>(
                         Indices < arguments.size() ? arguments[Indices] : Value{}, *runtime)...
                 );
-                return runtime->wrap_impl(std::static_pointer_cast<void>(instance), dispatch);
+                return runtime->register_object(std::static_pointer_cast<void>(instance), dispatch);
             });
             return *this;
         }
 
         template<typename ReturnType, typename... MethodArguments, size_t... Indices>
-        ClassBinding& method_impl(const std::string& method_name,
+        ClassBinding& register_method(const std::string& method_name,
                                   ReturnType(T::*member_function)(MethodArguments...) const,
                                   std::index_sequence<Indices...>) {
-            Runtime* runtime = _runtime;
-            _dispatch->methods[method_name] =
+            Runtime* runtime = this->runtime;
+            dispatch->methods[method_name] =
                 [runtime, member_function](void* pointer, const Arguments& arguments) -> Value {
                     T& self = *static_cast<T*>(pointer);
                     if constexpr (std::is_void_v<ReturnType>) {
@@ -300,11 +297,11 @@ namespace plain {
         }
 
         template<typename ReturnType, typename... MethodArguments, size_t... Indices>
-        ClassBinding& method_impl(const std::string& method_name,
+        ClassBinding& register_method(const std::string& method_name,
                                   ReturnType(T::*member_function)(MethodArguments...),
                                   std::index_sequence<Indices...>) {
-            Runtime* runtime = _runtime;
-            _dispatch->methods[method_name] =
+            Runtime* runtime = this->runtime;
+            dispatch->methods[method_name] =
                 [runtime, member_function](void* pointer, const Arguments& arguments) -> Value {
                     T& self = *static_cast<T*>(pointer);
                     if constexpr (std::is_void_v<ReturnType>) {
@@ -325,7 +322,7 @@ namespace plain {
     template<typename T>
     ClassBinding<T> Runtime::bind_class(const std::string& name) {
         auto dispatch = std::make_shared<detail::DispatchTable>();
-        _dispatch_tables[std::type_index(typeid(T))] = dispatch;
+        dispatch_tables[std::type_index(typeid(T))] = dispatch;
         return ClassBinding<T>(this, name, dispatch);
     }
 

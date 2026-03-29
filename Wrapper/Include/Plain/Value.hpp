@@ -62,11 +62,11 @@ namespace plain {
         std::string as_string()  const;   /* always produces a human-readable representation */
 
         /* Raw access — valid for the lifetime of this Value. */
-        const PLAIN_VALUE& native() const { return _value; }
-              PLAIN_VALUE& native()       { return _value; }
+        const PLAIN_VALUE& native() const { return value; }
+              PLAIN_VALUE& native()       { return value; }
 
     private:
-        PLAIN_VALUE _value = {};
+        PLAIN_VALUE value = {};
 
         void clear();
         void copy_from(const PLAIN_VALUE* source);
