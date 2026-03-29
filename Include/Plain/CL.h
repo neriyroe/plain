@@ -1,9 +1,9 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus@signaintermedia.com>.
- * Date     05/25/2014.
- * Revision 09/01/2015.
+ * Date     2014-05-25.
+ * Revision 2026-03-29.
  *
- * Copyright 2015 Nerijus Ramanauskas.
+ * Copyright 2026 Nerijus Ramanauskas.
  *
  * CL — core library primitives.
  *

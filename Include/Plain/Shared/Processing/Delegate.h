@@ -1,9 +1,9 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus@signaintermedia.com>.
- * Date     10/15/2014.
- * Revision 02/09/2016.
+ * Date     2014-10-15.
+ * Revision 2026-03-29.
  *
- * Copyright 2016 Nerijus Ramanauskas.
+ * Copyright 2026 Nerijus Ramanauskas.
  *
  * Delegate — callback type for error and diagnostic reporting.
  *

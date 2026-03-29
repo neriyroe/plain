@@ -1,6 +1,7 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus@signaintermedia.com>.
- * Date     03/29/2026.
+ * Date     2026-03-29.
+ * Revision 2026-03-29.
  *
  * Copyright 2026 Nerijus Ramanauskas.
  *

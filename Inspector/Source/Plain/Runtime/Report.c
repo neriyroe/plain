@@ -1,9 +1,9 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus@signaintermedia.com>.
- * Date     11/01/2014.
- * Revision 08/30/2015.
+ * Date     2014-11-01.
+ * Revision 2026-03-29.
  *
- * Copyright 2015 Nerijus Ramanauskas.
+ * Copyright 2026 Nerijus Ramanauskas.
  *
  * Report — error reporting for the Inspector REPL.
  *

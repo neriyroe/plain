@@ -1,9 +1,9 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus@signaintermedia.com>.
- * Date     02/23/2013.
- * Revision 09/01/2015.
+ * Date     2013-02-23.
+ * Revision 2026-03-29.
  *
- * Copyright 2015 Nerijus Ramanauskas.
+ * Copyright 2026 Nerijus Ramanauskas.
  *
  * Parser — tokenization and tree-walking API.
  *

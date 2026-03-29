@@ -1,5 +1,8 @@
 --
 -- Author   Nerijus Ramanauskas <nerijus@signaintermedia.com>.
+-- Date     2026-03-29
+-- Revision 2026-03-29
+-- Copyright 2026 Nerijus Ramanauskas.
 --
 
 set_project("plain")

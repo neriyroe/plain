@@ -1,9 +1,9 @@
 /*
  * Author   Nerijus Ramanauskas <nerijus@signaintermedia.com>.
- * Date     05/07/2013.
- * Revision 09/02/2015.
+ * Date     2013-05-07.
+ * Revision 2026-03-29.
  *
- * Copyright 2015 Nerijus Ramanauskas.
+ * Copyright 2026 Nerijus Ramanauskas.
  *
  * Resize — see CL.h for the public contract.
  *
